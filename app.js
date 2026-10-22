@@ -1210,27 +1210,27 @@ function renderSessionCardHtml(s) {
       statusAlertHtml = `
         <div class="card-conflict-alert conflict">
           <span>⚡ 已设为主选，但与同为主选的 ${cNames} 重叠 ${primaryConflicts[0].overlapMin} 分钟</span>
-          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="setSessionRole(${s.seq}, 'backup')">转为备选</button>
+          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="setSessionRole(${s.seq}, 'backup')">转为待选</button>
         </div>
       `;
     } else {
       statusAlertHtml = `
         <div class="card-conflict-alert selected-primary">
           <span>✅ 已加入个人计划【必听主选】</span>
-          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="setSessionRole(${s.seq}, 'backup')">改为备选</button>
+          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="setSessionRole(${s.seq}, 'backup')">改为待选</button>
         </div>
       `;
     }
   } else if (isBackup) {
     statusAlertHtml = `
       <div class="card-conflict-alert selected-backup">
-        <span>📌 已加入个人计划【备选 / 半场赶场】</span>
+        <span>📌 已加入个人计划【待选日程】</span>
         <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="promoteBackupToPrimary(${s.seq})">升为主选</button>
       </div>
     `;
   } else if (allConflicts.length > 0) {
     const firstC = allConflicts[0];
-    const roleTxt = firstC.planItem?.role === 'primary' ? '主选' : '备选';
+    const roleTxt = firstC.planItem?.role === 'primary' ? '主选' : '待选';
     statusAlertHtml = `
       <div class="card-conflict-alert conflict">
         <span>⚡ 与已选${roleTxt} ${firstC.session.code} ${firstC.session.time} 时间冲突（重叠 ${firstC.overlapMin} 分钟）</span>
@@ -1240,7 +1240,7 @@ function renderSessionCardHtml(s) {
     const firstT = tightTransfers[0];
     statusAlertHtml = `
       <div class="card-conflict-alert tight">
-        <span>🏃 与已选 ${firstT.session.code} 仅间隔 ${firstT.gapMin} 分钟（${firstT.session.venueShort} ↔ ${s.venueShort}）</span>
+        <span>🏃 与已选主选 ${firstT.session.code} 仅间隔 ${firstT.gapMin} 分钟（${firstT.session.venueShort} ↔ ${s.venueShort}）</span>
       </div>
     `;
   }
@@ -1523,23 +1523,157 @@ function handleMatrixBlockClick(event, seq) {
   }
 }
 
+function buildConflictTimelineAndList(target, targetRole, conflicts) {
+  if (!conflicts || conflicts.length === 0) {
+    return { timelineHtml: '', conflictsListHtml: '' };
+  }
+
+  const allSessions = [target, ...conflicts.map(c => c.session)];
+  const minStart = Math.min(...allSessions.map(s => s.startMin));
+  const maxEnd = Math.max(...allSessions.map(s => s.endMin));
+
+  // Snap ruler to 15-min or 30-min boundaries
+  const rulerStart = Math.floor((minStart - 5) / 15) * 15;
+  const rulerEnd = Math.ceil((maxEnd + 5) / 15) * 15;
+  const totalSpan = Math.max(30, rulerEnd - rulerStart);
+  const step = totalSpan <= 120 ? 15 : 30;
+
+  let rulerTicksHtml = '';
+  for (let m = rulerStart; m <= rulerEnd; m += step) {
+    const pct = ((m - rulerStart) / totalSpan) * 100;
+    rulerTicksHtml += `
+      <div class="mini-ruler-tick" style="left:${pct.toFixed(2)}%;">
+        <div class="mini-tick-line"></div>
+        <div class="mini-tick-text">${minToTimeStr(m)}</div>
+      </div>
+    `;
+  }
+
+  // Overlap zones (red shaded vertical stripes)
+  const overlapZonesHtml = conflicts.map(c => {
+    const ovStart = Math.max(target.startMin, c.session.startMin);
+    const ovEnd = Math.min(target.endMin, c.session.endMin);
+    const ovSpan = Math.max(0, ovEnd - ovStart);
+    if (ovSpan <= 0) return '';
+    const leftPct = ((ovStart - rulerStart) / totalSpan) * 100;
+    const widthPct = (ovSpan / totalSpan) * 100;
+    return `
+      <div class="mini-overlap-zone" style="left:${leftPct.toFixed(2)}%; width:${widthPct.toFixed(2)}%;">
+        <span class="mini-overlap-tag">重叠 ${ovSpan}m</span>
+      </div>
+    `;
+  }).join('');
+
+  // Target track lane
+  const targetLeft = ((target.startMin - rulerStart) / totalSpan) * 100;
+  const targetWidth = ((target.endMin - target.startMin) / totalSpan) * 100;
+
+  let targetLabel = '待选场次';
+  let targetBarClass = 'bar-target';
+  let targetLabelClass = '';
+  if (targetRole === 'primary') {
+    targetLabel = '当前主选';
+    targetBarClass = 'bar-primary';
+    targetLabelClass = 'label-primary';
+  } else if (targetRole === 'backup') {
+    targetLabel = '当前待选';
+    targetBarClass = 'bar-backup';
+    targetLabelClass = 'label-backup';
+  }
+
+  const targetRowHtml = `
+    <div class="mini-timeline-row">
+      <div class="mini-track-label ${targetLabelClass}">${targetLabel}</div>
+      <div class="mini-track-lane">
+        <div class="mini-track-bar ${targetBarClass}" style="left:${targetLeft.toFixed(2)}%; width:${targetWidth.toFixed(2)}%;">
+          <span class="mini-bar-code">${target.code}</span>
+          <span class="mini-bar-time">${target.time}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Conflicting tracks
+  const conflictingTracksHtml = conflicts.map(c => {
+    const isPrim = c.planItem?.role === 'primary';
+    const label = isPrim ? '已选主选' : '已选待选';
+    const labelClass = isPrim ? 'label-primary' : 'label-backup';
+    const barClass = isPrim ? 'bar-primary' : 'bar-backup';
+    const cLeft = ((c.session.startMin - rulerStart) / totalSpan) * 100;
+    const cWidth = ((c.session.endMin - c.session.startMin) / totalSpan) * 100;
+    return `
+      <div class="mini-timeline-row">
+        <div class="mini-track-label ${labelClass}">${label}</div>
+        <div class="mini-track-lane">
+          <div class="mini-track-bar ${barClass}" style="left:${cLeft.toFixed(2)}%; width:${cWidth.toFixed(2)}%;">
+            <span class="mini-bar-code">${c.session.code}</span>
+            <span class="mini-bar-time">${c.session.time}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const maxOverlapMin = Math.max(...conflicts.map(c => c.overlapMin));
+
+  const timelineHtml = `
+    <div class="mini-timeline-widget">
+      <div class="mini-timeline-header">
+        <span class="mini-timeline-title">
+          <span>⏱️</span>
+          <span>重叠时间轴对照</span>
+        </span>
+        <span class="mini-overlap-pill">⚡ 重叠 ${maxOverlapMin} 分钟</span>
+      </div>
+      <div class="mini-timeline-trackbox">
+        <div class="mini-lanes-container">
+          <div class="mini-timeline-ruler">
+            ${rulerTicksHtml}
+          </div>
+          ${overlapZonesHtml}
+          ${targetRowHtml}
+          ${conflictingTracksHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Full conflicting sessions detail list
+  const conflictCardsHtml = conflicts.map(c => {
+    const isPrim = c.planItem?.role === 'primary';
+    const roleTagClass = isPrim ? 'primary' : 'backup';
+    const roleText = isPrim ? '★ 必听主选' : '📌 待选日程';
+    const cardClass = isPrim ? 'is-primary' : 'is-backup';
+    return `
+      <div class="m-conflict-card ${cardClass}">
+        <div class="m-conflict-card-top">
+          <span class="m-conflict-role-tag ${roleTagClass}">${roleText}</span>
+          <span class="m-conflict-code">${c.session.code}</span>
+          <span class="m-conflict-time">${c.session.time}</span>
+          <span class="m-conflict-venue">📍 ${escapeHtml(c.session.venue)}</span>
+          <span class="m-conflict-overlap-pill">⚡ 重叠 ${c.overlapMin} 分钟</span>
+        </div>
+        <div class="m-conflict-topic">${escapeHtml(c.session.topic)}</div>
+      </div>
+    `;
+  }).join('');
+
+  const conflictsListHtml = `
+    <div class="m-conflicts-section-label">重叠日程清单（共 ${conflicts.length} 场）：</div>
+    <div class="m-conflicts-list">
+      ${conflictCardsHtml}
+    </div>
+  `;
+
+  return { timelineHtml, conflictsListHtml };
+}
+
 function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
   const target = SESSION_BY_SEQ[seq];
   const container = document.getElementById('matrixConflictPopupContent');
   const popup = document.getElementById('matrixConflictPopup');
   const backdrop = document.getElementById('matrixConflictPopupBackdrop');
   if (!target || !container || !popup || !backdrop) return;
-
-  const existing = state.plan[seq];
-  if (mode === 'conflict') {
-    if (!conflicts || conflicts.length === 0) {
-      conflicts = getConflictsWithPlan(seq, 'all');
-    }
-  } else {
-    if (!conflicts || conflicts.length === 0) {
-      conflicts = getConflictsWithPlan(seq, 'primary');
-    }
-  }
 
   let badgeHtml = '';
   let hintHtml = '';
@@ -1548,219 +1682,74 @@ function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
   let conflictsListHtml = '';
 
   if (mode === 'manage_backup') {
-    badgeHtml = '<span class="m-popup-badge badge-backup">📌 当前状态：备选 / 赶场场次</span>';
-    if (conflicts.length > 0) {
-      hintHtml = `
-        <div class="m-popup-hint-box conflict">
-          ⚡ <strong>时间重叠提示</strong>：本场与主选 <strong>${conflicts.map(c => c.session.code).join('、')}</strong> 重叠 ${conflicts[0].overlapMin} 分钟。<br/>
-          点击下方「改为主选」，原冲突主选将自动转为备选，两全其美。
-        </div>
-      `;
-      actionsHtml = `
-        <button type="button" class="m-popup-btn btn-upgrade" onclick="resolveMatrixAction(${seq}, 'backup_to_primary_resolve')">
-          <span class="btn-icon">⭐</span>
-          <span class="btn-text-wrap">
-            <span class="btn-main-text">改为主选（冲突主选转备选）</span>
-            <span class="btn-sub-text">将本场升级为主选，原冲突场次自动降为备选</span>
-          </span>
-        </button>
-        <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
-          <span class="btn-icon">🗑️</span>
-          <span class="btn-text-wrap">
-            <span class="btn-main-text">移出计划</span>
-            <span class="btn-sub-text">从收听计划中彻底删除本场</span>
-          </span>
-        </button>
-        <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
-          <span class="btn-icon">✕</span>
-          <span class="btn-main-text">保持备选（暂不调整）</span>
-        </button>
-      `;
+    badgeHtml = '<span class="m-popup-badge badge-backup">📌 当前状态：待选日程</span>';
+    const allConflicts = getConflictsWithPlan(seq, 'all');
+    if (allConflicts.length > 0) {
+      const built = buildConflictTimelineAndList(target, 'backup', allConflicts);
+      timelineHtml = built.timelineHtml;
+      conflictsListHtml = built.conflictsListHtml;
     } else {
-      hintHtml = `
-        <div class="m-popup-hint-box ok">
-          ✓ <strong>行程顺畅</strong>：本场与其他主选无冲突，可直接升级为必听主选。
-        </div>
-      `;
-      actionsHtml = `
-        <button type="button" class="m-popup-btn btn-upgrade" onclick="resolveMatrixAction(${seq}, 'backup_to_primary_direct')">
-          <span class="btn-icon">⭐</span>
-          <span class="btn-text-wrap">
-            <span class="btn-main-text">改为必听主选</span>
-            <span class="btn-sub-text">直接升级为主选行程</span>
-          </span>
-        </button>
-        <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
-          <span class="btn-icon">🗑️</span>
-          <span class="btn-text-wrap">
-            <span class="btn-main-text">移出计划</span>
-            <span class="btn-sub-text">从收听计划中彻底删除本场</span>
-          </span>
-        </button>
-        <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
-          <span class="btn-icon">✕</span>
-          <span class="btn-main-text">保持备选（暂不调整）</span>
-        </button>
-      `;
+      hintHtml = '<div class="m-popup-hint-box ok">✓ 行程顺畅，此时段与其他日程无冲突</div>';
     }
-  } else if (mode === 'manage_primary') {
-    badgeHtml = '<span class="m-popup-badge badge-primary">★ 当前状态：必听主选场次</span>';
+
+    const hasPrimaryConflict = allConflicts.some(c => c.planItem?.role === 'primary');
+    const upgradeAction = hasPrimaryConflict ? 'backup_to_primary_resolve' : 'backup_to_primary_direct';
+    const upgradeLabel = hasPrimaryConflict ? '⭐ 改为主选' : '⭐ 升为主选';
+
     actionsHtml = `
-      <button type="button" class="m-popup-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'primary_to_backup')">
-        <span class="btn-icon">📌</span>
-        <span class="btn-text-wrap">
-          <span class="btn-main-text">转为备选 / 赶场</span>
-          <span class="btn-sub-text">降为备选关注，释放此时段安排</span>
-        </span>
-      </button>
-      <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
-        <span class="btn-icon">🗑️</span>
-        <span class="btn-text-wrap">
-          <span class="btn-main-text">移出计划</span>
-          <span class="btn-sub-text">从收听计划中彻底删除本场</span>
-        </span>
-      </button>
-      <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
-        <span class="btn-icon">✕</span>
-        <span class="btn-main-text">保持主选（关闭）</span>
-      </button>
+      <div class="m-decision-actions">
+        <button type="button" class="m-decision-btn btn-primary" onclick="resolveMatrixAction(${seq}, '${upgradeAction}')">
+          ${upgradeLabel}
+        </button>
+        <button type="button" class="m-decision-btn btn-danger" onclick="resolveMatrixAction(${seq}, 'remove')">
+          🗑️ 移出计划
+        </button>
+        <button type="button" class="m-decision-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+          ✕ 保持待选
+        </button>
+      </div>
+    `;
+  } else if (mode === 'manage_primary') {
+    badgeHtml = '<span class="m-popup-badge badge-primary">★ 当前状态：必听主选</span>';
+    const allConflicts = getConflictsWithPlan(seq, 'all');
+    if (allConflicts.length > 0) {
+      const built = buildConflictTimelineAndList(target, 'primary', allConflicts);
+      timelineHtml = built.timelineHtml;
+      conflictsListHtml = built.conflictsListHtml;
+    } else {
+      hintHtml = '<div class="m-popup-hint-box ok">✓ 行程顺畅，此时段与其他已选日程无冲突</div>';
+    }
+
+    actionsHtml = `
+      <div class="m-decision-actions">
+        <button type="button" class="m-decision-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'primary_to_backup')">
+          📌 转为待选
+        </button>
+        <button type="button" class="m-decision-btn btn-danger" onclick="resolveMatrixAction(${seq}, 'remove')">
+          🗑️ 移出计划
+        </button>
+        <button type="button" class="m-decision-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+          ✕ 保持主选
+        </button>
+      </div>
     `;
   } else {
     // Conflict mode (not in plan yet)
     badgeHtml = '<span class="m-popup-badge badge-conflict">⚡ 发现时间重叠冲突</span>';
-
-    // 1. Calculate mini timeline data
-    const allSessions = [target, ...conflicts.map(c => c.session)];
-    const minStart = Math.min(...allSessions.map(s => s.startMin));
-    const maxEnd = Math.max(...allSessions.map(s => s.endMin));
-
-    // Snap ruler to 15-min or 30-min boundaries
-    const rulerStart = Math.floor((minStart - 5) / 15) * 15;
-    const rulerEnd = Math.ceil((maxEnd + 5) / 15) * 15;
-    const totalSpan = Math.max(30, rulerEnd - rulerStart);
-    const step = totalSpan <= 120 ? 15 : 30;
-
-    let rulerTicksHtml = '';
-    for (let m = rulerStart; m <= rulerEnd; m += step) {
-      const pct = ((m - rulerStart) / totalSpan) * 100;
-      rulerTicksHtml += `
-        <div class="mini-ruler-tick" style="left:${pct.toFixed(2)}%;">
-          <div class="mini-tick-line"></div>
-          <div class="mini-tick-text">${minToTimeStr(m)}</div>
-        </div>
-      `;
+    if (!conflicts || conflicts.length === 0) {
+      conflicts = getConflictsWithPlan(seq, 'all');
     }
+    const built = buildConflictTimelineAndList(target, 'target', conflicts);
+    timelineHtml = built.timelineHtml;
+    conflictsListHtml = built.conflictsListHtml;
 
-    // Overlap zones (red shaded vertical stripes)
-    const overlapZonesHtml = conflicts.map(c => {
-      const ovStart = Math.max(target.startMin, c.session.startMin);
-      const ovEnd = Math.min(target.endMin, c.session.endMin);
-      const ovSpan = Math.max(0, ovEnd - ovStart);
-      if (ovSpan <= 0) return '';
-      const leftPct = ((ovStart - rulerStart) / totalSpan) * 100;
-      const widthPct = (ovSpan / totalSpan) * 100;
-      return `
-        <div class="mini-overlap-zone" style="left:${leftPct.toFixed(2)}%; width:${widthPct.toFixed(2)}%;">
-          <span class="mini-overlap-tag">重叠 ${ovSpan}m</span>
-        </div>
-      `;
-    }).join('');
-
-    // Target track lane
-    const targetLeft = ((target.startMin - rulerStart) / totalSpan) * 100;
-    const targetWidth = ((target.endMin - target.startMin) / totalSpan) * 100;
-    const targetRowHtml = `
-      <div class="mini-timeline-row">
-        <div class="mini-track-label">待选场次</div>
-        <div class="mini-track-lane">
-          <div class="mini-track-bar bar-target" style="left:${targetLeft.toFixed(2)}%; width:${targetWidth.toFixed(2)}%;">
-            <span class="mini-bar-code">${target.code}</span>
-            <span class="mini-bar-time">${target.time}</span>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Conflicting tracks
-    const conflictingTracksHtml = conflicts.map(c => {
-      const isPrim = c.planItem?.role === 'primary';
-      const label = isPrim ? '已选主选' : '已选备选';
-      const labelClass = isPrim ? 'label-primary' : 'label-backup';
-      const barClass = isPrim ? 'bar-primary' : 'bar-backup';
-      const cLeft = ((c.session.startMin - rulerStart) / totalSpan) * 100;
-      const cWidth = ((c.session.endMin - c.session.startMin) / totalSpan) * 100;
-      return `
-        <div class="mini-timeline-row">
-          <div class="mini-track-label ${labelClass}">${label}</div>
-          <div class="mini-track-lane">
-            <div class="mini-track-bar ${barClass}" style="left:${cLeft.toFixed(2)}%; width:${cWidth.toFixed(2)}%;">
-              <span class="mini-bar-code">${c.session.code}</span>
-              <span class="mini-bar-time">${c.session.time}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    const maxOverlapMin = Math.max(...conflicts.map(c => c.overlapMin));
-
-    timelineHtml = `
-      <div class="mini-timeline-widget">
-        <div class="mini-timeline-header">
-          <span class="mini-timeline-title">
-            <span>⏱️</span>
-            <span>重叠时间轴对照</span>
-          </span>
-          <span class="mini-overlap-pill">⚡ 重叠 ${maxOverlapMin} 分钟</span>
-        </div>
-        <div class="mini-timeline-trackbox">
-          <div class="mini-lanes-container">
-            <div class="mini-timeline-ruler">
-              ${rulerTicksHtml}
-            </div>
-            ${overlapZonesHtml}
-            ${targetRowHtml}
-            ${conflictingTracksHtml}
-          </div>
-        </div>
-      </div>
-    `;
-
-    // 2. Full conflicting sessions detail list
-    const conflictCardsHtml = conflicts.map(c => {
-      const isPrim = c.planItem?.role === 'primary';
-      const roleTagClass = isPrim ? 'primary' : 'backup';
-      const roleText = isPrim ? '★ 必听主选' : '📌 备选日程';
-      const cardClass = isPrim ? 'is-primary' : 'is-backup';
-      return `
-        <div class="m-conflict-card ${cardClass}">
-          <div class="m-conflict-card-top">
-            <span class="m-conflict-role-tag ${roleTagClass}">${roleText}</span>
-            <span class="m-conflict-code">${c.session.code}</span>
-            <span class="m-conflict-time">${c.session.time}</span>
-            <span class="m-conflict-venue">📍 ${escapeHtml(c.session.venue)}</span>
-            <span class="m-conflict-overlap-pill">⚡ 重叠 ${c.overlapMin} 分钟</span>
-          </div>
-          <div class="m-conflict-topic">${escapeHtml(c.session.topic)}</div>
-        </div>
-      `;
-    }).join('');
-
-    conflictsListHtml = `
-      <div class="m-conflicts-section-label">冲突日程清单（共 ${conflicts.length} 场）：</div>
-      <div class="m-conflicts-list">
-        ${conflictCardsHtml}
-      </div>
-    `;
-
-    // 3. Clean decision actions (no subtitles or redundant remarks)
     actionsHtml = `
       <div class="m-decision-actions">
         <button type="button" class="m-decision-btn btn-primary" onclick="resolveMatrixAction(${seq}, 'join_primary')">
-          ⭐ 加入主选
+          ⭐ 替换主选
         </button>
         <button type="button" class="m-decision-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'join_backup')">
-          📌 加入备选
+          📌 加入待选
         </button>
         <button type="button" class="m-decision-btn btn-cancel" onclick="closeMatrixConflictPopup()">
           ✕ 放弃
@@ -1854,7 +1843,7 @@ function resolveMatrixAction(targetSeq, action) {
   if (action === 'backup_to_primary_direct') {
     state.plan[targetSeq].role = 'primary';
     savePlanToStorage();
-    showToast(`⭐ 已将 ${s.code} 升级为必听主选！`);
+    showToast(`⭐ 已将 ${s.code} 设为必听主选！`);
   } else if (action === 'backup_to_primary_resolve' || action === 'replace_primary' || action === 'join_primary') {
     conflicts.forEach(c => {
       if (state.plan[c.session.seq] && state.plan[c.session.seq].role === 'primary') {
@@ -1869,11 +1858,11 @@ function resolveMatrixAction(targetSeq, action) {
     };
     savePlanToStorage();
     const confCodes = conflicts.map(c => c.session.code).join('、');
-    showToast(`⭐ 已将 ${s.code} 设为主选${confCodes ? `，冲突主选 ${confCodes} 已转为备选` : ''}！`);
+    showToast(`⭐ 已将 ${s.code} 设为主选${confCodes ? `，冲突主选 ${confCodes} 已转为待选` : ''}！`);
   } else if (action === 'primary_to_backup') {
     state.plan[targetSeq].role = 'backup';
     savePlanToStorage();
-    showToast(`📌 已将 ${s.code} 转为备选赶场`);
+    showToast(`📌 已将 ${s.code} 转为待选日程`);
   } else if (action === 'add_backup' || action === 'join_backup') {
     state.plan[targetSeq] = {
       seq: targetSeq,
@@ -1882,7 +1871,7 @@ function resolveMatrixAction(targetSeq, action) {
       addedAt: Date.now()
     };
     savePlanToStorage();
-    showToast(`📌 已将 ${s.code} 加入备选日程`);
+    showToast(`📌 已将 ${s.code} 加入待选日程`);
   } else if (action === 'remove') {
     removeSessionFromPlan(targetSeq);
   }
@@ -2118,7 +2107,7 @@ function addSessionToPlan(seq, role = 'primary', silent = false) {
   };
   savePlanToStorage();
   if (!silent) {
-    showToast(`${role === 'primary' ? '✅ 已加入必听主选' : '📌 已加入备选/赶场'}：${s.code} ${s.topic.slice(0, 18)}...`);
+    showToast(`${role === 'primary' ? '✅ 已加入必听主选' : '📌 已加入待选日程'}：${s.code} ${s.topic.slice(0, 18)}...`);
   }
   refreshAllViews();
   if (document.getElementById('planDrawerBackdrop').classList.contains('open')) {
@@ -2144,7 +2133,7 @@ function setSessionRole(seq, role) {
   if (!state.plan[seq]) return;
   state.plan[seq].role = role;
   savePlanToStorage();
-  showToast(`已将 ${SESSION_BY_SEQ[seq].code} 设为${role === 'primary' ? '「必听主选」' : '「备选/赶场」'}`);
+  showToast(`已将 ${SESSION_BY_SEQ[seq].code} 设为${role === 'primary' ? '「必听主选」' : '「待选日程」'}`);
   refreshAllViews();
   renderPlanDrawerContent();
 }

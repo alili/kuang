@@ -3170,6 +3170,30 @@ body.fullwidth-mode .container {
   border: 1px solid #FCA5A5;
 }
 
+.m-popup-hint-box {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.m-popup-hint-box.ok {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #166534;
+}
+
+.m-popup-hint-box.conflict {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
 /* ==================== MINI LOCAL TIMELINE IN CONFLICT POPUP ==================== */
 .mini-timeline-widget {
   background: #FBF9F5;
@@ -3463,7 +3487,7 @@ body.fullwidth-mode .container {
   line-height: 1.35;
 }
 
-/* ==================== DECISION BUTTONS (加入主选 / 加入备选 / 放弃) ==================== */
+/* ==================== DECISION BUTTONS (替换主选 / 加入备选 / 放弃) ==================== */
 .m-decision-actions {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
