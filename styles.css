@@ -1758,11 +1758,37 @@ body.fullwidth-mode .container {
 /* ==================== SPEAKERS DIRECTORY VIEW ==================== */
 .speakers-directory-header {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
   margin-bottom: 18px;
+}
+
+/* Speaker Tab Search Bar (Exclusively in Speakers Directory) */
+.speaker-search-bar-wrap {
+  width: 100%;
+  margin: 4px 0 6px 0;
+}
+
+.speaker-search-bar-wrap .search-box-wrap {
+  width: 100%;
+  max-width: 680px;
+  position: relative;
+}
+
+.speaker-search-bar-wrap .search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 84px 10px 38px;
+  font-size: 14.5px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.speaker-search-bar-wrap .search-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--brand-primary-soft);
 }
 
 .speakers-grid {
@@ -4179,18 +4205,21 @@ label,
     font-size: 18px !important;
   }
 
+  .speaker-search-bar-wrap,
   .speaker-tab-search-slot {
     display: block;
     width: 100%;
-    margin: 8px 0 10px 0;
+    margin: 6px 0 10px 0;
   }
 
+  .speaker-search-bar-wrap .search-box-wrap,
   .speaker-tab-search-slot .search-box-wrap {
     width: 100%;
     max-width: 100%;
     min-width: 0;
   }
 
+  .speaker-search-bar-wrap .search-input,
   .speaker-tab-search-slot .search-input {
     width: 100%;
     box-sizing: border-box;

@@ -8,6 +8,42 @@ const META = window.FESTIVAL_META || {};
 const SPEAKER_TITLES = window.SPEAKER_TITLES || {};
 const TOPICS = window.FESTIVAL_TOPICS || [];
 
+// ==================== SPEAKER PINYIN ENGINE ====================
+const SPEAKER_PINYIN_BREAKPOINTS = {
+  'A': '艾利', 'B': '白玫瑰', 'C': '草头方', 'D': '大巴', 'F': '发条张',
+  'G': '高蕾', 'H': '韩欣', 'J': '江东猫草', 'K': '孔老师', 'L': '拉帝',
+  'M': '马兔', 'N': '宁家宇', 'P': '潘玮', 'Q': '麒姐Fiona', 'S': '桑尼',
+  'T': '台卿悦', 'W': '蛙哥', 'X': '西西C2H4', 'Y': '羊行', 'Z': '张浩'
+};
+
+function getSpeakerInitial(name) {
+  if (!name) return '#';
+  const first = name.trim().charAt(0);
+  if (/[a-zA-Z]/.test(first)) return first.toUpperCase();
+  const keys = Object.keys(SPEAKER_PINYIN_BREAKPOINTS);
+  for (let i = keys.length - 1; i >= 0; i--) {
+    const k = keys[i];
+    if (name.localeCompare(SPEAKER_PINYIN_BREAKPOINTS[k], 'zh-Hans-CN') >= 0) {
+      return k;
+    }
+  }
+  return '#';
+}
+
+function compareSpeakersByPinyin(a, b) {
+  const initA = getSpeakerInitial(a.name);
+  const initB = getSpeakerInitial(b.name);
+  if (initA !== initB) {
+    if (initA === '#') return 1;
+    if (initB === '#') return -1;
+    return initA.localeCompare(initB);
+  }
+  return a.name.localeCompare(b.name, 'zh-Hans-CN', { numeric: true });
+}
+
+// 确保嘉宾列表按姓名拼音排序
+SPEAKERS.sort(compareSpeakersByPinyin);
+
 const TOPIC_BY_ID = {};
 const TOPIC_BY_NAME = {};
 TOPICS.forEach(t => {
@@ -609,7 +645,7 @@ function getFilteredSessions() {
 function renderHotSpeakersBar() {
   const container = document.getElementById('hotSpeakerPills');
   if (!container) return;
-  const hotSpeakers = SPEAKERS.filter(sp => sp.count >= 3).slice(0, 15);
+  const hotSpeakers = [...SPEAKERS].filter(sp => sp.count >= 3).sort((a, b) => b.count - a.count).slice(0, 15);
   container.innerHTML = hotSpeakers.map(sp => `
     <button class="speaker-mini-pill" onclick="selectSpeakerSpotlight('${escapeAttr(sp.name)}')">
       <span>🎙️ ${escapeHtml(sp.name)}</span>
@@ -1909,6 +1945,8 @@ function renderSpeakersDirectory() {
     return true;
   });
 
+  filteredSpeakers.sort(compareSpeakersByPinyin);
+
   document.getElementById('badgeSpeakersCount').textContent = filteredSpeakers.length;
 
   if (filteredSpeakers.length === 0) {
@@ -1940,7 +1978,10 @@ function renderSpeakersDirectory() {
           title="点击${isExpanded ? '收起' : '展开'}场次列表"
         >
           <div class="speaker-header-info">
-            <div class="speaker-name-text">${escapeHtml(sp.name)}</div>
+            <div class="speaker-name-row">
+              <span class="speaker-name-text">${escapeHtml(sp.name)}</span>
+              <span class="speaker-pinyin-badge">${getSpeakerInitial(sp.name)}</span>
+            </div>
             ${spTitle ? `<div class="speaker-title-text" title="${escapeAttr(spTitle)}">🏷️ ${escapeHtml(spTitle)}</div>` : ''}
             <div class="speaker-tags-text">${sp.tags.join(' · ')}</div>
           </div>
