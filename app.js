@@ -29,6 +29,7 @@ function getSpeakerInitial(name) {
   }
   return '#';
 }
+const getSpeakerPinyinInitial = getSpeakerInitial;
 
 function compareSpeakersByPinyin(a, b) {
   const initA = getSpeakerInitial(a.name);
@@ -476,7 +477,7 @@ function clearSearch() {
 }
 
 function selectSpeakerSpotlight(speakerName) {
-  if (state.selectedSpeaker === speakerName && state.searchQuery === speakerName) {
+  if (state.selectedSpeaker === speakerName && state.searchQuery === speakerName && state.currentView === 'speakers') {
     clearSearch();
     return;
   }
@@ -484,13 +485,17 @@ function selectSpeakerSpotlight(speakerName) {
   state.searchQuery = speakerName;
   const input = document.getElementById('searchInput');
   if (input) input.value = speakerName;
-  document.getElementById('searchClearBtn').classList.add('visible');
-  if (state.currentView === 'speakers') {
-    switchView('timeline');
+  document.getElementById('searchClearBtn')?.classList.add('visible');
+
+  if (!state.expandedSpeakers) state.expandedSpeakers = new Set();
+  state.expandedSpeakers.add(speakerName);
+
+  if (state.currentView !== 'speakers') {
+    switchView('speakers');
   } else {
     refreshAllViews();
   }
-  window.scrollTo({ top: 220, behavior: 'smooth' });
+  window.scrollTo({ top: 140, behavior: 'smooth' });
 }
 
 function setPeriodFilter(period) {
@@ -618,8 +623,8 @@ function getFilteredSessions() {
       return false;
     }
 
-    // 7. Search query / speaker filter
-    if (q) {
+    // 7. Search query / speaker filter (only active in speakers view; timeline and timetable do not filter by speaker search)
+    if (q && state.currentView === 'speakers') {
       if (state.selectedSpeaker && s.speakers.includes(state.selectedSpeaker)) {
         return true;
       }
@@ -682,23 +687,9 @@ function refreshAllViews() {
     mobileBtn.classList.toggle('has-active-filters', activeFilterItems > 0);
   }
 
-  // Active search indicator in summary bars
-  const searchWord = state.searchQuery || state.selectedSpeaker || '';
-  const activeSearchHtml = searchWord ? `
-    <div class="active-search-badge-bar">
-      <span>🔍 正在搜索：<strong>${escapeHtml(searchWord)}</strong></span>
-      <button class="btn-clear-active-search" onclick="clearSearch()" title="清空搜索内容">✕ 清空搜索</button>
-    </div>
-  ` : '';
-
-  const matrixSearchBox = document.getElementById('matrixActiveSearchBox');
-  if (matrixSearchBox) matrixSearchBox.innerHTML = activeSearchHtml;
-  const timelineSearchBox = document.getElementById('timelineActiveSearchBox');
-  if (timelineSearchBox) timelineSearchBox.innerHTML = activeSearchHtml;
-
   const searchClearBtn = document.getElementById('searchClearBtn');
   if (searchClearBtn) {
-    searchClearBtn.classList.toggle('visible', searchWord.length > 0);
+    searchClearBtn.classList.toggle('visible', (state.searchQuery || state.selectedSpeaker || '').length > 0);
   }
 
   renderSpeakerSpotlightBanner();
@@ -710,142 +701,9 @@ function refreshAllViews() {
 
 function renderSpeakerSpotlightBanner() {
   const container = document.getElementById('speakerSpotlightContainer');
-  if (!container) return;
-
-  // Determine if search query matches any speaker(s)
-  let matchedSpeaker = null;
-  let candidateSpeakers = [];
-
-  if (state.selectedSpeaker && SPEAKER_BY_NAME[state.selectedSpeaker]) {
-    matchedSpeaker = SPEAKER_BY_NAME[state.selectedSpeaker];
-  } else if (state.searchQuery.trim().length >= 1) {
-    const qClean = state.searchQuery.trim().toLowerCase().replace(/\s+/g, '');
-    const exactMatch = SPEAKERS.find(sp =>
-      sp.name.toLowerCase().replace(/\s+/g, '') === qClean ||
-      sp.aliases.some(a => a.toLowerCase().replace(/\s+/g, '') === qClean)
-    );
-    if (exactMatch) {
-      matchedSpeaker = exactMatch;
-    } else {
-      const matches = SPEAKERS.filter(sp => {
-        const spTitle = getSpeakerTitle(sp.name);
-        return sp.name.toLowerCase().replace(/\s+/g, '').includes(qClean) ||
-               sp.aliases.some(a => a.toLowerCase().replace(/\s+/g, '').includes(qClean)) ||
-               (spTitle && spTitle.toLowerCase().replace(/\s+/g, '').includes(qClean));
-      });
-      if (matches.length === 1) {
-        matchedSpeaker = matches[0];
-      } else if (matches.length > 1 && matches.length <= 15) {
-        candidateSpeakers = matches;
-      }
-    }
-  }
-
-  if (!matchedSpeaker && candidateSpeakers.length > 0) {
-    container.innerHTML = `
-      <div class="speaker-quick-bar" style="margin-bottom: 18px;">
-        <span class="filter-label" style="white-space: nowrap;">🔍 搜索匹配到的主播速查：</span>
-        <div class="speaker-pills-scroll">
-          ${candidateSpeakers.map(sp => {
-            const spTitle = getSpeakerTitle(sp.name);
-            return `
-              <button class="speaker-mini-pill" onclick="selectSpeakerSpotlight('${escapeAttr(sp.name)}')" title="${escapeAttr(spTitle ? `${sp.name}｜${spTitle}` : sp.name)}">
-                <span>🎙️ ${escapeHtml(sp.name)}</span>
-                ${spTitle ? `<span class="sp-mini-title">${escapeHtml(spTitle)}</span>` : ''}
-                <span class="sp-count">${sp.count}场</span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  if (!matchedSpeaker) {
+  if (container) {
     container.innerHTML = '';
-    return;
   }
-
-  const spSessions = matchedSpeaker.sessionSeqs.map(seq => SESSION_BY_SEQ[seq]).filter(Boolean);
-  const plannedCount = spSessions.filter(s => !!state.plan[s.seq]).length;
-  const matchedTitle = getSpeakerTitle(matchedSpeaker.name);
-
-  // Check if speaker themselves has overlapping sessions
-  const selfOverlaps = [];
-  for (let i = 0; i < spSessions.length; i++) {
-    for (let j = i + 1; j < spSessions.length; j++) {
-      if (getOverlapMinutes(spSessions[i], spSessions[j]) > 0) {
-        selfOverlaps.push(`${spSessions[i].code} 与 ${spSessions[j].code}`);
-      }
-    }
-  }
-
-  container.innerHTML = `
-    <div class="speaker-spotlight-banner">
-      <div class="spotlight-header">
-        <div>
-          <div class="spotlight-title">
-            <span>🎙️ 主播/嘉宾专属节目单：${escapeHtml(matchedSpeaker.name)}</span>
-            ${matchedTitle ? `<span class="spotlight-speaker-title">🏷️ ${escapeHtml(matchedTitle)}</span>` : ''}
-            <span class="badge-festival" style="font-size: 11px;">全天共 ${spSessions.length} 场</span>
-          </div>
-          <div class="spotlight-meta" style="margin-top: 4px;">
-            已加入你的计划表：<strong>${plannedCount} / ${spSessions.length}</strong> 场
-            ${selfOverlaps.length > 0 ? `<span style="margin-left:10px; color:#DC2626; font-weight:700;">⚠️ 注意：该嘉宾自身有串场重叠（${selfOverlaps.join('、')}）</span>` : ''}
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn btn-primary btn-sm" onclick="planAllForSpeaker('${escapeAttr(matchedSpeaker.name)}')">
-            ✨ 一键规划 TA 的全部 ${spSessions.length} 场节目
-          </button>
-          <button class="btn btn-secondary btn-sm" onclick="clearSearch()">
-            退出主播筛选 ✕
-          </button>
-        </div>
-      </div>
-      <div class="spotlight-sessions-mini">
-        ${spSessions.map(s => {
-          const pItem = state.plan[s.seq];
-          const conflicts = getConflictsWithPlan(s.seq, 'primary');
-          const coSpeakers = s.speakers.filter(name => name !== matchedSpeaker.name);
-          const coSpeakersHtml = coSpeakers.length > 0
-            ? coSpeakers.map(coSp => {
-                const spInfo = SPEAKER_BY_NAME[coSp];
-                const coTitle = getSpeakerTitle(coSp);
-                const countBadge = spInfo && spInfo.count > 1 ? `<span style="opacity:0.65; font-size:10px;">(${spInfo.count})</span>` : '';
-                return `<button class="co-speaker-chip" onclick="selectSpeakerSpotlight('${escapeAttr(coSp)}')" title="点击切换查看 ${escapeAttr(coSp)}${coTitle ? `（${escapeAttr(coTitle)}）` : ''} 的专属节目单">🎙️ ${escapeHtml(coSp)}${coTitle ? `<span class="co-chip-title">· ${escapeHtml(coTitle)}</span>` : ''}${countBadge}</button>`;
-              }).join('')
-            : `<span class="co-speaker-empty">${s.hasOpenSlots ? `暂无其他同场主播（🪑 可增补×${Math.max(1, 4 - s.speakers.length)}）` : '单人专场'}</span>`;
-
-          return `
-            <div class="spotlight-session-item">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-family:var(--font-mono); font-weight:800; color:#9A3412;">${s.code} ${s.time}</span>
-                <span class="venue-badge ${getFloorClass(s.floor)}">${escapeHtml(s.venueShort)}</span>
-              </div>
-              <div style="font-weight:700; color:var(--text-primary); line-height:1.35;">${escapeHtml(s.topic)}</div>
-              <div class="spotlight-co-speakers">
-                <span class="co-speaker-label">🤝 同场主播：</span>
-                ${coSpeakersHtml}
-                ${coSpeakers.length > 0 && s.hasOpenSlots ? `<span class="open-slot-tag" style="font-size:10px; padding:1px 6px;">🪑 可增补×${Math.max(1, 4 - s.speakers.length)}</span>` : ''}
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:6px; border-top:1px dashed rgba(251, 146, 60, 0.35);">
-                <span style="font-size:11px; color:var(--text-secondary);">
-                  ${pItem
-                    ? (pItem.role === 'primary' ? '✅ 已在主选计划' : '📌 已在备选计划')
-                    : (conflicts.length > 0 ? `⚡ 与已选${conflicts[0].session.code}冲突` : '🟢 时间无冲突')}
-                </span>
-                <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="handleSessionAction(${s.seq})">
-                  ${pItem ? '管理/移除' : '+ 加入计划'}
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    </div>
-  `;
 }
 
 function getFloorClass(floor) {
@@ -1959,15 +1817,58 @@ function renderSpeakersDirectory() {
     return;
   }
 
+  // 是否处于搜索/筛选状态（输入了关键词或选定了具体主播）
+  const isFiltering = !!(q || state.selectedSpeaker);
+  // 是否仅筛选出唯一一位主播
+  const isSingleResult = filteredSpeakers.length === 1;
+
   container.innerHTML = filteredSpeakers.map(sp => {
     const spSessions = sp.sessionSeqs.map(seq => SESSION_BY_SEQ[seq]).filter(Boolean);
-    const plannedCount = spSessions.filter(s => !!state.plan[s.seq]).length;
-    const allPlanned = plannedCount === spSessions.length;
+    const primarySessions = spSessions.filter(s => state.plan[s.seq]?.role === 'primary');
+    const backupSessions = spSessions.filter(s => state.plan[s.seq]?.role === 'backup');
+    const plannedCount = primarySessions.length + backupSessions.length;
+    const allPlanned = plannedCount === spSessions.length && spSessions.length > 0;
     const spTitle = getSpeakerTitle(sp.name);
-    const isExpanded = !!(state.expandedSpeakers && state.expandedSpeakers.has(sp.name));
+
+    // 核心规则：筛选时（输入搜索词或选定主播）或仅有1个结果时默认自动展开；平时全量浏览按用户折叠状态
+    const isExpanded = isFiltering || isSingleResult || !!(state.expandedSpeakers && state.expandedSpeakers.has(sp.name));
+    const pinyinInitial = getSpeakerPinyinInitial(sp.name);
+
+    // 检测主播自身场次是否有串场时间冲突
+    const selfOverlaps = [];
+    for (let i = 0; i < spSessions.length; i++) {
+      for (let j = i + 1; j < spSessions.length; j++) {
+        if (getOverlapMinutes(spSessions[i], spSessions[j]) > 0) {
+          selfOverlaps.push(`${spSessions[i].code} 与 ${spSessions[j].code}`);
+        }
+      }
+    }
+
+    // 主选 / 备选状态与颜色标注
+    let planCardClass = '';
+    let planBadgeHtml = '';
+    if (primarySessions.length > 0 && backupSessions.length > 0) {
+      planCardClass = 'has-planned-both';
+      planBadgeHtml = `
+        <span class="sp-plan-status-pill pill-primary" title="已主选 ${primarySessions.length} 场">⭐ 主选 ${primarySessions.length}</span>
+        <span class="sp-plan-status-pill pill-backup" title="已备选 ${backupSessions.length} 场">📌 备选 ${backupSessions.length}</span>
+      `;
+    } else if (primarySessions.length > 0) {
+      planCardClass = 'has-planned-primary';
+      planBadgeHtml = `
+        <span class="sp-plan-status-pill pill-primary" title="已主选 ${primarySessions.length} 场">⭐ 已主选${primarySessions.length > 1 ? ` (${primarySessions.length})` : ''}</span>
+      `;
+    } else if (backupSessions.length > 0) {
+      planCardClass = 'has-planned-backup';
+      planBadgeHtml = `
+        <span class="sp-plan-status-pill pill-backup" title="已备选 ${backupSessions.length} 场">📌 已备选${backupSessions.length > 1 ? ` (${backupSessions.length})` : ''}</span>
+      `;
+    }
+
+    const singleResultCardClass = isSingleResult ? 'single-result-card' : '';
 
     return `
-      <div class="speaker-dir-card ${isExpanded ? '' : 'collapsed'}" data-speaker="${escapeAttr(sp.name)}">
+      <div class="speaker-dir-card ${isExpanded ? '' : 'collapsed'} ${planCardClass} ${singleResultCardClass}" data-speaker="${escapeAttr(sp.name)}">
         <div
           class="speaker-dir-top"
           onclick="toggleSpeakerCollapse('${escapeAttr(sp.name)}', event)"
@@ -1979,11 +1880,13 @@ function renderSpeakersDirectory() {
         >
           <div class="speaker-header-info">
             <div class="speaker-name-row">
+              <span class="speaker-pinyin-badge" title="拼音首字母 ${pinyinInitial}">${pinyinInitial}</span>
               <span class="speaker-name-text">${escapeHtml(sp.name)}</span>
-              <span class="speaker-pinyin-badge">${getSpeakerInitial(sp.name)}</span>
+              ${planBadgeHtml}
             </div>
             ${spTitle ? `<div class="speaker-title-text" title="${escapeAttr(spTitle)}">🏷️ ${escapeHtml(spTitle)}</div>` : ''}
             <div class="speaker-tags-text">${sp.tags.join(' · ')}</div>
+            ${selfOverlaps.length > 0 ? `<div style="font-size:11.5px; color:#DC2626; font-weight:700; margin-top:3px;">⚠️ 串场提醒：该嘉宾自身场次重叠（${selfOverlaps.join('、')}）</div>` : ''}
           </div>
           <div class="speaker-session-count ${sp.count >= 2 ? 'multi' : ''} ${isExpanded ? 'expanded' : ''}">
             <span>${sp.count} 场对话</span>
@@ -1992,49 +1895,72 @@ function renderSpeakersDirectory() {
         </div>
 
         <div class="speaker-dir-collapse-body" style="${isExpanded ? 'display: flex;' : 'display: none;'}">
-          <div class="speaker-sessions-list">
+          <div class="speaker-sessions-list speaker-sessions-grid">
             ${spSessions.map(s => {
               const pItem = state.plan[s.seq];
               const conflicts = getConflictsWithPlan(s.seq, 'primary');
               const coSpeakers = s.speakers.filter(name => name !== sp.name);
               const coSpeakersHtml = coSpeakers.length > 0
                 ? coSpeakers.map(coSp => {
+                    const spInfo = SPEAKER_BY_NAME[coSp];
                     const coTitle = getSpeakerTitle(coSp);
-                    return `<button class="co-speaker-chip co-speaker-chip-sm" onclick="selectSpeakerSpotlight('${escapeAttr(coSp)}')" title="点击查看 ${escapeAttr(coSp)}${coTitle ? `（${escapeAttr(coTitle)}）` : ''} 的专属节目单">🎙️ ${escapeHtml(coSp)}${coTitle ? `<span class="co-chip-title">· ${escapeHtml(coTitle)}</span>` : ''}</button>`;
+                    const countBadge = spInfo && spInfo.count > 1 ? `<span style="opacity:0.65; font-size:10px;">(${spInfo.count})</span>` : '';
+                    return `<button class="co-speaker-chip" onclick="selectSpeakerSpotlight('${escapeAttr(coSp)}')" title="点击查看 ${escapeAttr(coSp)}${coTitle ? `（${escapeAttr(coTitle)}）` : ''} 的场次">🎙️ ${escapeHtml(coSp)}${coTitle ? `<span class="co-chip-title">· ${escapeHtml(coTitle)}</span>` : ''}${countBadge}</button>`;
                   }).join('')
-                : `<span class="co-speaker-empty">${s.hasOpenSlots ? '虚位以待' : '单人专场'}</span>`;
+                : `<span class="co-speaker-empty">${s.hasOpenSlots ? `暂无其他同场主播（🪑 可增补×${Math.max(1, 4 - s.speakers.length)}）` : '单人专场'}</span>`;
+
+              let itemPlanClass = '';
+              let statusLabel = '🟢 时间无冲突';
+              let statusColor = 'var(--text-secondary)';
+              if (pItem) {
+                if (pItem.role === 'primary') {
+                  itemPlanClass = 'planned-primary';
+                  statusLabel = '✅ 已在主选计划';
+                  statusColor = '#15803D';
+                } else {
+                  itemPlanClass = 'planned-backup';
+                  statusLabel = '📌 已在备选计划';
+                  statusColor = '#92400E';
+                }
+              } else if (conflicts.length > 0) {
+                statusLabel = `⚡ 与已选【${conflicts[0].session.code}】冲突`;
+                statusColor = '#DC2626';
+              }
+
               return `
-                <div class="speaker-sess-row ${pItem ? 'planned' : ''}">
-                  <div class="speaker-sess-info">
-                    <div class="speaker-sess-time">
-                      ${s.code} ${s.time} · ${escapeHtml(s.venueShort)}
-                      ${!pItem && conflicts.length > 0 ? `<span style="color:#DC2626; margin-left:4px;">⚡冲突</span>` : ''}
-                    </div>
-                    <div class="speaker-sess-topic" title="${escapeAttr(s.topic)}">${escapeHtml(s.topic)}</div>
-                    <div class="speaker-sess-cospeakers">
-                      <span class="co-speaker-label">同场主播：</span>
-                      ${coSpeakersHtml}
-                    </div>
+                <div class="spotlight-session-item ${itemPlanClass}">
+                  <div class="spotlight-item-header">
+                    <span class="spotlight-session-code-time">${s.code} ${s.time}</span>
+                    <span class="venue-badge ${getFloorClass(s.floor)}">${escapeHtml(s.venueShort)}</span>
                   </div>
-                  <button
-                    class="btn ${pItem ? 'btn-primary' : 'btn-secondary'} btn-sm"
-                    style="padding: 4px 8px; font-size: 11px; flex-shrink: 0;"
-                    onclick="handleSessionAction(${s.seq})"
-                  >
-                    ${pItem ? (pItem.role === 'primary' ? '✓ 主选' : '📌 备选') : '+ 规划'}
-                  </button>
+                  <div class="spotlight-session-topic" title="${escapeAttr(s.topic)}">${escapeHtml(s.topic)}</div>
+                  <div class="spotlight-co-speakers">
+                    <span class="co-speaker-label">🤝 同场主播：</span>
+                    ${coSpeakersHtml}
+                    ${coSpeakers.length > 0 && s.hasOpenSlots ? `<span class="open-slot-tag" style="font-size:10px; padding:1px 6px;">🪑 可增补×${Math.max(1, 4 - s.speakers.length)}</span>` : ''}
+                  </div>
+                  <div class="spotlight-session-bottom">
+                    <span class="spotlight-session-status" style="color: ${statusColor}; font-weight: 600;">
+                      ${statusLabel}
+                    </span>
+                    <button
+                      class="btn ${pItem ? (pItem.role === 'primary' ? 'btn-primary' : 'btn-secondary') : 'btn-secondary'} btn-sm"
+                      style="padding: 3px 9px; font-size: 11.5px; border-radius: 6px; white-space: nowrap;"
+                      onclick="handleSessionAction(${s.seq})"
+                    >
+                      ${pItem ? (pItem.role === 'primary' ? '✓ 主选 (管理)' : '📌 备选 (管理)') : '+ 规划'}
+                    </button>
+                  </div>
                 </div>
               `;
             }).join('')}
           </div>
 
           <div class="speaker-dir-actions">
-            <button class="btn btn-secondary btn-sm" onclick="selectSpeakerSpotlight('${escapeAttr(sp.name)}')">
-              🔍 在时间表中定位
-            </button>
             <button
               class="btn ${allPlanned ? 'btn-secondary' : 'btn-primary'} btn-sm"
               onclick="planAllForSpeaker('${escapeAttr(sp.name)}')"
+              style="width: 100%; justify-content: center;"
             >
               ${allPlanned ? '✓ 已全部加入计划' : `✨ 一键规划全部 (${sp.count}场)`}
             </button>
@@ -2613,6 +2539,52 @@ function updatePlanIndicators() {
       statusEl.className = 'floating-ok-pill';
       statusEl.textContent = '✓ 主选行程无时间冲突';
     }
+  }
+
+  // Update Mobile Sticky Bottom Plan Bar
+  const elMobileStats = document.getElementById('mobileBottomPlanStats');
+  const elMobileBadge = document.getElementById('mobileBottomPlanBadge');
+  if (elMobileStats) {
+    if (items.length === 0) {
+      elMobileStats.textContent = '0 场已选 · 点击查看';
+    } else if (activeConflicts.length > 0) {
+      elMobileStats.innerHTML = `<span style="color:#F87171; font-weight:700;">⚡ ${activeConflicts.length}处冲突</span> · 主${primaryItems.length} 备${backupItems.length}`;
+    } else {
+      elMobileStats.textContent = `主选 ${primaryItems.length} · 备选 ${backupItems.length}`;
+    }
+  }
+  if (elMobileBadge) {
+    elMobileBadge.textContent = items.length;
+    elMobileBadge.style.display = items.length > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function handleMobileExportClick() {
+  const count = Object.keys(state.plan).length;
+  if (count === 0) {
+    showToast('💡 你的个人计划表还是空的，请先挑选感兴趣的场次！');
+    openPlanDrawer();
+    return;
+  }
+  openExportStudio();
+}
+
+function switchMobileExportTab(tabName) {
+  const grid = document.getElementById('exportStudioGrid');
+  const tabPrev = document.getElementById('tabMobilePreview');
+  const tabSet = document.getElementById('tabMobileSettings');
+
+  if (tabName === 'settings') {
+    grid?.classList.remove('mobile-show-preview');
+    grid?.classList.add('mobile-show-settings');
+    tabPrev?.classList.remove('active');
+    tabSet?.classList.add('active');
+  } else {
+    grid?.classList.remove('mobile-show-settings');
+    grid?.classList.add('mobile-show-preview');
+    tabSet?.classList.remove('active');
+    tabPrev?.classList.add('active');
+    renderSchedulePosterCanvas();
   }
 }
 

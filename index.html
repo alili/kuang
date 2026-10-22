@@ -70,21 +70,6 @@
           </button>
         </div>
 
-        <!-- Instant Search Input -->
-        <div class="search-and-filter-wrap" id="headerSearchSlot">
-          <div class="search-box-wrap" id="mainSearchBox">
-            <span class="search-icon">🔍</span>
-            <input
-              type="text"
-              id="searchInput"
-              class="search-input"
-              placeholder="搜主播姓名（如：罗叔、付宇）、播客/Title（如：半拿铁、日谈公园）、话题或场号【01】..."
-              autocomplete="off"
-            />
-            <button id="searchClearBtn" class="search-clear-btn" onclick="clearSearch()" title="清空搜索内容">✕ 清空</button>
-          </div>
-        </div>
-
         <!-- Plan Actions -->
         <div class="header-plan-actions">
           <button class="btn btn-danger-soft btn-header-clear-plan" id="btnMainClearPlan" onclick="clearAllPlan()" title="一键清空个人收听计划" style="display: none;">
@@ -118,7 +103,6 @@
             <span id="txtFullwidth">🖥️ 满屏自适应</span>
           </button>
         </div>
-        <div id="matrixActiveSearchBox"></div>
       </div>
       <div class="matrix-view-container">
         <div class="matrix-legend">
@@ -135,7 +119,6 @@
     <section id="viewTimeline" style="display: none;">
       <div class="results-summary-bar">
         <div id="timelineSummaryText">正在显示全部 88 场对话（按开始时间排序）</div>
-        <div id="timelineActiveSearchBox"></div>
         <div class="summary-tip-text">
           <span>💡 提示：点击任意<strong>主播姓名标签</strong>可查看 TA 的全天行程并一键规划；时间重叠场次会自动预警。</span>
         </div>
@@ -163,7 +146,19 @@
             支持按主播姓名查询节目单，或点击「一键规划 TA 的全部场次」将该主播全天节目加入你的个人收听计划表。
           </p>
         </div>
-        <div id="speakerSearchSlot" class="speaker-tab-search-slot"></div>
+        <div id="speakerSearchSlot" class="speaker-tab-search-slot">
+          <div class="search-box-wrap" id="mainSearchBox">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="搜索主播 / 嘉宾姓名、首字母、节目主题或空间..."
+              autocomplete="off"
+            />
+            <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" title="清空搜索内容">✕ 清空</button>
+          </div>
+        </div>
         <div class="filter-group filter-group-scroll">
           <span class="filter-label">出场频次：</span>
           <button class="filter-chip active" data-spfilter="all" onclick="setSpeakerFreqFilter('all')">全部主播 (213)</button>
@@ -177,12 +172,33 @@
     </section>
   </main>
 
+  <!-- ==================== MOBILE STICKY BOTTOM PLAN BAR ==================== -->
+  <div class="mobile-bottom-plan-bar" id="mobileBottomPlanBar">
+    <div class="mobile-bottom-inner">
+      <button type="button" class="mobile-bottom-plan-btn" onclick="openPlanDrawer()" title="查看我的个人收听计划表">
+        <div class="mobile-plan-btn-left">
+          <span class="mobile-plan-icon">📋</span>
+          <div class="mobile-plan-text-col">
+            <div class="mobile-plan-main-title">我的计划表</div>
+            <div class="mobile-plan-sub-desc" id="mobileBottomPlanStats">0 场已选 · 点击查看</div>
+          </div>
+        </div>
+        <span class="mobile-plan-badge-count" id="mobileBottomPlanBadge" style="display: none;">0</span>
+      </button>
+      <button type="button" class="mobile-bottom-export-btn" onclick="handleMobileExportClick()" title="生成并下载专属计划表">
+        <span class="mobile-export-sparkle">✨</span>
+        <span>生成并下载</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Floating Back-to-Top Button -->
   <button id="btnBackToTop" class="back-to-top-btn" onclick="scrollToTopSmooth()" title="回到顶部">↑</button>
 
   <!-- ==================== RIGHT DRAWER: MY LISTENING PLAN ==================== -->
   <div class="drawer-backdrop" id="planDrawerBackdrop" onclick="if(event.target===this) closePlanDrawer()">
     <aside class="plan-drawer">
+      <div class="drawer-drag-handle" aria-hidden="true"></div>
       <div class="drawer-header">
         <div>
           <h3 style="font-size: 18px; font-weight: 800;">📋 我的个人收听计划表</h3>
@@ -243,7 +259,17 @@
         <button class="btn btn-secondary btn-sm" onclick="closeExportStudio()">关闭 ✕</button>
       </div>
       <div class="modal-body">
-        <div class="export-studio-grid">
+        <!-- Mobile Segmented Tabs for Export Studio -->
+        <div class="mobile-export-tabs" id="mobileExportTabs">
+          <button type="button" class="mobile-export-tab active" id="tabMobilePreview" onclick="switchMobileExportTab('preview')">
+            🖼️ 计划海报预览与下载
+          </button>
+          <button type="button" class="mobile-export-tab" id="tabMobileSettings" onclick="switchMobileExportTab('settings')">
+            ⚙️ 风格选择与定制
+          </button>
+        </div>
+
+        <div class="export-studio-grid mobile-show-preview" id="exportStudioGrid">
           <!-- Left Controls -->
           <div class="export-controls-panel">
             <div class="form-group">
@@ -334,15 +360,36 @@
                 </button>
               </div>
             </div>
+
+            <div class="mobile-settings-done-wrap">
+              <button type="button" class="btn btn-primary" onclick="switchMobileExportTab('preview')" style="width: 100%; justify-content: center; padding: 12px; font-weight: 700;">
+                ✓ 定制完成，查看海报效果 →
+              </button>
+            </div>
           </div>
 
           <!-- Right Poster Live Preview -->
           <div class="export-preview-wrap">
-            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600; text-align: center;">
-              👇 实时高清课表预览（手机端可<strong>长按下方图片</strong>保存到相册，电脑端可右键另存为）
+            <div class="mobile-preview-top-tip">
+              📱 提示：手机端可<strong>长按下方图片</strong>保存到相册，或直接点击下方按钮一键下载
             </div>
             <img id="schedulePosterImg" alt="个人收听计划表海报预览" style="display: none;" />
             <canvas id="schedulePosterCanvas"></canvas>
+
+            <!-- Mobile Quick Actions below preview -->
+            <div class="mobile-preview-actions" id="mobilePreviewActions">
+              <button class="btn btn-primary" onclick="downloadPosterJpg()" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; font-weight: 800;">
+                🖼️ 一键下载高清计划图 (.JPG)
+              </button>
+              <div class="mobile-preview-sub-actions">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="switchMobileExportTab('settings')">
+                  ⚙️ 切换风格/修改署名
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="downloadIcsCalendar()">
+                  📅 导出手机日历
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
