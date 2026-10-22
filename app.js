@@ -151,7 +151,7 @@ function bindKeyboardEvents() {
       if (exportStudio && exportStudio.classList.contains('open')) {
         if (!e.target || e.target.tagName !== 'INPUT') {
           e.preventDefault();
-          downloadPosterPng();
+          downloadPosterJpg();
         }
         return;
       }
@@ -824,6 +824,54 @@ function jumpToTopicSlot(topicId) {
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function jumpToSessionCard(seq) {
+  const el = document.getElementById(`session-card-${seq}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('flash-highlight');
+  setTimeout(() => {
+    el.classList.remove('flash-highlight');
+  }, 1600);
+}
+
+function toggleBatchPlanTopic(topicName) {
+  const top = TOPICS.find(t => t.name === topicName || t.fullName === topicName || t.id === topicName);
+  if (!top) return;
+
+  const targetSessions = SESSIONS.filter(s =>
+    (s.tags && s.tags.includes(top.name)) ||
+    s.topicName === top.name ||
+    s.topicCategory === top.name ||
+    s.topicId === top.id
+  );
+
+  const allInPlan = targetSessions.every(s => !!state.plan[s.seq]);
+
+  if (allInPlan) {
+    targetSessions.forEach(s => {
+      delete state.plan[s.seq];
+    });
+    savePlanToStorage();
+    refreshAllViews();
+    showToast(`🗑️ 已将「${top.name}」相关场次从收听计划中移出`);
+  } else {
+    targetSessions.forEach(s => {
+      if (!state.plan[s.seq]) {
+        const conflicts = getConflictsWithPlan(s.seq, 'primary');
+        const role = conflicts.length > 0 ? 'backup' : 'primary';
+        state.plan[s.seq] = {
+          seq: s.seq,
+          role: role,
+          addedAt: Date.now()
+        };
+      }
+    });
+    savePlanToStorage();
+    refreshAllViews();
+    showToast(`✨ 已成功将「${top.name}」全部 ${targetSessions.length} 场对话加入收听计划！`);
+  }
+}
+
 function toggleTimelineGroupBy() {
   state.timelineGroupBy = state.timelineGroupBy === 'topic' ? 'time' : 'topic';
   renderTimelineView();
@@ -919,7 +967,89 @@ function renderTimelineView() {
     return;
   }
 
-  // Branch 1: Group by 9 Official Topics
+  // Branch 1: Single Topic Category Selected (Flattened Multi-Column Grid Flow)
+  if (state.tagFilter !== 'all') {
+    const activeTopic = TOPICS.find(t => t.name === state.tagFilter || t.fullName === state.tagFilter || t.id === state.tagFilter) || {
+      name: state.tagFilter,
+      fullName: state.tagFilter,
+      icon: '🏷️',
+      desc: '当前分类对话专场',
+      color: '#E84324',
+      bg: '#FFF5F2',
+      border: '#FED7AA'
+    };
+
+    filtered.sort((a, b) => a.startMin - b.startMin || a.venueOrder - b.venueOrder);
+
+    // Quick Jump Pills for each session time in this topic
+    if (jumpBar) {
+      if (filtered.length > 1) {
+        jumpBar.style.display = 'flex';
+        const pillsHtml = filtered.map(s => {
+          const inPlan = !!state.plan[s.seq];
+          return `
+            <button
+              type="button"
+              class="time-jump-pill ${inPlan ? 'has-planned' : ''}"
+              onclick="jumpToSessionCard(${s.seq})"
+              title="速跳至 ${s.code} ${s.time} ${s.venueShort}"
+            >
+              <span>🕒 ${s.start}</span>
+              <span class="jump-count">${s.code}</span>
+            </button>
+          `;
+        }).join('');
+        jumpBar.innerHTML = `<span class="time-jump-label">⏱️ 场次速跳：</span><div class="time-jump-scroll">${pillsHtml}</div>`;
+      } else {
+        jumpBar.style.display = 'none';
+      }
+    }
+
+    const allInPlan = filtered.every(s => !!state.plan[s.seq]);
+    const plannedCount = filtered.filter(s => !!state.plan[s.seq]).length;
+
+    const html = `
+      <div class="topic-track-section">
+        <div class="topic-track-hero-card" style="background:${activeTopic.bg}; border:1.5px solid ${activeTopic.border};">
+          <div class="topic-track-info">
+            <div class="topic-track-badge-row">
+              <span class="topic-track-icon">${activeTopic.icon}</span>
+              <span class="topic-track-name" style="color:${activeTopic.color};">${escapeHtml(activeTopic.fullName)}</span>
+              <span class="topic-track-count-pill" style="background:${activeTopic.color}; color:#fff;">共 ${filtered.length} 场对话</span>
+              <span class="topic-track-planned-pill">已选 ${plannedCount}/${filtered.length} 场</span>
+            </div>
+            <div class="topic-track-desc" style="color:var(--text-secondary);">${escapeHtml(activeTopic.desc)} · 全天时段动线排列，支持横向并排对比</div>
+          </div>
+          <div class="topic-track-actions">
+            <button
+              type="button"
+              class="btn btn-sm ${allInPlan ? 'btn-secondary' : 'btn-primary'}"
+              onclick="toggleBatchPlanTopic('${escapeAttr(activeTopic.name)}')"
+            >
+              ${allInPlan ? '✓ 已全选该话题场次' : '✨ 一键将本话题全部加入计划'}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              onclick="setTagFilter('all')"
+              title="清除话题筛选，查看全部 88 场对话"
+            >
+              ✕ 查看全部 88 场
+            </button>
+          </div>
+        </div>
+
+        <div class="sessions-grid">
+          ${filtered.map(s => renderSessionCardHtml(s)).join('')}
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+    return;
+  }
+
+  // Branch 2: Group by 9 Official Topics
   if (state.timelineGroupBy === 'topic') {
     const topicGroups = [];
     TOPICS.forEach(top => {
@@ -972,7 +1102,7 @@ function renderTimelineView() {
     return;
   }
 
-  // Branch 2: Group by Start Time (Default)
+  // Branch 3: Group by Start Time (Default when showing all topics)
   const groupsMap = new Map();
   filtered.forEach(s => {
     const key = s.start;
@@ -981,6 +1111,41 @@ function renderTimelineView() {
     }
     groupsMap.get(key).push(s);
   });
+
+  // If every group has only 1 session (sparse search result), flatten into multi-column grid
+  const maxInGroup = Math.max(0, ...Array.from(groupsMap.values()).map(g => g.length));
+  if (groupsMap.size > 1 && maxInGroup === 1) {
+    if (jumpBar) {
+      jumpBar.style.display = 'flex';
+      const pillsHtml = filtered.map(s => {
+        const inPlan = !!state.plan[s.seq];
+        return `
+          <button
+            type="button"
+            class="time-jump-pill ${inPlan ? 'has-planned' : ''}"
+            onclick="jumpToSessionCard(${s.seq})"
+          >
+            <span>🕒 ${s.start}</span>
+            <span class="jump-count">${s.code}</span>
+          </button>
+        `;
+      }).join('');
+      jumpBar.innerHTML = `<span class="time-jump-label">⏱️ 场次速跳：</span><div class="time-jump-scroll">${pillsHtml}</div>`;
+    }
+
+    container.innerHTML = `
+      <div class="time-group-section">
+        <div class="time-slot-header">
+          <span class="time-slot-badge">🕒 按时间连续排列</span>
+          <span class="time-slot-sub">共找到 ${filtered.length} 场对话 · 已按全天时间动线横向平铺展示</span>
+        </div>
+        <div class="sessions-grid">
+          ${filtered.map(s => renderSessionCardHtml(s)).join('')}
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if (jumpBar) {
     if (groupsMap.size > 1) {
@@ -1092,20 +1257,28 @@ function renderSessionCardHtml(s) {
   // Action button
   let actionBtnHtml = '';
   if (planItem) {
-    actionBtnHtml = `
-      <button class="btn-plan-toggle ${isPrimary ? 'active-primary' : 'active-backup'}" onclick="removeSessionFromPlan(${s.seq})">
-        ${isPrimary ? '✓ 已在主选计划（点击移除）' : '📌 已在备选计划（点击移除）'}
-      </button>
-    `;
+    if (planItem.role === 'backup') {
+      actionBtnHtml = `
+        <button class="btn-plan-toggle active-backup" onclick="showMatrixSessionPopup(event, ${s.seq}, 'manage_backup')">
+          📌 已在备选（点击改为主选 / 管理）
+        </button>
+      `;
+    } else {
+      actionBtnHtml = `
+        <button class="btn-plan-toggle active-primary" onclick="showMatrixSessionPopup(event, ${s.seq}, 'manage_primary')">
+          ✓ 已在主选（点击管理 / 移出）
+        </button>
+      `;
+    }
   } else if (conflicts.length > 0) {
     actionBtnHtml = `
-      <button class="btn-plan-toggle btn-plan-conflict" onclick="handleSessionAction(${s.seq})">
+      <button class="btn-plan-toggle btn-plan-conflict" onclick="handleSessionAction(${s.seq}, event)">
         ⚡ 存在时间冲突 · 点击选择替换或备选
       </button>
     `;
   } else {
     actionBtnHtml = `
-      <button class="btn-plan-toggle" onclick="handleSessionAction(${s.seq})">
+      <button class="btn-plan-toggle" onclick="handleSessionAction(${s.seq}, event)">
         ＋ 加入我的收听计划
       </button>
     `;
@@ -1204,7 +1377,6 @@ function renderMatrixView() {
           onmousemove="moveMatrixTooltip(event)"
           onmouseleave="hideMatrixTooltip()"
         >
-          <div class="matrix-block-topic-bar" style="position:absolute; top:0; left:0; right:0; height:3px; background:${s.topicColor || '#E84324'}; opacity:0.9; border-radius:3px 3px 0 0;"></div>
           <div class="matrix-block-title">${escapeHtml(s.topic)}</div>
           <div class="matrix-block-speakers">
             🎙️ ${escapeHtml(spText)}
@@ -1279,7 +1451,7 @@ function showMatrixTooltip(e, seq) {
       <span class="m-tip-venue">📍 ${escapeHtml(s.venue)}</span>
     </div>
     <div style="margin-bottom:6px;">
-      <span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; color:${s.topicColor || '#E84324'}; background:${s.topicBg || '#FFF5F2'}; border:1px solid ${s.topicBorder || 'rgba(232,67,36,0.3)'};">
+      <span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; color:var(--text-secondary); background:var(--bg-muted); border:1px solid var(--border-subtle);">
         ${s.topicIcon || '🏷️'} ${escapeHtml(s.topicCategory || s.topicName || '')}
       </span>
     </div>
@@ -1322,14 +1494,15 @@ function hideMatrixTooltip() {
   }
 }
 
-// ==================== MATRIX QUICK CONFLICT POPUP ====================
+// ==================== MATRIX QUICK ACTION & CONFLICT POPUP SYSTEM ====================
 function handleMatrixBlockClick(event, seq) {
   if (event) {
     event.stopPropagation();
   }
   const existing = state.plan[seq];
   if (existing) {
-    removeSessionFromPlan(seq);
+    // Already in plan - open refined action popup to allow changing to primary or removing
+    showMatrixSessionPopup(event, seq, existing.role === 'backup' ? 'manage_backup' : 'manage_primary');
     return;
   }
 
@@ -1337,26 +1510,150 @@ function handleMatrixBlockClick(event, seq) {
   if (conflicts.length === 0) {
     addSessionToPlan(seq, 'primary');
   } else {
-    showMatrixConflictPopup(event, seq, conflicts);
+    showMatrixSessionPopup(event, seq, 'conflict', conflicts);
   }
 }
 
-function showMatrixConflictPopup(event, seq, conflicts) {
+function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
   const target = SESSION_BY_SEQ[seq];
   const container = document.getElementById('matrixConflictPopupContent');
   const popup = document.getElementById('matrixConflictPopup');
   const backdrop = document.getElementById('matrixConflictPopupBackdrop');
   if (!target || !container || !popup || !backdrop) return;
 
+  const existing = state.plan[seq];
+  if (!conflicts || conflicts.length === 0) {
+    conflicts = getConflictsWithPlan(seq, 'primary');
+  }
+
+  let badgeHtml = '';
+  let hintHtml = '';
+  let actionsHtml = '';
+
+  if (mode === 'manage_backup') {
+    badgeHtml = '<span class="m-popup-badge badge-backup">📌 当前状态：备选 / 赶场场次</span>';
+    if (conflicts.length > 0) {
+      hintHtml = `
+        <div class="m-popup-hint-box conflict">
+          ⚡ <strong>时间重叠提示</strong>：本场与主选 <strong>${conflicts.map(c => c.session.code).join('、')}</strong> 重叠 ${conflicts[0].overlapMin} 分钟。<br/>
+          点击下方「改为主选」，原冲突主选将自动转为备选，两全其美。
+        </div>
+      `;
+      actionsHtml = `
+        <button type="button" class="m-popup-btn btn-upgrade" onclick="resolveMatrixAction(${seq}, 'backup_to_primary_resolve')">
+          <span class="btn-icon">⭐</span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-text">改为主选（冲突主选转备选）</span>
+            <span class="btn-sub-text">将本场升级为主选，原冲突场次自动降为备选</span>
+          </span>
+        </button>
+        <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
+          <span class="btn-icon">🗑️</span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-text">移出计划</span>
+            <span class="btn-sub-text">从收听计划中彻底删除本场</span>
+          </span>
+        </button>
+        <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+          <span class="btn-icon">✕</span>
+          <span class="btn-main-text">保持备选（暂不调整）</span>
+        </button>
+      `;
+    } else {
+      hintHtml = `
+        <div class="m-popup-hint-box ok">
+          ✓ <strong>行程顺畅</strong>：本场与其他主选无冲突，可直接升级为必听主选。
+        </div>
+      `;
+      actionsHtml = `
+        <button type="button" class="m-popup-btn btn-upgrade" onclick="resolveMatrixAction(${seq}, 'backup_to_primary_direct')">
+          <span class="btn-icon">⭐</span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-text">改为必听主选</span>
+            <span class="btn-sub-text">直接升级为主选行程</span>
+          </span>
+        </button>
+        <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
+          <span class="btn-icon">🗑️</span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-text">移出计划</span>
+            <span class="btn-sub-text">从收听计划中彻底删除本场</span>
+          </span>
+        </button>
+        <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+          <span class="btn-icon">✕</span>
+          <span class="btn-main-text">保持备选（暂不调整）</span>
+        </button>
+      `;
+    }
+  } else if (mode === 'manage_primary') {
+    badgeHtml = '<span class="m-popup-badge badge-primary">★ 当前状态：必听主选场次</span>';
+    actionsHtml = `
+      <button type="button" class="m-popup-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'primary_to_backup')">
+        <span class="btn-icon">📌</span>
+        <span class="btn-text-wrap">
+          <span class="btn-main-text">转为备选 / 赶场</span>
+          <span class="btn-sub-text">降为备选关注，释放此时段安排</span>
+        </span>
+      </button>
+      <button type="button" class="m-popup-btn btn-remove" onclick="resolveMatrixAction(${seq}, 'remove')">
+        <span class="btn-icon">🗑️</span>
+        <span class="btn-text-wrap">
+          <span class="btn-main-text">移出计划</span>
+          <span class="btn-sub-text">从收听计划中彻底删除本场</span>
+        </span>
+      </button>
+      <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+        <span class="btn-icon">✕</span>
+        <span class="btn-main-text">保持主选（关闭）</span>
+      </button>
+    `;
+  } else {
+    // Conflict mode (not in plan yet)
+    badgeHtml = '<span class="m-popup-badge badge-conflict">⚡ 发现时间重叠冲突</span>';
+    hintHtml = `
+      <div class="m-popup-hint-box conflict">
+        本场次与已选主选 <strong>${conflicts.map(c => c.session.code).join('、')}</strong> 重叠 ${conflicts[0].overlapMin} 分钟。
+      </div>
+    `;
+    actionsHtml = `
+      <button type="button" class="m-popup-btn btn-replace" onclick="resolveMatrixAction(${seq}, 'replace_primary')">
+        <span class="btn-icon">⭐</span>
+        <span class="btn-text-wrap">
+          <span class="btn-main-text">设为主选（原主选自动转备选）</span>
+          <span class="btn-sub-text">将本场升级为主选，原主选保留为备选</span>
+        </span>
+      </button>
+      <button type="button" class="m-popup-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'add_backup')">
+        <span class="btn-icon">📌</span>
+        <span class="btn-text-wrap">
+          <span class="btn-main-text">设为备选（和平共存）</span>
+          <span class="btn-sub-text">保留原主选不变，将本场作为备选关注</span>
+        </span>
+      </button>
+      <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+        <span class="btn-icon">✕</span>
+        <span class="btn-main-text">取消（暂不加入）</span>
+      </button>
+    `;
+  }
+
   container.innerHTML = `
-    <div class="m-popup-card mini">
-      <div class="m-popup-actions mini">
-        <button type="button" class="m-popup-btn btn-replace" onclick="resolveMatrixConflict(${seq}, 'replace_primary')">
-          <span class="btn-main-text">⭐ 替换为主选</span>
-        </button>
-        <button type="button" class="m-popup-btn btn-backup" onclick="resolveMatrixConflict(${seq}, 'add_backup')">
-          <span class="btn-main-text">📌 设置为备选</span>
-        </button>
+    <div class="m-popup-card">
+      <div class="m-popup-header">
+        <div class="m-popup-title-row">
+          <span class="m-popup-code">${target.code}</span>
+          <span class="m-popup-time">${target.time} (${target.durationMin}m)</span>
+          <span class="m-popup-venue">📍 ${escapeHtml(target.venue)}</span>
+        </div>
+        <div class="m-popup-topic">${escapeHtml(target.topic)}</div>
+        <div class="m-popup-status-row">
+          ${badgeHtml}
+        </div>
+        ${hintHtml}
+      </div>
+      <div class="m-popup-actions">
+        ${actionsHtml}
       </div>
     </div>
   `;
@@ -1365,7 +1662,7 @@ function showMatrixConflictPopup(event, seq, conflicts) {
   syncBodyScrollLock();
 
   if (window.innerWidth > 640) {
-    const pad = 12;
+    const pad = 16;
     let targetX = window.innerWidth / 2;
     let targetY = window.innerHeight / 2;
 
@@ -1407,19 +1704,25 @@ function showMatrixConflictPopup(event, seq, conflicts) {
   }
 }
 
+const showMatrixConflictPopup = (e, seq, conflicts) => showMatrixSessionPopup(e, seq, 'conflict', conflicts);
+
 function closeMatrixConflictPopup() {
   const backdrop = document.getElementById('matrixConflictPopupBackdrop');
   if (backdrop) backdrop.classList.remove('open');
   syncBodyScrollLock();
 }
 
-function resolveMatrixConflict(targetSeq, action) {
+function resolveMatrixAction(targetSeq, action) {
   const s = SESSION_BY_SEQ[targetSeq];
   if (!s) return;
 
   const conflicts = getConflictsWithPlan(targetSeq, 'primary');
 
-  if (action === 'replace_primary') {
+  if (action === 'backup_to_primary_direct') {
+    state.plan[targetSeq].role = 'primary';
+    savePlanToStorage();
+    showToast(`⭐ 已将 ${s.code} 升级为必听主选！`);
+  } else if (action === 'backup_to_primary_resolve' || action === 'replace_primary') {
     conflicts.forEach(c => {
       if (state.plan[c.session.seq] && state.plan[c.session.seq].role === 'primary') {
         state.plan[c.session.seq].role = 'backup';
@@ -1432,7 +1735,12 @@ function resolveMatrixConflict(targetSeq, action) {
       addedAt: Date.now()
     };
     savePlanToStorage();
-    showToast(`⭐ 已将 ${s.code} 替换为主选，冲突场次已转为备选`);
+    const confCodes = conflicts.map(c => c.session.code).join('、');
+    showToast(`⭐ 已将 ${s.code} 设为主选${confCodes ? `，冲突的 ${confCodes} 已转为备选` : ''}！`);
+  } else if (action === 'primary_to_backup') {
+    state.plan[targetSeq].role = 'backup';
+    savePlanToStorage();
+    showToast(`📌 已将 ${s.code} 转为备选赶场`);
   } else if (action === 'add_backup') {
     state.plan[targetSeq] = {
       seq: targetSeq,
@@ -1442,6 +1750,8 @@ function resolveMatrixConflict(targetSeq, action) {
     };
     savePlanToStorage();
     showToast(`📌 已将 ${s.code} 设置为备选计划`);
+  } else if (action === 'remove') {
+    removeSessionFromPlan(targetSeq);
   }
 
   closeMatrixConflictPopup();
@@ -1450,6 +1760,8 @@ function resolveMatrixConflict(targetSeq, action) {
     renderPlanDrawerContent();
   }
 }
+
+const resolveMatrixConflict = resolveMatrixAction;
 
 // ==================== VIEW 3: SPEAKERS DIRECTORY ====================
 function renderSpeakersDirectory() {
@@ -1647,11 +1959,10 @@ function updateToggleAllSpeakersBtn() {
 }
 
 // ==================== PLANNING & CONFLICT RESOLUTION ACTIONS ====================
-function handleSessionAction(seq) {
+function handleSessionAction(seq, event) {
   const existing = state.plan[seq];
   if (existing) {
-    // If already in plan, remove it
-    removeSessionFromPlan(seq);
+    showMatrixSessionPopup(event, seq, existing.role === 'backup' ? 'manage_backup' : 'manage_primary');
     return;
   }
 
@@ -1659,7 +1970,7 @@ function handleSessionAction(seq) {
   if (conflicts.length === 0) {
     addSessionToPlan(seq, 'primary');
   } else {
-    openConflictModal(seq, conflicts);
+    showMatrixSessionPopup(event, seq, 'conflict', conflicts);
   }
 }
 
@@ -2448,6 +2759,7 @@ function syncPosterImagePreview(canvas) {
 }
 
 function setPosterTheme(themeKey) {
+  if (themeKey === 'clean') themeKey = 'punk';
   const sel = document.getElementById('posterThemeSelect');
   if (sel) sel.value = themeKey;
   syncStyleChips(themeKey);
@@ -2461,7 +2773,11 @@ function onPosterThemeSelectChange(themeKey) {
 
 function syncStyleChips(themeKey) {
   document.querySelectorAll('.btn-style-chip').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-style') === themeKey);
+    const s = btn.getAttribute('data-style');
+    const isMatch = (s === themeKey) ||
+      (s === 'noninsurance' && (themeKey === 'filmset' || themeKey === 'caution')) ||
+      (s === 'filmset' && themeKey === 'noninsurance');
+    btn.classList.toggle('active', isMatch);
   });
 }
 
@@ -2572,12 +2888,12 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
     return { item, s, topicLines, spLines, noteLine, transferText, itemH };
   });
 
-  const headerH = 300;
+  const headerH = 330;
   const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH, 0) : 90;
   const summaryH = 260;
   const barcodeH = 100;
   const footerH = 140;
-  const totalH = Math.max(880, headerH + itemsH + summaryH + barcodeH + footerH);
+  const totalH = Math.max(920, headerH + itemsH + summaryH + barcodeH + footerH);
 
   canvas.width = width * scale;
   canvas.height = totalH * scale;
@@ -2592,6 +2908,7 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   const paperW = width - paperX * 2;
   const toothW = 12;
   const toothH = 7;
+  const paperTop = 22;
 
   ctx.save();
   ctx.fillStyle = '#FAF9F2';
@@ -2600,10 +2917,10 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   ctx.shadowOffsetY = 3;
 
   ctx.beginPath();
-  ctx.moveTo(paperX, 16);
+  ctx.moveTo(paperX, paperTop);
   for (let x = paperX; x < paperX + paperW; x += toothW) {
-    ctx.lineTo(x + toothW / 2, 16 + toothH);
-    ctx.lineTo(Math.min(x + toothW, paperX + paperW), 16);
+    ctx.lineTo(x + toothW / 2, paperTop + toothH);
+    ctx.lineTo(Math.min(x + toothW, paperX + paperW), paperTop);
   }
   ctx.lineTo(paperX + paperW, totalH - 16);
   for (let x = paperX + paperW; x > paperX; x -= toothW) {
@@ -2616,10 +2933,10 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
 
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(paperX + 4, 24, paperW - 8, totalH - 48);
+  ctx.strokeRect(paperX + 4, paperTop + 8, paperW - 8, totalH - (paperTop + 32));
 
   // --- HEADER ---
-  let curY = 44;
+  let curY = 70;
 
   ctx.fillStyle = '#141414';
   ctx.textAlign = 'center';
@@ -2634,7 +2951,7 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   curY += 26;
   ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
   ctx.fillStyle = '#141414';
-  ctx.fillText('[ 凭此收银小票全日畅听 · 纯正热敏纸收据凭条 ]', width / 2, curY);
+  ctx.fillText('[ 凭此收银小票全日畅听 · 欢迎光临狂喜播客节 ]', width / 2, curY);
   ctx.textAlign = 'left';
 
   curY += 24;
@@ -3265,8 +3582,131 @@ function renderNoninsuranceLetterPoster(canvas, ctx, items, userName, customSub,
   syncPosterImagePreview(canvas);
 }
 
-// 4. 片场计划 · 警示黄黑场记通告单风格
-function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
+// 4. 不太保险（原片场计划）· 专属 Logo 元素绘制辅助函数与警示黄黑特别风格
+
+// 辅助函数：绘制不太保险 Logo 标志性的三阶音频声波竖线条 (▎ ▍ ▎)
+function drawNoninsuranceWaveBars(ctx, cx, cy, h = 24, color = '#141414') {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = color;
+  const barW = Math.max(3, Math.round(h * 0.16));
+  const gap = Math.max(3, Math.round(h * 0.14));
+  const heights = [h * 0.55, h, h * 0.72];
+  const totalW = barW * 3 + gap * 2;
+  let startX = -totalW / 2;
+
+  heights.forEach(barH => {
+    drawRoundedRect(ctx, startX, -barH / 2, barW, barH, barW / 2);
+    ctx.fill();
+    startX += barW + gap;
+  });
+  ctx.restore();
+}
+
+// 辅助函数：绘制不太保险 Logo 标志性的开锁挂锁与向下三角箭头
+function drawNoninsuranceLock(ctx, cx, cy, size = 26, bodyColor = '#141414', arrowColor = '#FED700') {
+  ctx.save();
+  ctx.translate(cx, cy);
+  const bodyW = size * 0.78;
+  const bodyH = size * 0.62;
+  const bodyX = -bodyW / 2;
+  const bodyY = -bodyH / 2 + size * 0.16;
+
+  // 1. 弹开的锁梁 (Shackle)
+  const shackleR = size * 0.22;
+  const shackleThick = Math.max(2.5, size * 0.12);
+  ctx.lineWidth = shackleThick;
+  ctx.strokeStyle = bodyColor;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const leftX = -shackleR;
+  const rightX = shackleR;
+  ctx.moveTo(leftX, bodyY + 3);
+  ctx.lineTo(leftX, bodyY - size * 0.08);
+  ctx.arc(0, bodyY - size * 0.08, shackleR, Math.PI, 0, false);
+  ctx.lineTo(rightX, bodyY - size * 0.22); // 右端向上弹开
+  ctx.stroke();
+
+  // 2. 锁体
+  drawRoundedRect(ctx, bodyX, bodyY, bodyW, bodyH, Math.max(3, size * 0.12));
+  ctx.fillStyle = bodyColor;
+  ctx.fill();
+
+  // 3. 锁身中央向下实心等边三角箭头 (Logo 经典符号)
+  const arrowW = bodyW * 0.42;
+  const arrowH = bodyH * 0.42;
+  const arrowCenterY = bodyY + bodyH * 0.5;
+  ctx.fillStyle = arrowColor;
+  ctx.beginPath();
+  ctx.moveTo(-arrowW / 2, arrowCenterY - arrowH / 2);
+  ctx.lineTo(arrowW / 2, arrowCenterY - arrowH / 2);
+  ctx.lineTo(0, arrowCenterY + arrowH / 2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// 辅助函数：绘制不太保险 Logo 标志性的双斜向交叉警戒胶带 (Dual Diagonal Tapes)
+function drawNoninsuranceDualTapes(ctx, yCenter, width) {
+  ctx.save();
+
+  // 底层胶带：向左微倾 (-2.8°)，高亮黄色底色 + 粗黑字
+  ctx.save();
+  ctx.translate(width / 2, yCenter);
+  ctx.rotate(-0.046);
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 3;
+
+  const tape1H = 34;
+  ctx.fillStyle = '#FED700';
+  ctx.fillRect(-width * 0.65, -tape1H / 2, width * 1.3, tape1H);
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = '#141414';
+  ctx.strokeRect(-width * 0.65, -tape1H / 2, width * 1.3, tape1H);
+
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = '#141414';
+  ctx.font = '900 13px "JetBrains Mono", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const text1 = '⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️';
+  ctx.fillText(text1, 0, 1);
+  ctx.restore();
+
+  // 顶层胶带：向右倾斜 (+2.3°)，酷黑底色 + 警示黄色粗字
+  ctx.save();
+  ctx.translate(width / 2, yCenter + 4);
+  ctx.rotate(0.038);
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.38)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 4;
+
+  const tape2H = 36;
+  ctx.fillStyle = '#141414';
+  ctx.fillRect(-width * 0.65, -tape2H / 2, width * 1.3, tape2H);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#FED700';
+  ctx.strokeRect(-width * 0.65, -tape2H / 2, width * 1.3, tape2H);
+
+  ctx.shadowColor = 'transparent';
+  drawHazardStripes(ctx, -width * 0.65, -tape2H / 2, 45, tape2H, 8, '#FED700', '#141414');
+  drawHazardStripes(ctx, width * 0.65 - 45, -tape2H / 2, 45, tape2H, 8, '#FED700', '#141414');
+
+  ctx.fillStyle = '#FED700';
+  ctx.font = '900 14.5px "PingFang SC", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const text2 = '🚧 不太保险 · NON-INSURANCE · 现场特别调度 · 保证狂喜 🚧';
+  ctx.fillText(text2, 0, 1);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+// 主渲染函数：不太保险 · 警示黄黑特别风格
+function renderNoninsurancePoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
   const scale = 2;
   const width = 800;
   const padX = 40;
@@ -3281,10 +3721,10 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
   ctx.font = '900 20px "PingFang SC", -apple-system, sans-serif';
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
-    const topicLines = wrapCanvasText(ctx, s.topic, contentW - 40);
+    const topicLines = wrapCanvasText(ctx, s.topic, contentW - 46);
     const spText = '🎙️ 出镜嘉宾：' + (s.speakers.join('、') || '特邀嘉宾');
     ctx.font = '14.5px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 40);
+    const spLines = wrapCanvasText(ctx, spText, contentW - 46);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -3300,91 +3740,123 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
       }
     }
 
-    const noteLine = item.note ? `📝 导演手记：${item.note}` : '';
-    const itemH = 50 + topicLines.length * 28 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 28 : 0) + 16;
+    const noteLine = item.note ? `📝 个人备忘：${item.note}` : '';
+    const itemH = 52 + topicLines.length * 28 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 30 : 0) + 16;
     return { item, s, topicLines, spLines, noteLine, transferText, itemH };
   });
 
-  const headerH = 370;
+  const headerH = 390;
   const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 16, 0) : 130;
   const footerH = showPartners ? 260 : 130;
-  const totalH = Math.max(900, headerH + itemsH + footerH);
+  const totalH = Math.max(920, headerH + itemsH + footerH);
 
   canvas.width = width * scale;
   canvas.height = totalH * scale;
   ctx.scale(scale, scale);
 
+  // 1. 全局警戒黄色底色
   ctx.fillStyle = '#FED700';
   ctx.fillRect(0, 0, width, totalH);
 
+  // 2. 顶部黄黑斑马警示带
   drawHazardStripes(ctx, 0, 0, width, 14, 12, '#FED700', '#141414');
 
-  let curY = 30;
+  let curY = 32;
+
+  // 3. Header 头部设计：Logo + 标题 + 声波竖条 + 开锁小锁
+  let titleX = padX;
+  const logoSize = 78;
+  if (posterAssets.noninsuranceLogo && posterAssets.noninsuranceLogo.complete && posterAssets.noninsuranceLogo.naturalWidth > 0) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.18)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    drawRoundedRect(ctx, padX, curY + 8, logoSize, logoSize, 12);
+    ctx.fillStyle = '#141414';
+    ctx.fill();
+    ctx.drawImage(posterAssets.noninsuranceLogo, padX, curY + 8, logoSize, logoSize);
+    ctx.restore();
+    titleX = padX + logoSize + 18;
+  }
+
+  // 绘制标题左侧小声波
+  drawNoninsuranceWaveBars(ctx, titleX + 8, curY + 34, 20, '#141414');
 
   ctx.fillStyle = '#141414';
-  ctx.font = '900 34px "PingFang SC", sans-serif';
-  ctx.fillText(`🎬 ${userName} 的片场计划`, padX, curY + 48);
+  ctx.font = '900 32px "PingFang SC", sans-serif';
+  const mainTitleText = `🛡️ ${userName} 的不太保险计划`;
+  ctx.fillText(mainTitleText, titleX + 24, curY + 42);
 
-  ctx.font = 'bold 16px "PingFang SC", sans-serif';
-  ctx.fillText('第六届狂喜播客节 · 现场录制通告单 (CALL SHEET)', padX, curY + 80);
+  // 标题右侧加上开锁图标徽章
+  const titleTextW = ctx.measureText(mainTitleText).width;
+  drawNoninsuranceLock(ctx, titleX + 24 + titleTextW + 22, curY + 32, 28, '#141414', '#FED700');
 
-  ctx.font = 'bold 13px "JetBrains Mono", monospace';
+  ctx.font = 'bold 15px "PingFang SC", sans-serif';
+  ctx.fillStyle = '#18181B';
+  ctx.fillText('第六届狂喜播客节 · 现场非官方收听通告 (NON-INSURANCE PLAN)', titleX, curY + 70);
+
+  ctx.font = 'bold 12.5px "JetBrains Mono", monospace';
   ctx.fillStyle = '#3F3F46';
-  ctx.fillText('2026.10.25 (SUN) · 上海 CMG 融媒影城 · 现场调度', padX, curY + 104);
+  ctx.fillText('2026.10.25 (SUN) · 上海 CMG 融媒影城 · 概不太保险，但保证狂喜', titleX, curY + 92);
 
-  curY += 126;
+  curY += 122;
 
-  ctx.save();
-  ctx.translate(padX, curY);
-  ctx.rotate(-0.03);
-  drawRoundedRect(ctx, -20, 0, contentW + 40, 36, 4);
+  // 4. 双斜向交叉警戒胶带 (复刻 Logo 经典胶带剪影)
+  drawNoninsuranceDualTapes(ctx, curY + 16, width);
+
+  curY += 56;
+
+  // 5. 行动指标数据栏 (黑底黄字胶囊 + 左右融入声波与开锁图腾)
+  drawRoundedRect(ctx, padX, curY, contentW, 52, 12);
   ctx.fillStyle = '#141414';
   ctx.fill();
-  ctx.fillStyle = '#FED700';
-  ctx.font = '900 15px sans-serif';
-  ctx.fillText('🎬 PRODUCTION CALL SHEET 🎬 片场计划 🎬 ON AIR 🎬 狂喜片场 🎬', 10, 24);
-  ctx.restore();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#3F3F46';
+  ctx.stroke();
 
-  curY += 46;
-
-  drawRoundedRect(ctx, padX, curY, contentW, 52, 10);
-  ctx.fillStyle = '#141414';
-  ctx.fill();
+  // 左侧内嵌微型开锁图标
+  drawNoninsuranceLock(ctx, padX + 24, curY + 26, 20, '#FED700', '#141414');
 
   ctx.fillStyle = '#FED700';
-  ctx.font = 'bold 14px "PingFang SC", monospace';
+  ctx.font = 'bold 13.5px "PingFang SC", monospace';
   ctx.fillText(
-    `🎬 必听主选：${primaryCount} 场  |  📌 备选赶场：${backupCount} 场  |  ⏱️ 累计通告：${(totalMins / 60).toFixed(1)} 小时  |  🎙️ 登场嘉宾：${uniqueSpeakers.size} 位`,
-    padX + 20,
-    curY + 32
+    `必听主选：${primaryCount} 场  |  备选赶场：${backupCount} 场  |  累计收听：${(totalMins / 60).toFixed(1)} 小时  |  重点嘉宾：${uniqueSpeakers.size} 位`,
+    padX + 42,
+    curY + 31
   );
 
-  curY += 72;
+  // 右侧内嵌微型三阶声波条
+  drawNoninsuranceWaveBars(ctx, padX + contentW - 24, curY + 26, 18, '#FED700');
 
+  curY += 74;
+
+  // 6. 节目日程卡片
   cardLayouts.forEach(layout => {
     const { item, s, topicLines, spLines, noteLine, transferText, itemH } = layout;
 
     if (transferText) {
-      drawRoundedRect(ctx, padX, curY, contentW, 26, 6);
+      drawRoundedRect(ctx, padX, curY, contentW, 28, 6);
       ctx.fillStyle = '#141414';
       ctx.fill();
       ctx.fillStyle = '#FBBF24';
       ctx.font = 'bold 12px "PingFang SC", sans-serif';
-      ctx.fillText(transferText, padX + 16, curY + 17);
-      curY += 30;
+      ctx.fillText(transferText, padX + 16, curY + 18);
+      curY += 32;
     }
 
     drawRoundedRect(ctx, padX, curY, contentW, itemH, 12);
     ctx.fillStyle = '#141414';
     ctx.fill();
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = item.role === 'primary' ? '#FED700' : '#71717A';
+    ctx.lineWidth = item.role === 'primary' ? 2.5 : 1.5;
+    ctx.strokeStyle = item.role === 'primary' ? '#FED700' : '#52525B';
     ctx.stroke();
 
+    // 卡片左侧斑马警示纹
     drawHazardStripes(ctx, padX, curY, 10, itemH, 8, '#FED700', '#141414');
 
     let innerY = curY + 28;
 
+    // 时间与编号
     ctx.fillStyle = item.role === 'primary' ? '#FED700' : '#38BDF8';
     ctx.font = 'bold 17px "JetBrains Mono", monospace';
     ctx.fillText(`${s.time}`, padX + 24, innerY);
@@ -3393,7 +3865,8 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
     ctx.font = 'bold 16px "JetBrains Mono", monospace';
     ctx.fillText(`${s.code}`, padX + 140, innerY);
 
-    const roleText = item.role === 'primary' ? '🎬 必听主选' : '📌 备选赶场';
+    // 必听 / 备选胶囊
+    const roleText = item.role === 'primary' ? '★ 必听主选' : '📌 备选赶场';
     drawRoundedRect(ctx, padX + 205, innerY - 16, 92, 22, 6);
     ctx.fillStyle = item.role === 'primary' ? '#FED700' : 'rgba(255,255,255,0.15)';
     ctx.fill();
@@ -3401,6 +3874,7 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
     ctx.font = 'bold 12px "PingFang SC", sans-serif';
     ctx.fillText(roleText, padX + 214, innerY - 1);
 
+    // 卡片右侧地点
     ctx.font = 'bold 14px "PingFang SC", sans-serif';
     ctx.fillStyle = '#E4E4E7';
     const vStr = `📍 ${s.venue}`;
@@ -3409,6 +3883,7 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
 
     innerY += 32;
 
+    // 主题
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '900 20px "PingFang SC", sans-serif';
     topicLines.forEach(line => {
@@ -3418,6 +3893,7 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
 
     innerY += 2;
 
+    // 嘉宾
     ctx.fillStyle = '#A1A1AA';
     ctx.font = '14.5px "PingFang SC", sans-serif';
     spLines.forEach(line => {
@@ -3425,6 +3901,7 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
       innerY += 22;
     });
 
+    // 个人备忘
     if (noteLine) {
       innerY += 4;
       ctx.fillStyle = '#FED700';
@@ -3435,12 +3912,19 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
     curY += itemH + 16;
   });
 
+  // 7. 底部警示条与双侧声波图腾标语
   drawHazardStripes(ctx, 0, totalH - 24, width, 14, 12, '#FED700', '#141414');
 
+  const footerText = '※ 本计划由「不太保险」联合呈献 · 概不太保险，但保证狂喜 ※';
   ctx.fillStyle = '#141414';
   ctx.font = 'bold 13px "PingFang SC", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('※ 本片场计划通告单受狂喜播客节制作组保护 · 现场开机尽情狂喜 ※', width / 2, totalH - 42);
+  ctx.fillText(footerText, width / 2, totalH - 42);
+  const footerTextW = ctx.measureText(footerText).width;
+
+  // 底部两翼增加声波条
+  drawNoninsuranceWaveBars(ctx, (width - footerTextW) / 2 - 20, totalH - 46, 16, '#141414');
+  drawNoninsuranceWaveBars(ctx, (width + footerTextW) / 2 + 20, totalH - 46, 16, '#141414');
   ctx.textAlign = 'left';
 
   if (showPartners) {
@@ -3453,20 +3937,21 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
   syncPosterImagePreview(canvas);
 }
 
-const renderNoninsuranceCautionPoster = renderFilmsetPoster;
+const renderFilmsetPoster = renderNoninsurancePoster;
+const renderNoninsuranceCautionPoster = renderNoninsurancePoster;
 
-// ==================== CRIME SCENE (探案现场 · 侦探线索板) POSTER RENDERER ====================
+// ==================== CRIME SCENE (探案现场 · 侦探线索案卷) POSTER RENDERER ====================
 
-function drawDarkPineWoodBackground(ctx, width, height) {
-  // Dark espresso pine wood base tone
-  ctx.fillStyle = '#2A150A';
+function drawWarmDetectiveDeskBackground(ctx, width, height) {
+  // Rich warm mahogany/walnut wood base tone
+  ctx.fillStyle = '#221309';
   ctx.fillRect(0, 0, width, height);
 
-  // Planks
-  const plankH = 105;
+  // Horizontal wood planks
+  const plankH = 110;
   for (let y = 0; y < height; y += plankH) {
     // Plank dark groove
-    ctx.strokeStyle = '#120803';
+    ctx.strokeStyle = '#0F0703';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(0, y);
@@ -3474,7 +3959,7 @@ function drawDarkPineWoodBackground(ctx, width, height) {
     ctx.stroke();
 
     // Plank subtle top highlight
-    ctx.strokeStyle = 'rgba(215, 160, 110, 0.08)';
+    ctx.strokeStyle = 'rgba(245, 180, 120, 0.08)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, y + 2.5);
@@ -3482,104 +3967,174 @@ function drawDarkPineWoodBackground(ctx, width, height) {
     ctx.stroke();
 
     // Wood grain lines
-    ctx.strokeStyle = 'rgba(10, 5, 2, 0.15)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.14)';
     ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(0, y + 35);
-    ctx.bezierCurveTo(width * 0.3, y + 25, width * 0.7, y + 45, width, y + 30);
+    ctx.moveTo(0, y + 36);
+    ctx.bezierCurveTo(width * 0.35, y + 24, width * 0.65, y + 46, width, y + 32);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(215, 160, 110, 0.04)';
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.035)';
     ctx.beginPath();
-    ctx.moveTo(0, y + 70);
-    ctx.bezierCurveTo(width * 0.25, y + 80, width * 0.75, y + 60, width, y + 75);
+    ctx.moveTo(0, y + 72);
+    ctx.bezierCurveTo(width * 0.25, y + 84, width * 0.75, y + 62, width, y + 78);
     ctx.stroke();
   }
 
-  // Dark atmospheric vignette gradient overlay
-  const grad = ctx.createRadialGradient(width / 2, height / 2, width * 0.25, width / 2, height / 2, width * 0.85);
-  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  grad.addColorStop(0.7, 'rgba(0, 0, 0, 0.4)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, 0.75)');
-  ctx.fillStyle = grad;
+  // Warm Detective Desk Lamp Illumination (Golden radial glow centered near top)
+  const lampGlow = ctx.createRadialGradient(width / 2, 220, 80, width / 2, height / 2, width * 0.85);
+  lampGlow.addColorStop(0, 'rgba(251, 191, 36, 0.09)');
+  lampGlow.addColorStop(0.4, 'rgba(217, 119, 6, 0.04)');
+  lampGlow.addColorStop(0.8, 'rgba(0, 0, 0, 0.35)');
+  lampGlow.addColorStop(1, 'rgba(0, 0, 0, 0.72)');
+  ctx.fillStyle = lampGlow;
   ctx.fillRect(0, 0, width, height);
 
-  // Heavy dark charred walnut frame
-  ctx.strokeStyle = '#140803';
-  ctx.lineWidth = 18;
-  ctx.strokeRect(9, 9, width - 18, height - 18);
+  // Heavy dark walnut desk border moulding
+  ctx.strokeStyle = '#120803';
+  ctx.lineWidth = 16;
+  ctx.strokeRect(8, 8, width - 16, height - 16);
 
   ctx.strokeStyle = 'rgba(245, 190, 120, 0.12)';
   ctx.lineWidth = 1.5;
-  ctx.strokeRect(18, 18, width - 36, height - 36);
+  ctx.strokeRect(16, 16, width - 32, height - 32);
 }
 
-function drawMagnifyingGlass(ctx, cx, cy, radius = 34, angle = Math.PI / 4) {
+function drawTapeStrip(ctx, x, y, width = 72, height = 22, angle = 0, color = 'rgba(254, 252, 232, 0.74)') {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  // Soft tape shadow
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
+  ctx.shadowBlur = 5;
+  ctx.shadowOffsetY = 2;
+
+  // Base tape polygon with torn jagged ends
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  // Jagged left edge
+  ctx.moveTo(-width / 2, -height / 2);
+  ctx.lineTo(-width / 2 + 2, -height / 4);
+  ctx.lineTo(-width / 2, 0);
+  ctx.lineTo(-width / 2 + 3, height / 4);
+  ctx.lineTo(-width / 2, height / 2);
+  // Bottom edge
+  ctx.lineTo(width / 2, height / 2);
+  // Jagged right edge
+  ctx.lineTo(width / 2 - 2, height / 4);
+  ctx.lineTo(width / 2, 0);
+  ctx.lineTo(width / 2 - 3, -height / 4);
+  ctx.lineTo(width / 2, -height / 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // Subtle frosted crinkle reflection highlight
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.48)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(-width / 2 + 5, -height / 2 + 2);
+  ctx.lineTo(width / 2 - 5, -height / 2 + 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawVintageMagnifyingGlass(ctx, cx, cy, radius = 38, angle = Math.PI / 4) {
   ctx.save();
   ctx.translate(cx, cy);
 
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-  ctx.shadowBlur = 12;
-  ctx.shadowOffsetX = 6;
-  ctx.shadowOffsetY = 8;
+  // Warm soft drop shadow of the entire instrument onto the desk/paper
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.42)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetX = 8;
+  ctx.shadowOffsetY = 12;
 
-  const handleLen = 52;
-  const handleW = 10;
+  // 1. Turned Dark Mahogany Handle
+  const handleLen = 58;
+  const handleW = 11;
   ctx.save();
   ctx.rotate(angle);
 
-  ctx.fillStyle = '#D97706';
+  // Brass ferrule connecting ring
+  const ferruleGrad = ctx.createLinearGradient(-handleW / 2, 0, handleW / 2, 0);
+  ferruleGrad.addColorStop(0, '#D97706');
+  ferruleGrad.addColorStop(0.5, '#FDE68A');
+  ferruleGrad.addColorStop(1, '#92400E');
+  ctx.fillStyle = ferruleGrad;
   ctx.fillRect(-handleW / 2 + 1, radius - 2, handleW - 2, 10);
 
-  drawRoundedRect(ctx, -handleW / 2, radius + 8, handleW, handleLen, 4);
+  // Wooden grip
+  drawRoundedRect(ctx, -handleW / 2, radius + 8, handleW, handleLen, 5);
   const handleGrad = ctx.createLinearGradient(-handleW / 2, 0, handleW / 2, 0);
-  handleGrad.addColorStop(0, '#1C120C');
-  handleGrad.addColorStop(0.4, '#452311');
-  handleGrad.addColorStop(1, '#1C120C');
+  handleGrad.addColorStop(0, '#1A1009');
+  handleGrad.addColorStop(0.3, '#3B1A0E');
+  handleGrad.addColorStop(0.7, '#4E2413');
+  handleGrad.addColorStop(1, '#150C07');
   ctx.fillStyle = handleGrad;
   ctx.fill();
+
+  // Brass end pommel
+  drawRoundedRect(ctx, -handleW / 2 - 1, radius + handleLen + 4, handleW + 2, 6, 3);
+  ctx.fillStyle = ferruleGrad;
+  ctx.fill();
+
   ctx.restore();
 
+  // 2. Brass Bezel / Rim
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
   const rimGrad = ctx.createLinearGradient(-radius, -radius, radius, radius);
-  rimGrad.addColorStop(0, '#FCD34D');
-  rimGrad.addColorStop(0.3, '#F59E0B');
-  rimGrad.addColorStop(0.6, '#B45309');
-  rimGrad.addColorStop(1, '#D97706');
-  ctx.lineWidth = 6;
+  rimGrad.addColorStop(0, '#FEF08A');
+  rimGrad.addColorStop(0.25, '#F59E0B');
+  rimGrad.addColorStop(0.5, '#D97706');
+  rimGrad.addColorStop(0.75, '#B45309');
+  rimGrad.addColorStop(1, '#78350F');
+  ctx.lineWidth = 5.5;
   ctx.strokeStyle = rimGrad;
   ctx.stroke();
 
-  ctx.shadowColor = 'transparent';
+  // Inner brass lip
+  ctx.beginPath();
+  ctx.arc(0, 0, radius - 2.5, 0, Math.PI * 2);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.stroke();
 
+  // 3. Clear Glass Lens with optical tint
+  ctx.shadowColor = 'transparent';
   ctx.beginPath();
   ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(224, 242, 254, 0.22)';
+  ctx.fillStyle = 'rgba(219, 234, 254, 0.16)';
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(239, 68, 68, 0.65)';
-  ctx.lineWidth = 1.2;
+  // Magnified subtle focal text watermark inside lens
+  ctx.save();
   ctx.beginPath();
-  ctx.arc(0, 0, radius * 0.45, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Subtle magnification vignette inside lens edge
+  const lensVignette = ctx.createRadialGradient(0, 0, radius * 0.35, 0, 0, radius - 3);
+  lensVignette.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  lensVignette.addColorStop(1, 'rgba(180, 83, 9, 0.12)');
+  ctx.fillStyle = lensVignette;
+  ctx.fill();
+
+  ctx.restore();
+
+  // 4. Specular Curved Gleam Highlights (realistic optical glass reflection)
   ctx.beginPath();
-  ctx.moveTo(0, -radius * 0.65);
-  ctx.lineTo(0, radius * 0.65);
-  ctx.moveTo(-radius * 0.65, 0);
-  ctx.lineTo(radius * 0.65, 0);
+  ctx.arc(0, 0, radius - 6, -Math.PI * 0.8, -Math.PI * 0.2);
+  ctx.lineWidth = 2.4;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.stroke();
 
-  ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
-  ctx.font = '900 11px -apple-system, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('404', 0, 4);
-  ctx.textAlign = 'left';
-
   ctx.beginPath();
-  ctx.arc(0, 0, radius - 7, -Math.PI * 0.75, -Math.PI * 0.15);
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.arc(0, 0, radius - 8, Math.PI * 0.35, Math.PI * 0.55);
+  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.stroke();
 
   ctx.restore();
@@ -3622,14 +4177,17 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
   const uniqueSpeakers = new Set();
   items.forEach(i => i.session.speakers.forEach(sp => uniqueSpeakers.add(sp)));
 
-  // Pre-calculate heights
-  ctx.font = '900 19px "PingFang SC", -apple-system, sans-serif';
+  const topicLineHeight = 34; // 舒展的话题行距
+  const spLineHeight = 28;    // 舒展的涉案人行距
+
+  // Pre-calculate heights with comfortable spacing & unified fonts
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
-    const topicLines = wrapCanvasText(ctx, s.topic, contentW - 44);
-    const spText = '🎙️ 涉案人/关键主讲：' + (s.speakers.join('、') || '神秘涉案人');
+    ctx.font = 'bold 18px "PingFang SC", "Microsoft YaHei", sans-serif';
+    const topicLines = wrapCanvasText(ctx, s.topic, contentW - 56);
+    const spText = '🎙️ 关键涉案人：' + (s.speakers.join('、') || '特邀涉案嘉宾');
     ctx.font = '14px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 44);
+    const spLines = wrapCanvasText(ctx, spText, contentW - 56);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -3646,8 +4204,12 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
     }
 
     const noteLine = item.note ? `🕵️ 现场侦查笔记：${item.note}` : '';
-    const itemH = 46 + topicLines.length * 27 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 26 : 0) + 18;
-    const angles = [-0.015, 0.012, -0.01, 0.016, -0.012, 0.014];
+    const noteH = noteLine ? 38 : 0;
+    const transferH = transferText ? 38 : 0;
+    // 舒展的卡片高度精确计算：顶部内边距 + 头栏到标题 + 话题总高 + 段落空隙 + 涉案人总高 + 笔记便签 + 换场提示 + 底部留白
+    const itemH = 34 + 34 + (topicLines.length - 1) * topicLineHeight + 14 + spLines.length * spLineHeight + noteH + transferH + 30;
+
+    const angles = [-0.012, 0.012, -0.014, 0.01, -0.012, 0.014];
     const angle = angles[idx % angles.length];
     const pinColors = ['#DC2626', '#D97706', '#2563EB', '#059669', '#E11D48'];
     const pinColor = pinColors[idx % pinColors.length];
@@ -3655,122 +4217,188 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
     return { item, s, topicLines, spLines, noteLine, transferText, itemH, angle, pinColor };
   });
 
-  const headerH = 340;
-  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 24, 0) : 120;
-  const footerH = showPartners ? 280 : 160;
-  const totalH = Math.max(920, headerH + itemsH + footerH);
+  const headerH = 370;
+  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 32, 0) : 150;
+  const footerH = showPartners ? 290 : 170;
+  const totalH = Math.max(980, headerH + itemsH + footerH);
 
   canvas.width = width * scale;
   canvas.height = totalH * scale;
   ctx.scale(scale, scale);
 
-  // 1. Dark atmospheric pinewood background
-  drawDarkPineWoodBackground(ctx, width, totalH);
+  // 1. Warm atmospheric detective desk background
+  drawWarmDetectiveDeskBackground(ctx, width, totalH);
 
-  // 2. Case Dossier Header (Pinned Manila Case Folder - No Logo)
-  const headerCardY = 32;
-  const headerCardH = 200;
+  // 2. Case Dossier Header (Pinned Manila Case Folder on Detective Desk)
+  const headerCardY = 36;
+  const headerCardH = 260;
 
+  // Manila Folder Tab at top left
+  drawRoundedRect(ctx, padX + 8, headerCardY - 14, 190, 22, 6);
+  ctx.fillStyle = '#E8DEC8';
+  ctx.fill();
+  ctx.strokeStyle = '#B8A892';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.font = 'bold 11px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#78350F';
+  ctx.fillText('DOSSIER // KX-2026-SH', padX + 20, headerCardY - 1);
+
+  // Folder Main Body
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.52)';
   ctx.shadowBlur = 18;
   ctx.shadowOffsetY = 8;
   drawRoundedRect(ctx, padX, headerCardY, contentW, headerCardH, 8);
-  ctx.fillStyle = '#F8F3E6'; // Aged case file paper
+  ctx.fillStyle = '#F8F4EA'; // Aged case file paper
   ctx.fill();
   ctx.strokeStyle = '#C9BAA3';
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.restore();
 
-  // Top two heavy pins holding header
-  drawPushpin(ctx, padX + 24, headerCardY + 12, '#DC2626');
-  drawPushpin(ctx, padX + contentW - 24, headerCardY + 12, '#DC2626');
+  // Translucent Tape Strips holding header corners onto the desk
+  drawTapeStrip(ctx, padX + 32, headerCardY + 2, 64, 22, -0.14);
+  drawTapeStrip(ctx, padX + contentW - 32, headerCardY + 2, 64, 22, 0.14);
 
-  // Header Content
-  let curY = headerCardY + 28;
+  // Top two pushpins pinning tape to the desk
+  drawPushpin(ctx, padX + 32, headerCardY + 4, '#DC2626');
+  drawPushpin(ctx, padX + contentW - 32, headerCardY + 4, '#DC2626');
+
+  // Header Content with comfortable line spacing
+  let curY = headerCardY + 34;
 
   // Case Dossier Label
   ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
   ctx.fillStyle = '#991B1B';
-  ctx.fillText('CRIME SCENE INVESTIGATION // DOSSIER NO. KX-2026-SH', padX + 24, curY);
+  ctx.fillText('CRIME SCENE INVESTIGATION // CLASSIFIED DOSSIER', padX + 28, curY);
 
-  curY += 28;
+  curY += 30;
 
   // Title
   ctx.fillStyle = '#18181B';
-  ctx.font = '900 28px "PingFang SC", sans-serif';
-  ctx.fillText('🔍 探案现场 · 声音侦查卷宗', padX + 24, curY);
+  ctx.font = '900 27px "PingFang SC", sans-serif';
+  ctx.fillText('🔍 探案现场 · 声音侦查卷宗', padX + 28, curY);
+
+  curY += 30;
+
+  // Subtitle / Banner（现场通报框：印章描线风格，双层朱砂红描边 + 增大下边距 margin-bottom）
+  const noticeBoxX = padX + 28;
+  const noticeBoxY = curY;
+  const noticeBoxW = contentW - 175;
+  const noticeBoxH = 28;
+
+  // 1. 半透明印泥浅底
+  drawRoundedRect(ctx, noticeBoxX, noticeBoxY, noticeBoxW, noticeBoxH, 3);
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.04)';
+  ctx.fill();
+
+  // 2. 外层印章边框（外粗线）
+  ctx.strokeStyle = '#B91C1C';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  // 3. 内层印章细线（双线描边印章规制）
+  drawRoundedRect(ctx, noticeBoxX + 2.5, noticeBoxY + 2.5, noticeBoxW - 5, noticeBoxH - 5, 2);
+  ctx.strokeStyle = 'rgba(185, 28, 28, 0.65)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // 4. 印章文字（深朱砂红，带警示与公文印章质感）
+  ctx.fillStyle = '#991B1B';
+  ctx.font = '900 12px "PingFang SC", sans-serif';
+  ctx.fillText('⚠️ 现场通报：', noticeBoxX + 10, noticeBoxY + 18.5);
+
+  ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
+  ctx.fillStyle = '#B91C1C';
+  ctx.fillText('全天 88 场对话线索已锁定，请依破案动线准时潜伏入座', noticeBoxX + 86, noticeBoxY + 18.5);
+
+  // 增加显著的 margin-bottom（框高 28px，下移 54px，留出 26px 舒适呼吸间距）
+  curY += 54;
+
+  // 执案侦探姓名防重叠截断
+  const safeUserName = (userName || '声音特派探员').length > 12 
+    ? (userName || '声音特派探员').slice(0, 11) + '…' 
+    : (userName || '声音特派探员');
+
+  // Metadata Grid with comfortable spacing & no overlap
+  ctx.font = '13.5px "JetBrains Mono", "PingFang SC", monospace';
+  ctx.fillStyle = '#27272A';
+  ctx.fillText(`🕵️ 执案侦探：${safeUserName}`, padX + 28, curY);
+  ctx.fillText(`📅 案发日期：2026年10月25日 全天`, padX + 310, curY);
 
   curY += 26;
+  ctx.fillText(`📍 锁定现场：上海·CMG融媒影城`, padX + 28, curY);
+  ctx.fillText(`📁 归档状态：已确证立案 (${items.length} 处案发点)`, padX + 310, curY);
 
-  // Subtitle / Banner
-  drawRoundedRect(ctx, padX + 24, curY, contentW - 160, 26, 4);
-  ctx.fillStyle = '#FEF2F2';
-  ctx.fill();
-  ctx.strokeStyle = '#FCA5A5';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.fillStyle = '#DC2626';
-  ctx.font = 'bold 12px "PingFang SC", sans-serif';
-  ctx.fillText('⚠️ 现场通报：全天 88 场对话线索已锁定，请依破案动线准时潜伏入座', padX + 32, curY + 18);
-
-  curY += 38;
-
-  // Metadata Grid
-  ctx.font = '13px "JetBrains Mono", "PingFang SC", monospace';
-  ctx.fillStyle = '#27272A';
-  ctx.fillText(`🕵️ 执案侦探：${userName}`, padX + 24, curY);
-  ctx.fillText(`📅 案发日期：2026年10月25日 全天`, padX + 280, curY);
-
-  curY += 22;
-  ctx.fillText(`📍 锁定现场：上海·CMG融媒影城 11空间`, padX + 24, curY);
-  ctx.fillText(`📁 归档状态：已确证立案 (${items.length} 处案发点)`, padX + 280, curY);
-
-  curY += 24;
+  curY += 28;
   ctx.font = 'bold 12.5px "PingFang SC", sans-serif';
   ctx.fillStyle = '#BE123C';
-  ctx.fillText(`🎯 侦查指标：锁定 ${primaryCount} 处核心主线 · 备选 ${backupCount} 处 · 侦查 ${(totalMins/60).toFixed(1)}h · 锁定 ${uniqueSpeakers.size} 位重点涉案人`, padX + 24, curY);
+  ctx.fillText(`🎯 侦查指标：锁定 ${primaryCount} 处核心主线 · 备选 ${backupCount} 处 · 侦查 ${(totalMins/60).toFixed(1)}h · 涉案 ${uniqueSpeakers.size} 位重点人`, padX + 28, curY);
 
-  // Draw Realistic Magnifying Glass in header top right
-  drawMagnifyingGlass(ctx, width - padX - 45, headerCardY + 55, 36, Math.PI / 4 + 0.1);
+  // Red Rubber Stamp on header (挪到右上内侧，绝不盖住文本)
+  drawRubberStamp(ctx, width - padX - 90, headerCardY + 142, 'CRIME SCENE', '探案现场·案情锁定', 'EVIDENCE VERIFIED', '#DC2626', -0.16);
 
-  // Red Rubber Stamp on header
-  drawRubberStamp(ctx, width - padX - 100, headerCardY + 145, 'CRIME SCENE', '探案现场·案情锁定', 'EVIDENCE VERIFIED', '#DC2626', -0.16);
+  // Harmonious Vintage Magnifying Glass
+  drawVintageMagnifyingGlass(ctx, width - padX - 44, headerCardY + 56, 36, Math.PI / 4 + 0.12);
 
-  curY = headerCardY + headerCardH + 34;
+  curY = headerCardY + headerCardH + 36;
 
   // 3. Clue Cards with Red String Connections
   const pinPositions = [];
   let tempY = curY;
   cardLayouts.forEach(layout => {
     const pinX = width / 2;
-    const pinY = tempY + 12;
+    const pinY = tempY + 14;
     pinPositions.push({ x: pinX, y: pinY });
-    tempY += layout.itemH + 24;
+    tempY += layout.itemH + 32;
   });
 
-  // Draw Glowing Crimson Connecting Threads
-  ctx.save();
-  ctx.strokeStyle = '#DC2626';
-  ctx.lineWidth = 2.4;
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 4;
+  // Draw Glowing Crimson Connecting Threads between evidence pins
+  if (pinPositions.length > 1) {
+    ctx.save();
+    ctx.strokeStyle = '#DC2626';
+    ctx.lineWidth = 2.4;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 4;
 
-  for (let i = 0; i < pinPositions.length - 1; i++) {
-    const p1 = pinPositions[i];
-    const p2 = pinPositions[i + 1];
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    const midX = (p1.x + p2.x) / 2 + (i % 2 === 0 ? 32 : -32);
-    const midY = (p1.y + p2.y) / 2 + 10;
-    ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
-    ctx.stroke();
+    for (let i = 0; i < pinPositions.length - 1; i++) {
+      const p1 = pinPositions[i];
+      const p2 = pinPositions[i + 1];
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      const midX = (p1.x + p2.x) / 2 + (i % 2 === 0 ? 32 : -32);
+      const midY = (p1.y + p2.y) / 2 + 10;
+      ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
-  ctx.restore();
 
-  // Draw each Clue Note
+  // Draw each Evidence Clue Note (便签 / 案卷卡)
+  if (cardLayouts.length === 0) {
+    ctx.save();
+    drawRoundedRect(ctx, padX, curY, contentW, 110, 8);
+    ctx.fillStyle = '#FAF6ED';
+    ctx.fill();
+    ctx.strokeStyle = '#D4C5B0';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = 'bold 16px "PingFang SC", sans-serif';
+    ctx.fillStyle = '#78350F';
+    ctx.fillText('🔍 暂无立案线索：请先返回节目表勾选你感兴趣的场次加入收听计划', padX + 32, curY + 48);
+
+    ctx.font = '13px "PingFang SC", sans-serif';
+    ctx.fillStyle = '#9CA3AF';
+    ctx.fillText('支持在全景时刻表、时间轴或主播检索中心一键添加必听主选或备选场次。', padX + 32, curY + 76);
+    ctx.restore();
+
+    curY += 136;
+  }
+
   cardLayouts.forEach((layout, idx) => {
     const { item, s, topicLines, spLines, noteLine, transferText, itemH, angle, pinColor } = layout;
 
@@ -3783,12 +4411,12 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
     const cardX = -cardW / 2;
     const cardY = -cardH / 2;
 
-    // Deep shadow on dark wood
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.48)';
-    ctx.shadowBlur = 14;
-    ctx.shadowOffsetY = 7;
+    // Deep shadow on desk
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 15;
+    ctx.shadowOffsetY = 8;
 
-    // Card background
+    // Card background (Aged clue memo note)
     drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 8);
     ctx.fillStyle = item.role === 'primary' ? '#FAF6ED' : '#F4EEE1';
     ctx.fill();
@@ -3805,99 +4433,132 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
     ctx.fillStyle = item.role === 'primary' ? '#DC2626' : '#D97706';
     ctx.fill();
 
-    let innerY = cardY + 28;
+    // Translucent tape strip on the top edge of each clue card
+    drawTapeStrip(ctx, cardX + 48, cardY + 2, 56, 18, -0.06);
 
-    // Line 1: Clue Code + Time + Venue + Role Badge
-    ctx.font = 'bold 15px "JetBrains Mono", Courier, monospace';
-    ctx.fillStyle = '#18181B';
-    ctx.fillText(`[线索 #${String(idx + 1).padStart(2, '0')}] ${s.code} ｜ ⏰ ${s.time}`, cardX + 22, innerY);
+    let innerY = cardY + 30;
 
-    // Venue
-    ctx.font = 'bold 13.5px "PingFang SC", sans-serif';
-    ctx.fillStyle = '#4B5563';
-    ctx.fillText(`📍 案发厅室：${s.venue}`, cardX + 260, innerY);
-
-    // Role Tag
+    // Line 1: Header Row (Zero Overlap Guaranteed)
+    // 1) 右侧放置角色角标 (Role Tag)
     const roleStr = item.role === 'primary' ? '★ 核心主线' : '📌 分支线索';
-    drawRoundedRect(ctx, cardX + cardW - 100, innerY - 16, 86, 22, 5);
+    const roleTagW = 86;
+    const roleTagX = cardX + cardW - 24 - roleTagW;
+    drawRoundedRect(ctx, roleTagX, innerY - 16, roleTagW, 22, 5);
     ctx.fillStyle = item.role === 'primary' ? '#FEE2E2' : '#FEF3C7';
     ctx.fill();
     ctx.fillStyle = item.role === 'primary' ? '#DC2626' : '#D97706';
     ctx.font = 'bold 12px "PingFang SC", sans-serif';
-    ctx.fillText(roleStr, cardX + cardW - 92, innerY - 1);
+    ctx.fillText(roleStr, roleTagX + 9, innerY - 1);
 
-    innerY += 30;
+    // 2) 左侧放置线索编号 + 场号 + 开场时间
+    ctx.font = 'bold 14px "JetBrains Mono", Courier, monospace';
+    ctx.fillStyle = '#18181B';
+    const leftText = `[线索 #${String(idx + 1).padStart(2, '0')}] ${s.code} ｜ ⏰ ${s.time}`;
+    ctx.fillText(leftText, cardX + 24, innerY);
+    const leftW = ctx.measureText(leftText).width;
 
-    // Topic
-    ctx.font = '900 19px "PingFang SC", -apple-system, sans-serif';
+    // 3) 中间放置案发厅室 (Venue)，动态计算绝对无重叠
+    ctx.font = 'bold 13px "PingFang SC", sans-serif';
+    let venueText = `📍 案发：${s.venue}`;
+    let venueW = ctx.measureText(venueText).width;
+    if (cardX + 24 + leftW + 20 > roleTagX - 14 - venueW) {
+      venueText = `📍 ${s.venueShort || s.venue}`;
+      venueW = ctx.measureText(venueText).width;
+    }
+    const venueX = roleTagX - 14 - venueW;
+    ctx.fillStyle = '#4B5563';
+    ctx.fillText(venueText, venueX, innerY);
+
+    innerY += 34;
+
+    // Topic with comfortable line spacing (34px line height)
+    ctx.font = 'bold 18px "PingFang SC", "Microsoft YaHei", sans-serif';
     ctx.fillStyle = '#09090B';
     topicLines.forEach(line => {
-      ctx.fillText(line, cardX + 22, innerY);
-      innerY += 27;
+      ctx.fillText(line, cardX + 24, innerY);
+      innerY += topicLineHeight;
     });
 
-    // Suspects / Speakers
+    innerY += 6; // 舒适的段落空隙
+
+    // Suspects / Speakers with comfortable line spacing (28px line height)
     ctx.font = '14px "PingFang SC", sans-serif';
     ctx.fillStyle = '#4B5563';
     spLines.forEach(line => {
-      ctx.fillText(line, cardX + 22, innerY);
-      innerY += 22;
+      ctx.fillText(line, cardX + 24, innerY);
+      innerY += spLineHeight;
     });
 
-    // Detective Note
+    // Detective Note (Styled as yellow sticky tape memo)
     if (noteLine) {
-      ctx.font = 'italic 13px "PingFang SC", sans-serif';
-      ctx.fillStyle = '#B45309';
-      ctx.fillText(noteLine, cardX + 22, innerY);
-      innerY += 22;
+      innerY += 4;
+      drawRoundedRect(ctx, cardX + 20, innerY - 14, cardW - 40, 28, 5);
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.55)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(234, 179, 8, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.font = 'bold 12.5px "PingFang SC", sans-serif';
+      ctx.fillStyle = '#92400E';
+      ctx.fillText(noteLine, cardX + 32, innerY + 5);
+      innerY += 34;
     }
 
     // Transfer Alert
     if (transferText) {
-      drawRoundedRect(ctx, cardX + 20, innerY - 2, cardW - 40, 22, 4);
+      innerY += 4;
+      drawRoundedRect(ctx, cardX + 20, innerY - 14, cardW - 40, 28, 5);
       ctx.fillStyle = '#FEF2F2';
       ctx.fill();
+      ctx.strokeStyle = '#FCA5A5';
+      ctx.lineWidth = 1;
+      ctx.stroke();
       ctx.fillStyle = '#DC2626';
-      ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
-      ctx.fillText(transferText, cardX + 28, innerY + 13);
-      innerY += 24;
+      ctx.font = 'bold 12px "PingFang SC", sans-serif';
+      ctx.fillText(transferText, cardX + 32, innerY + 5);
+      innerY += 34;
     }
 
     ctx.restore();
 
-    // Top Pushpin
+    // Top Pushpin holding the clue card onto the board
     drawPushpin(ctx, width / 2, curY + 6, pinColor);
 
-    curY += itemH + 24;
+    curY += itemH + 32;
   });
 
-  // 4. Footer Section
-  curY += 10;
+  // 4. Footer Section (Desk Memo Strip)
+  curY += 12;
+  const footerCardH = 78;
   ctx.save();
   ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
   ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 6;
-  drawRoundedRect(ctx, padX, curY, contentW, 60, 8);
-  ctx.fillStyle = '#F8F3E6';
+  drawRoundedRect(ctx, padX, curY, contentW, footerCardH, 8);
+  ctx.fillStyle = '#F8F4EA';
   ctx.fill();
   ctx.strokeStyle = '#C9BAA3';
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
 
-  drawPushpin(ctx, padX + 18, curY + 8, '#DC2626');
-  drawPushpin(ctx, padX + contentW - 18, curY + 8, '#DC2626');
+  drawTapeStrip(ctx, padX + 22, curY + 4, 52, 18, -0.08);
+  drawTapeStrip(ctx, padX + contentW - 22, curY + 4, 52, 18, 0.08);
+
+  drawPushpin(ctx, padX + 22, curY + 6, '#DC2626');
+  drawPushpin(ctx, padX + contentW - 22, curY + 6, '#DC2626');
 
   ctx.font = 'bold 13px "PingFang SC", sans-serif';
   ctx.fillStyle = '#27272A';
-  ctx.fillText('🏛️ 现场搜查动线：1F (1-5号厅、狂喜圆桌A) ｜ 2F (圆桌B/C) ｜ 3F (6-8号厅)', padX + 36, curY + 26);
+  ctx.fillText('🏛️ 现场搜查动线：1F (1-5号厅、狂喜圆桌A) ｜ 2F (圆桌B/C) ｜ 3F (6-8号厅)', padX + 38, curY + 32);
 
   ctx.font = '12px "PingFang SC", sans-serif';
   ctx.fillStyle = '#71717A';
-  ctx.fillText('本案卷线索由狂喜播客节「探案现场」侦破组联合整理 · 案情曲折但包精彩 · 祝您听会愉快！', padX + 36, curY + 47);
+  ctx.fillText('本案卷线索由狂喜播客节「探案现场」侦破组联合整理 · 案情曲折但包精彩 · 祝您听会愉快！', padX + 38, curY + 56);
 
   if (showPartners) {
-    curY += 76;
+    curY += 86;
     const footerImgH = Math.round(135 * (width / 576));
     if (posterAssets.footer && posterAssets.footer.complete && posterAssets.footer.naturalWidth > 0) {
       ctx.drawImage(posterAssets.footer, padX, curY, contentW, footerImgH);
@@ -3906,7 +4567,6 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
 
   syncPosterImagePreview(canvas);
 }
-
 
 const renderYidiDengluPoster = renderCrimeScenePoster;
 
@@ -4040,21 +4700,6 @@ function renderSchedulePosterCanvas() {
       textMuted: '#8A847C',
       badgeBg: '#DCFCE7',
       badgeText: '#166534'
-    },
-    clean: {
-      name: '清爽白昼',
-      bg: '#F8FAFC',
-      headerBg: '#0F172A',
-      cardBg: '#FFFFFF',
-      cardBackupBg: '#FEFCE8',
-      cardBorder: '#E2E8F0',
-      primaryAccent: '#16A34A',
-      secondaryAccent: '#D97706',
-      textMain: '#0F172A',
-      textSub: '#475569',
-      textMuted: '#94A3B8',
-      badgeBg: '#DCFCE7',
-      badgeText: '#15803D'
     }
   };
 
@@ -4065,14 +4710,14 @@ function renderSchedulePosterCanvas() {
   const width = 800;
   const padX = 40;
   const contentW = width - padX * 2;
-  const stubW = 125;
-  const ticketTextW = contentW - stubW - 40;
+  const stubW = 132;
+  const ticketTextW = contentW - stubW - 46;
 
   // Pre-calculate height of each card
-  ctx.font = 'bold 20px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const textAvailableW = isPunk ? ticketTextW : (contentW - 44);
+    ctx.font = '900 19px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
     const topicLines = wrapCanvasText(ctx, s.topic, textAvailableW);
     const spText = '🎙️ 主播/嘉宾：' + (s.speakers.join('、') || '虚位以待');
     ctx.font = '14px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
@@ -4095,9 +4740,9 @@ function renderSchedulePosterCanvas() {
     }
 
     const noteLine = item.note ? `📝 备注：${item.note}` : '';
-    let cardH = 68 + topicLines.length * 27 + spLines.length * 21 + (noteLine ? 24 : 0) + 16;
+    let cardH = 68 + topicLines.length * 28 + spLines.length * 22 + (noteLine ? 26 : 0) + 24;
     if (isPunk) {
-      cardH = Math.max(136, cardH);
+      cardH = Math.max(140, cardH);
     }
     const connectorH = transferText ? 34 : 0;
 
@@ -4203,7 +4848,7 @@ function renderSchedulePosterCanvas() {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 13px -apple-system, "PingFang SC", sans-serif';
     ctx.fillText(
-      `🎧 必选：${primaryCount} 场   |   📌 备选：${backupCount} 场   |   ⏱️ 累计时长：${(totalMins / 60).toFixed(1)} 小时   |   🎙️ 覆盖主播：${uniqueSpeakers.size} 人`,
+      `🎧 已选：${items.length} 场对话   |   ⏱️ 累计时长：${(totalMins / 60).toFixed(1)} 小时   |   🎙️ 覆盖主播：${uniqueSpeakers.size} 人`,
       padX + 16,
       userBarY + 118
     );
@@ -4339,25 +4984,40 @@ function renderSchedulePosterCanvas() {
       const stubCenterX = padX + (stubW / 2);
       ctx.textAlign = 'center';
 
-      // Top: Stub role tag
+      // Top: Stub tag
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.font = 'bold 11px "JetBrains Mono", sans-serif';
-      ctx.fillText(item.role === 'primary' ? '★ 必选存根' : '📌 备选副联', stubCenterX, curY + 22);
+      ctx.fillText('★ 狂喜票根', stubCenterX, curY + 22);
 
-      // Venue short (Huge bold text)
+      // Venue in Left Stub (Handled cleanly for roundtables & halls)
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '900 21px -apple-system, "PingFang SC", sans-serif';
-      ctx.fillText(s.venueShort, stubCenterX, curY + 50);
+      if (s.isRoundtable || s.venueShort.includes('圆桌')) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.font = 'bold 12px -apple-system, "PingFang SC", sans-serif';
+        ctx.fillText(`${s.floor} · ${s.code}`, stubCenterX, curY + 44);
 
-      // Floor & Code
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-      ctx.font = 'bold 13px -apple-system, "PingFang SC", sans-serif';
-      ctx.fillText(`${s.floor} · ${s.code}`, stubCenterX, curY + 70);
+        const rtName = s.venue.includes('狂喜圆桌')
+          ? s.venue.replace(/^(一楼|二楼|三楼|二楼休息室)/, '').replace(/[「」]/g, '')
+          : s.venueShort;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 16.5px -apple-system, "PingFang SC", sans-serif';
+        ctx.fillText(rtName, stubCenterX, curY + 64);
 
-      // Start Time
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 15px "JetBrains Mono", Menlo, monospace';
-      ctx.fillText(s.start, stubCenterX, curY + 92);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.font = 'bold 14px "JetBrains Mono", Menlo, monospace';
+        ctx.fillText(s.start, stubCenterX, curY + 86);
+      } else {
+        ctx.font = '900 20px -apple-system, "PingFang SC", sans-serif';
+        ctx.fillText(s.venueShort, stubCenterX, curY + 48);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.font = 'bold 13px -apple-system, "PingFang SC", sans-serif';
+        ctx.fillText(`${s.floor} · ${s.code}`, stubCenterX, curY + 70);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 15px "JetBrains Mono", Menlo, monospace';
+        ctx.fillText(s.start, stubCenterX, curY + 92);
+      }
 
       // Barcode decoration at bottom of stub
       const barY = curY + cardH - 18;
@@ -4378,15 +5038,6 @@ function renderSchedulePosterCanvas() {
       ctx.font = 'bold 16px "JetBrains Mono", Menlo, monospace';
       ctx.fillText(`${s.time} (${s.durationMin}m)`, mainX, innerY);
 
-      // Role badge
-      const roleText = item.role === 'primary' ? '★ 必选主联' : '📌 备选票';
-      drawRoundedRect(ctx, mainX + 155, innerY - 15, 82, 20, 5);
-      ctx.fillStyle = item.role === 'primary' ? '#FFE4F1' : 'rgba(2, 132, 199, 0.12)';
-      ctx.fill();
-      ctx.fillStyle = item.role === 'primary' ? '#BE185D' : '#0284C7';
-      ctx.font = 'bold 11px -apple-system, "PingFang SC", sans-serif';
-      ctx.fillText(roleText, mainX + 163, innerY - 1);
-
       // Venue full text right aligned
       const venueStr = `📍 ${s.venue}`;
       ctx.font = 'bold 13px -apple-system, "PingFang SC", sans-serif';
@@ -4400,7 +5051,7 @@ function renderSchedulePosterCanvas() {
       ctx.font = '900 19px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
       topicLines.forEach(line => {
         ctx.fillText(line, mainX, innerY);
-        innerY += 27;
+        innerY += 28;
       });
 
       // Speakers
@@ -4409,7 +5060,7 @@ function renderSchedulePosterCanvas() {
       ctx.font = '14px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
       spLines.forEach(line => {
         ctx.fillText(line, mainX, innerY);
-        innerY += 21;
+        innerY += 22;
       });
 
       // Personal note (if present)
@@ -4427,7 +5078,7 @@ function renderSchedulePosterCanvas() {
       ctx.fillStyle = '#94A3B8';
       ctx.fillText(serialStr, padX + contentW - sWidth - 18, curY + cardH - 10);
     } else {
-      // Standard Cards for festival, paper, clean
+      // Standard Cards for festival, paper
       drawRoundedRect(ctx, padX, curY, contentW, cardH, 12);
       ctx.fillStyle = item.role === 'primary' ? th.cardBg : th.cardBackupBg;
       ctx.fill();
@@ -4542,7 +5193,19 @@ function renderSchedulePosterCanvas() {
 
 // ==================== DOWNLOAD / EXPORT FUNCTIONS ====================
 
-// 1. Download High-DPI PNG Poster
+// 1. Download High-DPI JPG Poster (Default Recommended)
+function downloadPosterJpg(quality = 0.95) {
+  renderSchedulePosterCanvas();
+  const canvas = document.getElementById('schedulePosterCanvas');
+  const userName = (document.getElementById('posterUserName')?.value || '狂喜听友').trim();
+  const link = document.createElement('a');
+  link.download = `第六届狂喜播客节_叁狂+_${userName}_个人收听计划表.jpg`;
+  link.href = canvas.toDataURL('image/jpeg', quality);
+  link.click();
+  showToast('🖼️ 高清收听计划表长图 (.JPG) 已开始下载！');
+}
+
+// 2. Download High-DPI PNG Poster
 function downloadPosterPng() {
   renderSchedulePosterCanvas();
   const canvas = document.getElementById('schedulePosterCanvas');
@@ -4551,7 +5214,7 @@ function downloadPosterPng() {
   link.download = `第六届狂喜播客节_叁狂+_${userName}_个人收听计划表.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
-  showToast('🖼️ 高清收听计划表长图 (.PNG) 已开始下载！');
+  showToast('🖼️ 无损收听计划表长图 (.PNG) 已开始下载！');
 }
 
 // 2. Download ICS Calendar File

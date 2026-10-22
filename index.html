@@ -59,8 +59,8 @@
             <span class="tab-label-short">🗺️ 11厅全景</span>
           </button>
           <button class="view-tab" id="tabTimeline" onclick="switchView('timeline')">
-            <span class="tab-label-full">🕒 时间轴排期</span>
-            <span class="tab-label-short">🕒 时间轴</span>
+            <span class="tab-label-full">🕒 时间轴/分类</span>
+            <span class="tab-label-short">🕒 时间轴/分类</span>
             <span class="tab-badge" id="badgeFilteredCount">88</span>
           </button>
           <button class="view-tab" id="tabSpeakers" onclick="switchView('speakers')">
@@ -277,21 +277,19 @@
               <!-- Quick Style Select Chips -->
               <div class="poster-style-chips" id="posterStyleChips">
                 <button type="button" class="btn-style-chip active" data-style="punk" onclick="setPosterTheme('punk')">⚡ 狂喜朋克</button>
-                <button type="button" class="btn-style-chip" data-style="filmset" onclick="setPosterTheme('filmset')">🎬 片场计划</button>
                 <button type="button" class="btn-style-chip" data-style="receipt" onclick="setPosterTheme('receipt')">🧾 超市小票</button>
                 <button type="button" class="btn-style-chip" data-style="crimescene" onclick="setPosterTheme('crimescene')">🔍 探案现场</button>
                 <button type="button" class="btn-style-chip" data-style="festival" onclick="setPosterTheme('festival')">🔥 经典黑金</button>
                 <button type="button" class="btn-style-chip" data-style="paper" onclick="setPosterTheme('paper')">📜 暖米手账</button>
-                <button type="button" class="btn-style-chip" data-style="clean" onclick="setPosterTheme('clean')">☀️ 清爽白昼</button>
+                <button type="button" class="btn-style-chip" data-style="noninsurance" onclick="setPosterTheme('noninsurance')">🛡️ 不太保险</button>
               </div>
               <select id="posterThemeSelect" class="form-input" onchange="onPosterThemeSelectChange(this.value)">
                 <option value="punk" selected>⚡ 狂喜粉蓝朋克 · 官方主视觉（推荐）</option>
-                <option value="filmset">🎬 片场计划 · 警示黄黑场记通告单</option>
-                <option value="receipt">🧾 超市小票 · 狂喜声音收据凭条（纯正热敏纸无干扰）</option>
-                <option value="crimescene">🔍 探案现场 · 侦探线索板（暗调松木板 / 大头针 / 放大镜）</option>
+                <option value="receipt">🧾 超市小票 · 狂喜声音收据凭条</option>
+                <option value="crimescene">🔍 探案现场 · 声音侦查案卷（书桌 / 便签 / 放大镜 / 胶带）</option>
                 <option value="festival">🔥 狂喜黑金 · 经典电台风</option>
                 <option value="paper">📜 暖米手账 · 复古纸感</option>
-                <option value="clean">☀️ 清爽白昼 · 极简课表</option>
+                <option value="noninsurance">🛡️ 不太保险 · 警示黄黑特别版</option>
               </select>
             </div>
 
@@ -314,8 +312,11 @@
             <hr style="border: none; border-top: 1px solid var(--border-subtle);" />
 
             <div class="export-buttons-stack">
-              <button class="btn btn-primary" onclick="downloadPosterPng()" style="width: 100%; justify-content: center; padding: 11px;">
-                🖼️ 下载高清计划表长图 (.PNG)
+              <button class="btn btn-primary" onclick="downloadPosterJpg()" style="width: 100%; justify-content: center; padding: 11px;">
+                🖼️ 下载高清计划表长图 (.JPG)
+              </button>
+              <button class="btn btn-secondary" onclick="downloadPosterPng()" style="width: 100%; justify-content: center;">
+                🖼️ 下载无损原图 (.PNG)
               </button>
               <button class="btn btn-dark" onclick="downloadIcsCalendar()" style="width: 100%; justify-content: center;">
                 📅 导出到手机/电脑日历 (.ICS)
