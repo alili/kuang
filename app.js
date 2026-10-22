@@ -6,6 +6,15 @@ const SESSIONS = window.SESSIONS_DATA || [];
 const SPEAKERS = window.SPEAKERS_DATA || [];
 const META = window.FESTIVAL_META || {};
 const SPEAKER_TITLES = window.SPEAKER_TITLES || {};
+const TOPICS = window.FESTIVAL_TOPICS || [];
+
+const TOPIC_BY_ID = {};
+const TOPIC_BY_NAME = {};
+TOPICS.forEach(t => {
+  TOPIC_BY_ID[t.id] = t;
+  TOPIC_BY_NAME[t.name] = t;
+  TOPIC_BY_NAME[t.fullName] = t;
+});
 
 const SESSION_BY_SEQ = {};
 const SESSION_BY_ID = {};
@@ -48,6 +57,7 @@ const state = {
   onlyOpenSlots: false,
   speakerFreqFilter: 'all',
   expandedSpeakers: new Set(),
+  timelineGroupBy: 'time', // 'time' | 'topic'
   // plan: { [seq]: { seq, role: 'primary' | 'backup', note: '', addedAt: number } }
   plan: {},
   pendingConflictSeq: null
@@ -461,7 +471,11 @@ function setVenueFilter(val) {
 }
 
 function setTagFilter(val) {
-  state.tagFilter = val;
+  if (state.tagFilter === val) {
+    state.tagFilter = 'all';
+  } else {
+    state.tagFilter = val;
+  }
   refreshAllViews();
 }
 
@@ -541,9 +555,13 @@ function getFilteredSessions() {
       }
     }
 
-    // 3. Tag filter
-    if (state.tagFilter !== 'all' && !s.tags.includes(state.tagFilter)) {
-      return false;
+    // 3. Tag / Topic filter
+    if (state.tagFilter !== 'all') {
+      const matchTag = (s.tags && s.tags.includes(state.tagFilter)) ||
+                       s.topicName === state.tagFilter ||
+                       s.topicCategory === state.tagFilter ||
+                       s.topicId === state.tagFilter;
+      if (!matchTag) return false;
     }
 
     // 4. Only no conflict
@@ -800,6 +818,67 @@ function getFloorClass(floor) {
   return 'floor-3';
 }
 
+function jumpToTopicSlot(topicId) {
+  const el = document.getElementById(`topic-group-${topicId}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleTimelineGroupBy() {
+  state.timelineGroupBy = state.timelineGroupBy === 'topic' ? 'time' : 'topic';
+  renderTimelineView();
+}
+
+function renderTopicFilterBar() {
+  const container = document.getElementById('topicFilterScroll');
+  if (!container) return;
+
+  const totalCount = SESSIONS.length;
+  const isAllActive = state.tagFilter === 'all';
+
+  let html = `
+    <button
+      type="button"
+      class="topic-filter-chip ${isAllActive ? 'active' : ''}"
+      onclick="setTagFilter('all')"
+      title="查看全部 88 场对话"
+    >
+      <span>全部话题</span>
+      <span class="chip-count">(${totalCount})</span>
+    </button>
+  `;
+
+  TOPICS.forEach(top => {
+    const isActive = state.tagFilter === top.name ||
+                     state.tagFilter === top.fullName ||
+                     state.tagFilter === top.id;
+    const activeStyle = isActive
+      ? `background:${top.color}; color:#fff; border-color:${top.color}; box-shadow:0 2px 8px ${top.color}40;`
+      : `border-color:${top.border}; color:${top.color}; background:${top.bg};`;
+
+    html += `
+      <button
+        type="button"
+        class="topic-filter-chip ${isActive ? 'active' : ''}"
+        style="${activeStyle}"
+        onclick="setTagFilter('${escapeAttr(top.name)}')"
+        title="${escapeAttr(top.desc)}"
+      >
+        <span>${top.icon}</span>
+        <span>${escapeHtml(top.fullName)}</span>
+        <span class="chip-count">(${top.count})</span>
+      </button>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  const toggleBtnTxt = document.getElementById('txtGroupByLabel');
+  if (toggleBtnTxt) {
+    toggleBtnTxt.textContent = state.timelineGroupBy === 'topic' ? '🕒 按时间段分组' : '📑 按9大话题分组';
+  }
+}
+
 function jumpToTimeSlot(startTime) {
   const safeId = `time-group-${startTime.replace(':', '-')}`;
   const el = document.getElementById(safeId);
@@ -808,12 +887,19 @@ function jumpToTimeSlot(startTime) {
 }
 
 function renderTimelineView() {
+  renderTopicFilterBar();
+
   const filtered = getFilteredSessions();
   document.getElementById('badgeFilteredCount').textContent = filtered.length;
 
   const summaryEl = document.getElementById('timelineSummaryText');
   if (summaryEl) {
-    summaryEl.innerHTML = `当前筛选共找到 <strong>${filtered.length}</strong> 场节目（全天共 88 场）`;
+    const activeTopic = TOPICS.find(t => t.name === state.tagFilter || t.fullName === state.tagFilter);
+    if (activeTopic) {
+      summaryEl.innerHTML = `当前筛选：<strong>${activeTopic.icon} ${activeTopic.fullName}</strong>（共 ${filtered.length} 场对话） · ${activeTopic.desc}`;
+    } else {
+      summaryEl.innerHTML = `当前筛选共找到 <strong>${filtered.length}</strong> 场节目（全天共 88 场）`;
+    }
   }
 
   const container = document.getElementById('timelineGroupsContainer');
@@ -833,7 +919,60 @@ function renderTimelineView() {
     return;
   }
 
-  // Group sessions by start time
+  // Branch 1: Group by 9 Official Topics
+  if (state.timelineGroupBy === 'topic') {
+    const topicGroups = [];
+    TOPICS.forEach(top => {
+      const groupSessions = filtered.filter(s => s.topicId === top.id || s.topicName === top.name);
+      if (groupSessions.length > 0) {
+        groupSessions.sort((a, b) => a.startMin - b.startMin);
+        topicGroups.push({ topic: top, sessions: groupSessions });
+      }
+    });
+
+    if (jumpBar) {
+      if (topicGroups.length > 1) {
+        jumpBar.style.display = 'flex';
+        const pillsHtml = topicGroups.map(({ topic, sessions }) => {
+          const hasPlanned = sessions.some(s => !!state.plan[s.seq]);
+          return `<button type="button" class="time-jump-pill ${hasPlanned ? 'has-planned' : ''}" onclick="jumpToTopicSlot('${topic.id}')">${topic.icon} ${topic.name}<span class="jump-count">${sessions.length}</span></button>`;
+        }).join('');
+        jumpBar.innerHTML = `<span class="time-jump-label">📑 话题速跳：</span><div class="time-jump-scroll">${pillsHtml}</div>`;
+      } else {
+        jumpBar.style.display = 'none';
+      }
+    }
+
+    let html = '';
+    topicGroups.forEach(({ topic: top, sessions: groupSessions }) => {
+      const safeId = `topic-group-${top.id}`;
+      html += `
+        <div class="topic-group-section" id="${safeId}">
+          <div class="topic-group-header" style="background:${top.bg}; border:1.5px solid ${top.border}; color:${top.color};">
+            <div>
+              <div class="topic-group-title">
+                <span>${top.icon}</span>
+                <span>${escapeHtml(top.fullName)}</span>
+                <span class="topic-group-badge-count">共 ${groupSessions.length} 场</span>
+              </div>
+              <div class="topic-group-desc" style="color:var(--text-secondary);">${escapeHtml(top.desc)}</div>
+            </div>
+            <div style="font-size:12px; color:${top.color}; font-weight:700;">
+              ✨ 栏内按开场时间排序
+            </div>
+          </div>
+          <div class="sessions-grid">
+            ${groupSessions.map(s => renderSessionCardHtml(s)).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+    return;
+  }
+
+  // Branch 2: Group by Start Time (Default)
   const groupsMap = new Map();
   filtered.forEach(s => {
     const key = s.start;
@@ -985,12 +1124,19 @@ function renderSessionCardHtml(s) {
 
         <h3 class="session-topic">${escapeHtml(s.topic)}</h3>
 
-        ${s.tags.length > 0 || s.hasOpenSlots ? `
-          <div class="session-tags-row">
-            ${s.tags.map(t => `<span class="topic-tag">#${escapeHtml(t)}</span>`).join('')}
-            ${s.hasOpenSlots ? `<span class="open-slot-tag" title="按每场4人计，本场尚有可增补嘉宾位置">🪑 可增补席位 ×${Math.max(1, 4 - s.speakers.length)}</span>` : ''}
-          </div>
-        ` : ''}
+        <div class="session-tags-row">
+          <button
+            type="button"
+            class="topic-badge-btn"
+            style="color:${s.topicColor || 'var(--brand-primary)'}; background:${s.topicBg || '#FFF5F2'}; border-color:${s.topicBorder || 'rgba(232,67,36,0.3)'};"
+            onclick="setTagFilter('${escapeAttr(s.topicName || s.tags[0])}')"
+            title="点击筛选「${escapeAttr(s.topicCategory || s.topicName || s.tags[0])}」官方话题全部场次"
+          >
+            <span>${s.topicIcon || '🏷️'}</span>
+            <span>${escapeHtml(s.topicCategory || s.topicName || s.tags[0])}</span>
+          </button>
+          ${s.hasOpenSlots ? `<span class="open-slot-tag" title="按每场4人计，本场尚有可增补嘉宾位置">🪑 可增补席位 ×${Math.max(1, 4 - s.speakers.length)}</span>` : ''}
+        </div>
 
         <div class="session-speakers">
           <span class="speaker-label">主播/嘉宾：</span>
@@ -1058,6 +1204,7 @@ function renderMatrixView() {
           onmousemove="moveMatrixTooltip(event)"
           onmouseleave="hideMatrixTooltip()"
         >
+          <div class="matrix-block-topic-bar" style="position:absolute; top:0; left:0; right:0; height:3px; background:${s.topicColor || '#E84324'}; opacity:0.9; border-radius:3px 3px 0 0;"></div>
           <div class="matrix-block-title">${escapeHtml(s.topic)}</div>
           <div class="matrix-block-speakers">
             🎙️ ${escapeHtml(spText)}
@@ -1130,6 +1277,11 @@ function showMatrixTooltip(e, seq) {
     <div class="m-tip-top">
       <span class="m-tip-code">${s.code} ${s.time} (${s.durationMin}m)</span>
       <span class="m-tip-venue">📍 ${escapeHtml(s.venue)}</span>
+    </div>
+    <div style="margin-bottom:6px;">
+      <span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; color:${s.topicColor || '#E84324'}; background:${s.topicBg || '#FFF5F2'}; border:1px solid ${s.topicBorder || 'rgba(232,67,36,0.3)'};">
+        ${s.topicIcon || '🏷️'} ${escapeHtml(s.topicCategory || s.topicName || '')}
+      </span>
     </div>
     <div class="m-tip-topic">${escapeHtml(s.topic)}</div>
     <div class="m-tip-speakers-box">
@@ -2379,11 +2531,11 @@ function drawRubberStamp(ctx, cx, cy, textTop, textCenter, textBottom, color = '
   ctx.restore();
 }
 
-// 1. 狂喜超市小票风格
+// 1. 狂喜超市小票风格（纯正热敏纸无干扰 · 零遮挡）
 function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
   const scale = 2;
   const width = 720;
-  const padX = 40;
+  const padX = 42;
   const contentW = width - padX * 2;
 
   const primaryCount = items.filter(i => i.role === 'primary').length;
@@ -2392,12 +2544,13 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   const uniqueSpeakers = new Set();
   items.forEach(i => i.session.speakers.forEach(sp => uniqueSpeakers.add(sp)));
 
-  ctx.font = 'bold 17px "JetBrains Mono", PingFang SC, monospace';
+  // Pre-calculate items layout - strictly monospaced dot-matrix receipt layout
+  ctx.font = 'bold 16px "JetBrains Mono", Courier, monospace';
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 20);
-    const spText = '配料表: ' + (s.speakers.join('、') || '特邀神秘嘉宾');
-    ctx.font = '14px -apple-system, "PingFang SC", sans-serif';
+    const spText = '主讲: ' + (s.speakers.join('、') || '特邀主讲');
+    ctx.font = '13.5px "JetBrains Mono", Courier, monospace';
     const spLines = wrapCanvasText(ctx, spText, contentW - 20);
 
     let transferText = '';
@@ -2405,46 +2558,46 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
       const prev = items[idx - 1].session;
       const overlap = getOverlapMinutes(prev, s);
       if (overlap > 0) {
-        transferText = `⚡ 冲突预警：与上一场 ${prev.code} 重叠 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
+        transferText = `! 换场冲突: 与上一场 ${prev.code} 重叠 ${overlap}m (${prev.venueShort} ↔ ${s.venueShort})`;
       } else {
         const gap = s.startMin - prev.endMin;
         if (gap <= 15) {
-          transferText = `🏃 紧凑换场：间隔 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
+          transferText = `! 紧凑换场: 距上一场仅 ${gap}m (${prev.venueShort} → ${s.venueShort})`;
         }
       }
     }
 
     const noteLine = item.note ? `* 顾客备忘: ${item.note}` : '';
-    const itemH = 32 + topicLines.length * 26 + spLines.length * 20 + 26 + (noteLine ? 24 : 0) + (transferText ? 26 : 0) + 16;
+    const itemH = 28 + topicLines.length * 24 + spLines.length * 20 + 24 + (noteLine ? 22 : 0) + (transferText ? 24 : 0) + 16;
     return { item, s, topicLines, spLines, noteLine, transferText, itemH };
   });
 
-  const headerH = 340;
-  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH, 0) : 100;
+  const headerH = 300;
+  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH, 0) : 90;
   const summaryH = 260;
-  const barcodeH = 110;
-  const footerH = showPartners ? 270 : 160;
-  const totalH = Math.max(900, headerH + itemsH + summaryH + barcodeH + footerH);
+  const barcodeH = 100;
+  const footerH = 140;
+  const totalH = Math.max(880, headerH + itemsH + summaryH + barcodeH + footerH);
 
   canvas.width = width * scale;
   canvas.height = totalH * scale;
   ctx.scale(scale, scale);
 
   // Background
-  ctx.fillStyle = '#E8E4D9';
+  ctx.fillStyle = '#E6E3D8';
   ctx.fillRect(0, 0, width, totalH);
 
-  // Paper with saw-tooth tear edge
-  const paperX = 16;
+  // Thermal paper with saw-tooth tear edge top and bottom
+  const paperX = 18;
   const paperW = width - paperX * 2;
   const toothW = 12;
   const toothH = 7;
 
   ctx.save();
-  ctx.fillStyle = '#FAF8F0';
-  ctx.shadowColor = 'rgba(0,0,0,0.12)';
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetY = 4;
+  ctx.fillStyle = '#FAF9F2';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 3;
 
   ctx.beginPath();
   ctx.moveTo(paperX, 16);
@@ -2461,84 +2614,60 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   ctx.fill();
   ctx.restore();
 
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
   ctx.lineWidth = 1;
   ctx.strokeRect(paperX + 4, 24, paperW - 8, totalH - 48);
 
-  let curY = 40;
+  // --- HEADER ---
+  let curY = 44;
 
-  // Receipt Icon
-  drawRoundedRect(ctx, width / 2 - 24, curY, 48, 48, 10);
-  ctx.fillStyle = '#18181B';
-  ctx.fill();
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '24px sans-serif';
+  ctx.fillStyle = '#141414';
   ctx.textAlign = 'center';
-  ctx.fillText('🧾', width / 2, curY + 33);
-  ctx.textAlign = 'left';
-  curY += 58;
+  ctx.font = '900 24px "PingFang SC", "JetBrains Mono", sans-serif';
+  ctx.fillText('★ 第六届狂喜播客节 · 声音超级市场 ★', width / 2, curY);
 
-  // Store Title
-  ctx.fillStyle = '#18181B';
-  ctx.textAlign = 'center';
-  ctx.font = '900 23px "PingFang SC", -apple-system, sans-serif';
-  ctx.fillText('★ 第六届狂喜播客节 · 声音超级市场 ★', width / 2, curY + 4);
+  curY += 26;
+  ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#404040';
+  ctx.fillText('KUANIVAL SOUND SUPERMARKET · CASH REGISTER RECEIPT', width / 2, curY);
 
-  ctx.font = 'bold 12.5px "JetBrains Mono", Menlo, monospace';
-  ctx.fillStyle = '#52525B';
-  ctx.fillText('KUANIVAL SOUND SUPERMARKET · RECEIPT', width / 2, curY + 26);
+  curY += 26;
+  ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#141414';
+  ctx.fillText('[ 凭此收银小票全日畅听 · 纯正热敏纸收据凭条 ]', width / 2, curY);
   ctx.textAlign = 'left';
 
-  curY += 40;
+  curY += 24;
 
-  // Notice strip
-  drawRoundedRect(ctx, padX, curY, contentW, 30, 4);
-  ctx.fillStyle = '#F4F4F5';
-  ctx.fill();
-  ctx.strokeStyle = '#D4D4D8';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.fillStyle = '#18181B';
-  ctx.font = 'bold 12px "PingFang SC", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('🧾 KUANIVAL 收银凭条：凭票全天畅听 · 尽情享受声音奇遇', width / 2, curY + 20);
-  ctx.textAlign = 'left';
-
-  curY += 42;
-
-  // Meta Grid
-  ctx.font = '13px "JetBrains Mono", Courier, monospace';
-  ctx.fillStyle = '#3F3F46';
-  ctx.fillText(`门店名称：第六届狂喜播客节 CMG影城店`, padX, curY);
-  ctx.fillText(`收银机号：POS-088`, padX + contentW - 130, curY);
+  ctx.font = '12.5px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#262626';
+  ctx.fillText(`门店编号：KX-CMG-20261025`, padX, curY);
+  ctx.fillText(`机号：POS-088`, padX + contentW - 120, curY);
   curY += 20;
-  ctx.fillText(`交易单号：KX-20261025-${items.length}S-VIP`, padX, curY);
-  ctx.fillText(`收银员：${userName}`, padX + contentW - 130, curY);
+  ctx.fillText(`交易单号：TX20261025-${items.length}TALKS-VIP`, padX, curY);
+  ctx.fillText(`收银员：${userName}`, padX + contentW - 120, curY);
   curY += 20;
-  ctx.fillText(`开单时间：2026-10-25 08:30 (全日畅听)`, padX, curY);
-  ctx.fillText(`状态：已生效锁定`, padX + contentW - 130, curY);
+  ctx.fillText(`开单时间：2026-10-25 08:30 (全日营业)`, padX, curY);
+  ctx.fillText(`状态：已开单锁定`, padX + contentW - 120, curY);
 
-  curY += 20;
-  ctx.strokeStyle = '#27272A';
+  curY += 22;
+
+  ctx.strokeStyle = '#141414';
   ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
+  ctx.setLineDash([4, 3]);
   ctx.beginPath();
   ctx.moveTo(padX, curY);
   ctx.lineTo(padX + contentW, curY);
   ctx.stroke();
-  ctx.setLineDash([]);
 
   curY += 16;
-  ctx.font = 'bold 12.5px "JetBrains Mono", Courier, monospace';
-  ctx.fillStyle = '#18181B';
+  ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#141414';
   ctx.fillText('【时段 / 展厅】', padX, curY);
-  ctx.fillText('【单品对话与配料阵容】', padX + 160, curY);
-  ctx.fillText('【小计时间】', padX + contentW - 80, curY);
+  ctx.fillText('【单品名称与主讲阵容】', padX + 160, curY);
+  ctx.fillText('【小计】', padX + contentW - 60, curY);
 
-  curY += 10;
-  ctx.strokeStyle = '#27272A';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
+  curY += 8;
   ctx.beginPath();
   ctx.moveTo(padX, curY);
   ctx.lineTo(padX + contentW, curY);
@@ -2547,74 +2676,61 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
 
   curY += 18;
 
-  if (cardLayouts.length === 0) {
-    ctx.font = 'bold 15px -apple-system, sans-serif';
-    ctx.fillStyle = '#71717A';
-    ctx.fillText('（购物车还是空的，请先添加场次加入计划表）', padX + 120, curY + 30);
-    curY += 80;
-  }
-
+  // --- ITEMS LIST ---
   cardLayouts.forEach((layout, idx) => {
     const { item, s, topicLines, spLines, noteLine, transferText, itemH } = layout;
     let itemY = curY;
 
-    ctx.font = 'bold 14px "JetBrains Mono", Courier, monospace';
-    ctx.fillStyle = '#18181B';
+    ctx.font = 'bold 13.5px "JetBrains Mono", Courier, monospace';
+    ctx.fillStyle = '#141414';
     const seqStr = `[${String(idx + 1).padStart(2, '0')}] ${s.time}  📍 ${s.venue}`;
-    ctx.fillText(seqStr, padX, itemY + 14);
+    ctx.fillText(seqStr, padX, itemY + 12);
 
-    const roleStr = item.role === 'primary' ? '★ 必听主选' : '📌 备选赶场';
-    ctx.font = 'bold 12px "PingFang SC", sans-serif';
-    ctx.fillStyle = item.role === 'primary' ? '#BE123C' : '#0369A1';
-    ctx.fillText(roleStr, padX + contentW - 74, itemY + 14);
+    const roleStr = item.role === 'primary' ? '[★必选]' : '[·备选]';
+    ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
+    ctx.fillStyle = '#141414';
+    ctx.fillText(roleStr, padX + contentW - 60, itemY + 12);
 
-    itemY += 26;
-
-    ctx.font = '900 17px "PingFang SC", -apple-system, sans-serif';
-    ctx.fillStyle = '#09090B';
-    topicLines.forEach(line => {
-      ctx.fillText(line, padX, itemY + 16);
-      itemY += 24;
-    });
-
-    ctx.font = '13.5px "PingFang SC", -apple-system, sans-serif';
-    ctx.fillStyle = '#52525B';
-    spLines.forEach(line => {
-      ctx.fillText(line, padX, itemY + 14);
-      itemY += 20;
-    });
-
-    // 数量，狂喜度，单价都去掉，小计 后面放时间
-    ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#18181B';
-    const subtotalText = `小计: ${s.time} (${s.durationMin}分钟)`;
-    const subW = ctx.measureText(subtotalText).width;
-    ctx.fillText(subtotalText, padX + contentW - subW, itemY + 14);
     itemY += 24;
 
+    ctx.font = '900 16px "PingFang SC", "JetBrains Mono", sans-serif';
+    ctx.fillStyle = '#141414';
+    topicLines.forEach(line => {
+      ctx.fillText(line, padX, itemY + 14);
+      itemY += 22;
+    });
+
+    ctx.font = '13px "JetBrains Mono", "PingFang SC", monospace';
+    ctx.fillStyle = '#404040';
+    spLines.forEach(line => {
+      ctx.fillText(line, padX, itemY + 13);
+      itemY += 19;
+    });
+
+    ctx.font = '12px "JetBrains Mono", Courier, monospace';
+    ctx.fillStyle = '#525252';
+    ctx.fillText(`数量: 1 场  |  狂喜度: 100%  |  单价: ¥0.00`, padX, itemY + 13);
+    ctx.fillStyle = '#141414';
+    ctx.fillText(`小计: ¥0.00`, padX + contentW - 80, itemY + 13);
+    itemY += 22;
+
     if (transferText) {
-      drawRoundedRect(ctx, padX, itemY, contentW, 22, 4);
-      ctx.fillStyle = '#FEF2F2';
-      ctx.fill();
-      ctx.strokeStyle = '#FCA5A5';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
-      ctx.fillStyle = '#DC2626';
-      ctx.fillText(transferText, padX + 8, itemY + 15);
-      itemY += 26;
+      ctx.font = 'bold 11.5px "JetBrains Mono", "PingFang SC", monospace';
+      ctx.fillStyle = '#262626';
+      ctx.fillText(transferText, padX, itemY + 12);
+      itemY += 20;
     }
 
     if (noteLine) {
-      ctx.font = 'italic 12px "PingFang SC", sans-serif';
-      ctx.fillStyle = '#B45309';
-      ctx.fillText(noteLine, padX, itemY + 14);
-      itemY += 20;
+      ctx.font = 'italic 12px "JetBrains Mono", "PingFang SC", monospace';
+      ctx.fillStyle = '#404040';
+      ctx.fillText(noteLine, padX, itemY + 12);
+      itemY += 18;
     }
 
-    ctx.strokeStyle = '#D4D4D8';
+    ctx.strokeStyle = '#A3A3A3';
     ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
+    ctx.setLineDash([2, 3]);
     ctx.beginPath();
     ctx.moveTo(padX, itemY + 6);
     ctx.lineTo(padX + contentW, itemY + 6);
@@ -2624,10 +2740,11 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
     curY += itemH;
   });
 
-  curY += 10;
-  ctx.strokeStyle = '#18181B';
+  // --- SUMMARY / TOTALS ---
+  curY += 8;
+  ctx.strokeStyle = '#141414';
   ctx.lineWidth = 2;
-  ctx.setLineDash([6, 3]);
+  ctx.setLineDash([5, 3]);
   ctx.beginPath();
   ctx.moveTo(padX, curY);
   ctx.lineTo(padX + contentW, curY);
@@ -2635,15 +2752,15 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   ctx.setLineDash([]);
 
   curY += 22;
-  ctx.font = 'bold 13.5px "JetBrains Mono", monospace';
-  ctx.fillStyle = '#18181B';
+  ctx.font = 'bold 13px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#141414';
   
   const sumLines = [
     [`选购场次小计 (TOTAL SESSIONS):`, `${items.length} 场`],
     [`  - 必听主选清单 (PRIMARY):`, `${primaryCount} 场`],
     [`  - 备选赶场席位 (BACKUP):`, `${backupCount} 场`],
-    [`累计沉浸时长 (TOTAL HOURS):`, `${(totalMins / 60).toFixed(1)} 小时 (${totalMins} 分钟)`],
-    [`捕获主播嘉宾 (TALENTS):`, `${uniqueSpeakers.size} 位`],
+    [`累计收听时长 (TOTAL HOURS):`, `${(totalMins / 60).toFixed(1)} 小时 (${totalMins} 分钟)`],
+    [`捕获主讲嘉宾 (GUEST TALENTS):`, `${uniqueSpeakers.size} 位`],
   ];
 
   sumLines.forEach(([label, val]) => {
@@ -2653,7 +2770,7 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
     curY += 22;
   });
 
-  ctx.strokeStyle = '#71717A';
+  ctx.strokeStyle = '#525252';
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 3]);
   ctx.beginPath();
@@ -2663,51 +2780,42 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   ctx.setLineDash([]);
 
   curY += 24;
-  ctx.font = '900 15px "JetBrains Mono", monospace';
-  ctx.fillStyle = '#18181B';
+  ctx.font = '900 14px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#141414';
   ctx.fillText('应付精神抚慰金 (NET PAYABLE):', padX, curY);
   ctx.fillText('¥ 0.00', padX + contentW - 55, curY);
-  curY += 24;
+  curY += 22;
   ctx.fillText('实付门票凭据 (TICKET APPLIED):', padX, curY);
-  ctx.fillStyle = '#16A34A';
-  ctx.fillText('狂喜通票已兑现', padX + contentW - 120, curY);
-  curY += 24;
-  ctx.fillStyle = '#18181B';
+  ctx.fillText('狂喜通票已兑现', padX + contentW - 110, curY);
+  curY += 22;
   ctx.fillText('找零心情狂喜 (CHANGE):', padX, curY);
-  ctx.fillStyle = '#D97706';
-  ctx.fillText('∞ 快乐拉满', padX + contentW - 90, curY);
+  ctx.fillText('∞ 满格快乐', padX + contentW - 85, curY);
 
-  curY += 24;
-  ctx.strokeStyle = '#18181B';
+  curY += 22;
+  ctx.strokeStyle = '#141414';
   ctx.lineWidth = 2;
-  ctx.setLineDash([6, 3]);
+  ctx.setLineDash([5, 3]);
   ctx.beginPath();
   ctx.moveTo(padX, curY);
   ctx.lineTo(padX + contentW, curY);
   ctx.stroke();
   ctx.setLineDash([]);
 
-  curY += 26;
-  drawBarcode(ctx, padX + 40, curY, contentW - 80, 50, `KX2026-KUANIVAL-${items.length}TALKS-088`);
-  curY += 86;
+  // --- BARCODE SECTION ---
+  curY += 24;
+  drawBarcode(ctx, padX + 35, curY, contentW - 70, 48, `KX2026-KUANIVAL-${items.length}TALKS-088`);
+  curY += 80;
 
-  ctx.font = '12px "PingFang SC", sans-serif';
-  ctx.fillStyle = '#52525B';
+  // --- MONOCHROME FOOTER ---
+  ctx.font = '12px "JetBrains Mono", "PingFang SC", monospace';
+  ctx.fillStyle = '#404040';
   ctx.textAlign = 'center';
-  ctx.fillText('※ 凭此收银凭条提前 5 分钟就座 · 观点辛辣属正常生理反应 ※', width / 2, curY);
+  ctx.fillText('※ 凭此收据提前 5 分钟就座 · 观点辛辣属正常生理反应 ※', width / 2, curY);
   curY += 18;
-  ctx.fillText('※ 本小票为狂喜播客节专属收据凭据 · 尽情享受狂喜时刻 ※', width / 2, curY);
+  ctx.fillText('※ 纯正热敏纸收据凭单 · 狂喜播客节组委会授权出单 ※', width / 2, curY);
   curY += 18;
   ctx.fillText('※ 感谢光临第六届狂喜播客节 · 2026.10.25 上海·CMG融媒影城 ※', width / 2, curY);
   ctx.textAlign = 'left';
-
-  if (showPartners) {
-    curY += 26;
-    const footerImgH = Math.round(140 * (width / 576));
-    if (posterAssets.footer && posterAssets.footer.complete && posterAssets.footer.naturalWidth > 0) {
-      ctx.drawImage(posterAssets.footer, padX, curY, contentW, footerImgH);
-    }
-  }
 
   syncPosterImagePreview(canvas);
 }
@@ -3347,7 +3455,64 @@ function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransf
 
 const renderNoninsuranceCautionPoster = renderFilmsetPoster;
 
-// ==================== YIDIDENGLU (异地登录 · 侦探线索板) POSTER RENDERER ====================
+// ==================== CRIME SCENE (探案现场 · 侦探线索板) POSTER RENDERER ====================
+
+function drawDarkPineWoodBackground(ctx, width, height) {
+  // Dark espresso pine wood base tone
+  ctx.fillStyle = '#2A150A';
+  ctx.fillRect(0, 0, width, height);
+
+  // Planks
+  const plankH = 105;
+  for (let y = 0; y < height; y += plankH) {
+    // Plank dark groove
+    ctx.strokeStyle = '#120803';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+
+    // Plank subtle top highlight
+    ctx.strokeStyle = 'rgba(215, 160, 110, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 2.5);
+    ctx.lineTo(width, y + 2.5);
+    ctx.stroke();
+
+    // Wood grain lines
+    ctx.strokeStyle = 'rgba(10, 5, 2, 0.15)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 35);
+    ctx.bezierCurveTo(width * 0.3, y + 25, width * 0.7, y + 45, width, y + 30);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(215, 160, 110, 0.04)';
+    ctx.beginPath();
+    ctx.moveTo(0, y + 70);
+    ctx.bezierCurveTo(width * 0.25, y + 80, width * 0.75, y + 60, width, y + 75);
+    ctx.stroke();
+  }
+
+  // Dark atmospheric vignette gradient overlay
+  const grad = ctx.createRadialGradient(width / 2, height / 2, width * 0.25, width / 2, height / 2, width * 0.85);
+  grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  grad.addColorStop(0.7, 'rgba(0, 0, 0, 0.4)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0.75)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  // Heavy dark charred walnut frame
+  ctx.strokeStyle = '#140803';
+  ctx.lineWidth = 18;
+  ctx.strokeRect(9, 9, width - 18, height - 18);
+
+  ctx.strokeStyle = 'rgba(245, 190, 120, 0.12)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(18, 18, width - 36, height - 36);
+}
 
 function drawMagnifyingGlass(ctx, cx, cy, radius = 34, angle = Math.PI / 4) {
   ctx.save();
@@ -3445,50 +3610,7 @@ function drawPushpin(ctx, x, y, color = '#EF4444') {
   ctx.restore();
 }
 
-function drawPineWoodBackground(ctx, width, height) {
-  ctx.fillStyle = '#C49054';
-  ctx.fillRect(0, 0, width, height);
-
-  const plankH = 110;
-  for (let y = 0; y < height; y += plankH) {
-    ctx.strokeStyle = 'rgba(65, 32, 10, 0.28)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(255, 235, 205, 0.12)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, y + 2);
-    ctx.lineTo(width, y + 2);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(80, 40, 12, 0.04)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(0, y + 35);
-    ctx.bezierCurveTo(width * 0.3, y + 25, width * 0.7, y + 45, width, y + 30);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, y + 75);
-    ctx.bezierCurveTo(width * 0.25, y + 85, width * 0.75, y + 65, width, y + 80);
-    ctx.stroke();
-  }
-
-  // Wood frame
-  ctx.strokeStyle = '#4A2411';
-  ctx.lineWidth = 16;
-  ctx.strokeRect(8, 8, width - 16, height - 16);
-
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(16, 16, width - 32, height - 32);
-}
-
-function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
+function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
   const scale = 2;
   const width = 800;
   const padX = 46;
@@ -3505,7 +3627,7 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 44);
-    const spText = '🎙️ 关键线人/嘉宾：' + (s.speakers.join('、') || '神秘涉案人');
+    const spText = '🎙️ 涉案人/关键主讲：' + (s.speakers.join('、') || '神秘涉案人');
     ctx.font = '14px "PingFang SC", sans-serif';
     const spLines = wrapCanvasText(ctx, spText, contentW - 44);
 
@@ -3514,28 +3636,27 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
       const prev = items[idx - 1].session;
       const overlap = getOverlapMinutes(prev, s);
       if (overlap > 0) {
-        transferText = `⚡ 追踪重叠预警：与上一案卷 ${prev.code} 冲突 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
+        transferText = `⚡ 路线重叠预警：与上一现场 ${prev.code} 冲突 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
       } else {
         const gap = s.startMin - prev.endMin;
         if (gap <= 15) {
-          transferText = `🏃 疾速转移现场：相距仅 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
+          transferText = `🏃 疾速赶往下一现场：相距仅 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
         }
       }
     }
 
-    const noteLine = item.note ? `🕵️ 侦查便签：${item.note}` : '';
+    const noteLine = item.note ? `🕵️ 现场侦查笔记：${item.note}` : '';
     const itemH = 46 + topicLines.length * 27 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 26 : 0) + 18;
-    // subtle alternate rotation angle
     const angles = [-0.015, 0.012, -0.01, 0.016, -0.012, 0.014];
     const angle = angles[idx % angles.length];
-    const pinColors = ['#EF4444', '#F59E0B', '#0284C7', '#10B981', '#DC2626'];
+    const pinColors = ['#DC2626', '#D97706', '#2563EB', '#059669', '#E11D48'];
     const pinColor = pinColors[idx % pinColors.length];
 
     return { item, s, topicLines, spLines, noteLine, transferText, itemH, angle, pinColor };
   });
 
-  const headerH = 390;
-  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 24, 0) : 130;
+  const headerH = 340;
+  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 24, 0) : 120;
   const footerH = showPartners ? 280 : 160;
   const totalH = Math.max(920, headerH + itemsH + footerH);
 
@@ -3543,108 +3664,83 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
   canvas.height = totalH * scale;
   ctx.scale(scale, scale);
 
-  // 1. Draw Pinewood Background
-  drawPineWoodBackground(ctx, width, totalH);
+  // 1. Dark atmospheric pinewood background
+  drawDarkPineWoodBackground(ctx, width, totalH);
 
-  // 2. Case Dossier Header (Pinned Manila Folder)
+  // 2. Case Dossier Header (Pinned Manila Case Folder - No Logo)
   const headerCardY = 32;
-  const headerCardH = 220;
+  const headerCardH = 200;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
-  ctx.shadowBlur = 14;
-  ctx.shadowOffsetY = 6;
-  drawRoundedRect(ctx, padX, headerCardY, contentW, headerCardH, 10);
-  ctx.fillStyle = '#FFFEEA';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 8;
+  drawRoundedRect(ctx, padX, headerCardY, contentW, headerCardH, 8);
+  ctx.fillStyle = '#F8F3E6'; // Aged case file paper
   ctx.fill();
-  ctx.strokeStyle = '#D1C2A5';
+  ctx.strokeStyle = '#C9BAA3';
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.restore();
 
-  // Top two pushpins holding header
-  drawPushpin(ctx, padX + 24, headerCardY + 12, '#EF4444');
-  drawPushpin(ctx, padX + contentW - 24, headerCardY + 12, '#EF4444');
+  // Top two heavy pins holding header
+  drawPushpin(ctx, padX + 24, headerCardY + 12, '#DC2626');
+  drawPushpin(ctx, padX + contentW - 24, headerCardY + 12, '#DC2626');
 
   // Header Content
-  let curY = headerCardY + 24;
+  let curY = headerCardY + 28;
 
-  // Draw 异地登录 Logo in Polaroid Frame
-  const logoBoxSize = 92;
-  ctx.save();
-  ctx.translate(padX + 20, curY);
-  ctx.rotate(-0.03);
-  drawRoundedRect(ctx, 0, 0, logoBoxSize + 16, logoBoxSize + 28, 6);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fill();
-  ctx.strokeStyle = '#D4D4D8';
-  ctx.lineWidth = 1;
-  ctx.stroke();
+  // Case Dossier Label
+  ctx.font = 'bold 12px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#991B1B';
+  ctx.fillText('CRIME SCENE INVESTIGATION // DOSSIER NO. KX-2026-SH', padX + 24, curY);
 
-  if (posterAssets.yididengluLogo && posterAssets.yididengluLogo.complete && posterAssets.yididengluLogo.naturalWidth > 0) {
-    ctx.drawImage(posterAssets.yididengluLogo, 8, 8, logoBoxSize, logoBoxSize);
-  } else {
-    drawRoundedRect(ctx, 8, 8, logoBoxSize, logoBoxSize, 4);
-    ctx.fillStyle = '#9A3412';
-    ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 16px monospace';
-    ctx.fillText('404', 36, 56);
-  }
+  curY += 28;
 
-  ctx.font = 'bold 9.5px -apple-system, sans-serif';
-  ctx.fillStyle = '#71717A';
-  ctx.textAlign = 'center';
-  ctx.fillText('EVIDENCE #404', (logoBoxSize + 16) / 2, logoBoxSize + 20);
-  ctx.restore();
-
-  // Header Title & Text
-  const textX = padX + logoBoxSize + 50;
+  // Title
   ctx.fillStyle = '#18181B';
-  ctx.font = '900 27px "PingFang SC", sans-serif';
-  ctx.fillText('🔍 异地登录 · 狂喜线索侦查卷宗', textX, curY + 28);
+  ctx.font = '900 28px "PingFang SC", sans-serif';
+  ctx.fillText('🔍 探案现场 · 声音侦查卷宗', padX + 24, curY);
 
-  ctx.font = 'bold 12.5px "JetBrains Mono", Courier, monospace';
-  ctx.fillStyle = '#B45309';
-  ctx.fillText('REMOTE LOGIN // KUANGXI 2026 EVIDENCE CORKBOARD', textX, curY + 50);
+  curY += 26;
 
-  // Case Alert Banner
-  drawRoundedRect(ctx, textX, curY + 62, contentW - (logoBoxSize + 66), 26, 4);
+  // Subtitle / Banner
+  drawRoundedRect(ctx, padX + 24, curY, contentW - 160, 26, 4);
   ctx.fillStyle = '#FEF2F2';
   ctx.fill();
   ctx.strokeStyle = '#FCA5A5';
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.fillStyle = '#DC2626';
-  ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
-  ctx.fillText('⚠️ 警报：检测到异地登录！目标嫌疑对话已锁定CMG融媒影城', textX + 10, curY + 79);
+  ctx.font = 'bold 12px "PingFang SC", sans-serif';
+  ctx.fillText('⚠️ 现场通报：全天 88 场对话线索已锁定，请依破案动线准时潜伏入座', padX + 32, curY + 18);
 
-  // Metadata Lines
-  curY = headerCardY + 130;
+  curY += 38;
+
+  // Metadata Grid
   ctx.font = '13px "JetBrains Mono", "PingFang SC", monospace';
   ctx.fillStyle = '#27272A';
-  ctx.fillText(`🕵️ 执案探长：${userName}`, padX + 24, curY);
+  ctx.fillText(`🕵️ 执案侦探：${userName}`, padX + 24, curY);
   ctx.fillText(`📅 案发日期：2026年10月25日 全天`, padX + 280, curY);
 
   curY += 22;
-  ctx.fillText(`📍 锁定空间：上海·CMG融媒影城 11空间`, padX + 24, curY);
-  ctx.fillText(`📁 案卷号：KX-404-SH-${String(items.length).padStart(2, '0')}`, padX + 280, curY);
+  ctx.fillText(`📍 锁定现场：上海·CMG融媒影城 11空间`, padX + 24, curY);
+  ctx.fillText(`📁 归档状态：已确证立案 (${items.length} 处案发点)`, padX + 280, curY);
 
-  curY += 22;
+  curY += 24;
   ctx.font = 'bold 12.5px "PingFang SC", sans-serif';
   ctx.fillStyle = '#BE123C';
-  ctx.fillText(`🎯 侦破指标：锁定 ${primaryCount} 条核心主线 · 备选 ${backupCount} 条 · 窃听 ${(totalMins/60).toFixed(1)}h · 追查 ${uniqueSpeakers.size} 位关键人物`, padX + 24, curY);
+  ctx.fillText(`🎯 侦查指标：锁定 ${primaryCount} 处核心主线 · 备选 ${backupCount} 处 · 侦查 ${(totalMins/60).toFixed(1)}h · 锁定 ${uniqueSpeakers.size} 位重点涉案人`, padX + 24, curY);
 
-  // Draw Magnifying Glass inspecting the top right of the corkboard!
-  drawMagnifyingGlass(ctx, width - padX - 44, headerCardY + 54, 34, Math.PI / 4 + 0.1);
+  // Draw Realistic Magnifying Glass in header top right
+  drawMagnifyingGlass(ctx, width - padX - 45, headerCardY + 55, 36, Math.PI / 4 + 0.1);
 
   // Red Rubber Stamp on header
-  drawRubberStamp(ctx, width - padX - 110, headerCardY + 160, 'REMOTE LOGIN', '异地登录·已锁定', 'EVIDENCE 404', '#DC2626', -0.16);
+  drawRubberStamp(ctx, width - padX - 100, headerCardY + 145, 'CRIME SCENE', '探案现场·案情锁定', 'EVIDENCE VERIFIED', '#DC2626', -0.16);
 
   curY = headerCardY + headerCardH + 34;
 
   // 3. Clue Cards with Red String Connections
-  // Calculate pin positions
   const pinPositions = [];
   let tempY = curY;
   cardLayouts.forEach(layout => {
@@ -3654,21 +3750,20 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
     tempY += layout.itemH + 24;
   });
 
-  // Draw Red Connecting Threads between consecutive clues
+  // Draw Glowing Crimson Connecting Threads
   ctx.save();
   ctx.strokeStyle = '#DC2626';
-  ctx.lineWidth = 2.2;
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-  ctx.shadowBlur = 4;
-  ctx.shadowOffsetY = 3;
+  ctx.lineWidth = 2.4;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 4;
 
   for (let i = 0; i < pinPositions.length - 1; i++) {
     const p1 = pinPositions[i];
     const p2 = pinPositions[i + 1];
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
-    // slight curve / sag
-    const midX = (p1.x + p2.x) / 2 + (i % 2 === 0 ? 30 : -30);
+    const midX = (p1.x + p2.x) / 2 + (i % 2 === 0 ? 32 : -32);
     const midY = (p1.y + p2.y) / 2 + 10;
     ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
     ctx.stroke();
@@ -3688,29 +3783,28 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
     const cardX = -cardW / 2;
     const cardY = -cardH / 2;
 
-    // Card drop shadow
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.24)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 5;
+    // Deep shadow on dark wood
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.48)';
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 7;
 
-    // Card background (aged kraft / evidence card)
+    // Card background
     drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 8);
-    ctx.fillStyle = item.role === 'primary' ? '#FFFFFF' : '#FFFDF2';
+    ctx.fillStyle = item.role === 'primary' ? '#FAF6ED' : '#F4EEE1';
     ctx.fill();
 
     // Border
     ctx.lineWidth = item.role === 'primary' ? 2 : 1.2;
-    ctx.strokeStyle = item.role === 'primary' ? '#E11D48' : '#D4D4D8';
+    ctx.strokeStyle = item.role === 'primary' ? '#DC2626' : '#C7B9A3';
     ctx.stroke();
 
     ctx.shadowColor = 'transparent';
 
     // Left Evidence Stripe
     drawRoundedRect(ctx, cardX, cardY, 8, cardH, 4);
-    ctx.fillStyle = item.role === 'primary' ? '#EF4444' : '#F59E0B';
+    ctx.fillStyle = item.role === 'primary' ? '#DC2626' : '#D97706';
     ctx.fill();
 
-    // Content inside card
     let innerY = cardY + 28;
 
     // Line 1: Clue Code + Time + Venue + Role Badge
@@ -3721,7 +3815,7 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
     // Venue
     ctx.font = 'bold 13.5px "PingFang SC", sans-serif';
     ctx.fillStyle = '#4B5563';
-    ctx.fillText(`📍 ${s.venue}`, cardX + 260, innerY);
+    ctx.fillText(`📍 案发厅室：${s.venue}`, cardX + 260, innerY);
 
     // Role Tag
     const roleStr = item.role === 'primary' ? '★ 核心主线' : '📌 分支线索';
@@ -3777,22 +3871,22 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
     curY += itemH + 24;
   });
 
-  // 4. Footer Section (Pinned Bottom Strip)
+  // 4. Footer Section
   curY += 10;
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetY = 4;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetY = 6;
   drawRoundedRect(ctx, padX, curY, contentW, 60, 8);
-  ctx.fillStyle = '#FFFEEA';
+  ctx.fillStyle = '#F8F3E6';
   ctx.fill();
-  ctx.strokeStyle = '#D1C2A5';
+  ctx.strokeStyle = '#C9BAA3';
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.restore();
 
-  drawPushpin(ctx, padX + 18, curY + 8, '#EF4444');
-  drawPushpin(ctx, padX + contentW - 18, curY + 8, '#EF4444');
+  drawPushpin(ctx, padX + 18, curY + 8, '#DC2626');
+  drawPushpin(ctx, padX + contentW - 18, curY + 8, '#DC2626');
 
   ctx.font = 'bold 13px "PingFang SC", sans-serif';
   ctx.fillStyle = '#27272A';
@@ -3800,7 +3894,7 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
 
   ctx.font = '12px "PingFang SC", sans-serif';
   ctx.fillStyle = '#71717A';
-  ctx.fillText('本案卷线索由「异地登录」特别侦查组联合整理 · 异地潜伏，包有收获 · 祝您听会愉快！', padX + 36, curY + 47);
+  ctx.fillText('本案卷线索由狂喜播客节「探案现场」侦破组联合整理 · 案情曲折但包精彩 · 祝您听会愉快！', padX + 36, curY + 47);
 
   if (showPartners) {
     curY += 76;
@@ -3812,6 +3906,9 @@ function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTra
 
   syncPosterImagePreview(canvas);
 }
+
+
+const renderYidiDengluPoster = renderCrimeScenePoster;
 
 
 // ==================== POSTER VISUAL ASSETS (OFFICIAL KUANIVAL DESIGN) ====================
@@ -3876,8 +3973,8 @@ function renderSchedulePosterCanvas() {
 
   const items = getPlannedItemsForExport();
 
-  if (themeKey === 'yididenglu') {
-    renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
+  if (themeKey === 'crimescene' || themeKey === 'yididenglu') {
+    renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
     return;
   }
   if (themeKey === 'receipt') {

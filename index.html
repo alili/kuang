@@ -140,6 +140,15 @@
           <span>💡 提示：点击任意<strong>主播姓名标签</strong>可查看 TA 的全天行程并一键规划；时间重叠场次会自动预警。</span>
         </div>
       </div>
+      <!-- 9 Official Topics Filter & Group Switcher -->
+      <div class="topic-filter-bar-wrap" id="topicFilterBarWrap">
+        <div class="topic-filter-scroll" id="topicFilterScroll"></div>
+        <div class="timeline-view-mode-toggle">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnToggleGroupBy" onclick="toggleTimelineGroupBy()" title="切换按时间开场或按9大话题分类排期">
+            <span id="txtGroupByLabel">📑 按9大话题分组</span>
+          </button>
+        </div>
+      </div>
       <!-- Quick Time-Slot Jump Strip -->
       <div id="timeSlotJumpBar" class="time-jump-bar"></div>
       <div id="timelineGroupsContainer"></div>
@@ -270,7 +279,7 @@
                 <button type="button" class="btn-style-chip active" data-style="punk" onclick="setPosterTheme('punk')">⚡ 狂喜朋克</button>
                 <button type="button" class="btn-style-chip" data-style="filmset" onclick="setPosterTheme('filmset')">🎬 片场计划</button>
                 <button type="button" class="btn-style-chip" data-style="receipt" onclick="setPosterTheme('receipt')">🧾 超市小票</button>
-                <button type="button" class="btn-style-chip" data-style="yididenglu" onclick="setPosterTheme('yididenglu')">🔍 异地登录</button>
+                <button type="button" class="btn-style-chip" data-style="crimescene" onclick="setPosterTheme('crimescene')">🔍 探案现场</button>
                 <button type="button" class="btn-style-chip" data-style="festival" onclick="setPosterTheme('festival')">🔥 经典黑金</button>
                 <button type="button" class="btn-style-chip" data-style="paper" onclick="setPosterTheme('paper')">📜 暖米手账</button>
                 <button type="button" class="btn-style-chip" data-style="clean" onclick="setPosterTheme('clean')">☀️ 清爽白昼</button>
@@ -278,8 +287,8 @@
               <select id="posterThemeSelect" class="form-input" onchange="onPosterThemeSelectChange(this.value)">
                 <option value="punk" selected>⚡ 狂喜粉蓝朋克 · 官方主视觉（推荐）</option>
                 <option value="filmset">🎬 片场计划 · 警示黄黑场记通告单</option>
-                <option value="receipt">🧾 超市小票 · 狂喜声音收据凭条</option>
-                <option value="yididenglu">🔍 异地登录 · 侦探线索板（松木板 / 大头针 / 放大镜）</option>
+                <option value="receipt">🧾 超市小票 · 狂喜声音收据凭条（纯正热敏纸无干扰）</option>
+                <option value="crimescene">🔍 探案现场 · 侦探线索板（暗调松木板 / 大头针 / 放大镜）</option>
                 <option value="festival">🔥 狂喜黑金 · 经典电台风</option>
                 <option value="paper">📜 暖米手账 · 复古纸感</option>
                 <option value="clean">☀️ 清爽白昼 · 极简课表</option>

@@ -1,4 +1,4 @@
-// 「第六届狂喜播客节·叁狂+」完整数据集 (2026年10月25日 · 上海·CMG融媒影城 · 共88场)
+// 「第六届狂喜播客节·叁狂+」完整数据集 (2026年10月25日 · 上海·CMG融媒影城 · 共88场 · 官方9大话题分类)
 window.FESTIVAL_META = {
   "title": "第六届狂喜播客节·叁狂+",
   "subtitle": "对话场次总表与个人收听规划系统",
@@ -90,248 +90,222 @@ window.FESTIVAL_META = {
   ]
 };
 
-window.SPEAKER_TITLES = {
-  "艾利": "暧暧含光",
-  "艾勇": "CPA超频对话，DTC Lab",
-  "安吉儿": "有啥可聊·一家三口",
-  "Ailing小狼": "计算机历史博物馆",
-  "Alex": "还原剧团",
-  "白玫瑰": "大上海歌舞厅",
-  "白诺曦": "纯粹星辰FDE，冶愿科技AI社群主理人",
-  "拜拜Becky": "限时奇遇",
-  "宝藏姐姐": "门道",
-  "菠萝（李治中）": "菠萝健康派",
-  "Bessie李倩玲": "贝望录",
-  "BiG": "菠萝油子丨成年人听的动漫播客，「播可梦Studio」联合创始人",
-  "Bob": "杭州纯粹的玩创始人",
-  "Bonny": "00后的深水区",
-  "蔡魔法": "过敏allErgy，新鲜人类NewEpoch",
-  "草头方": "那台留声机",
-  "昌叔": "局外客厅",
-  "陈雪": "搞钱学姐",
-  "陈耀霖": "Monolith第一推动",
-  "乘龙": "下下签-摸鱼良品",
-  "程亮": "电影、电视剧导演",
-  "Casey": "食神生财",
-  "Charles": "查仕博咨询创始人兼首席顾问，前波士顿咨询BCG AI顾问主管",
-  "CL": "跨域请求",
-  "大巴": "胃肠外科医生，下班医生",
-  "大猛（猛哥）": "天才捕手FM",
-  "大拖拉": "公交站台",
-  "大卫翁": "起朱楼宴宾客，犬生活，不熄灯Lights On",
-  "蛋挞": "黑水公园，《屋》道具师",
-  "德福": "不太保险，播浪鼓播客大会",
-  "德刚": "AmazingFM",
-  "丁博": "东京汴聊",
-  "丁大根儿": "自媒体vlog博主，小红书「丁大根儿」",
-  "董飞跃": "国内轻运动、瑜伽专业品牌YOTTOY创始人",
-  "董艺婷": "慧客堂主播，至明科技创始人，慧度资产总经理",
-  "Denver": "鸟瘾综合征",
-  "Ding Ding": "嘻嘻哈哈叮叮当当",
-  "eric农场主又在拉肚": "牛奶大脑袋",
-  "发条张": "迷影圆桌派",
-  "范文兵": "建筑城市学者，城市漫游爱好者",
-  "梵一如": "井户端会议，「狂喜播客节」联合发起人",
-  "沸沸": "剁瓜切菜",
-  "冯广健": "日谈公园",
-  "付宇": "轻刀快马",
-  "高蕾": "梵高MoneyTalk",
-  "高明": "罗德传播集团高级副总裁，另请高明吧",
-  "咕舟舟": "好有共鸣",
-  "关雅荻": "「狂喜播客节」发起人，开放对话",
-  "郭三圻": "波伏娃的家，作家，影评人",
-  "G僧东": "视频博主，十六号线",
-  "Gloria 大糖": "满唐结彩",
-  "韩欣": "《无限进化》播客主理人，第一财经主持人",
-  "河森堡": "科普作家",
-  "红菜苔": "掉书袋，电影开发、编剧",
-  "花总": "纪录片制作人",
-  "黄涵涵": "上桌！",
-  "Humphry韩非": "非行笔记",
-  "Icy": "单立人Special",
-  "江东猫草": "远行者与碎冰匠",
-  "蒋美兰Milan": "商业茶泡饭，Nexthing Japan 创始人",
-  "饺子": "我们一起聊聊HR",
-  "金花": "黑水公园，《屋》导演",
-  "金吉祥": "姐姐好会，有你想听的故事",
-  "金鱼": "异地登录",
-  "金坐": "不靠脸吃饭",
-  "Jeff": "截胡不截财",
-  "Jess": "藏金阁",
-  "孔老师": "什么电苔",
-  "Koji杨远骋": "十字路口",
-  "Kyth": "「小宇宙App」CEO",
-  "拉帝": "青年度日指南，独立导演",
-  "兰若儿": "有啥可聊·一家三口",
-  "阑夕": "媒体人",
-  "老刘": "带娃术士，二的三次方",
-  "老圆": "大上海歌舞厅",
-  "老袁": "「狂喜播客节」0号主播志愿者，「播客公社」发起人，《播客志》主编",
-  "老庄": "歌手，纪录片导演",
-  "老A": "足球无双，英超无双",
-  "李晨啸": "全球创作者社区Magipop发起人",
-  "李竞": "香水讲师",
-  "李梦杰": "单立人Special",
-  "李淼": "罪案作家，日谈物语",
-  "李西芹": "乱弹琴FreeTalk",
-  "李逸飞": "彼屯合伙人，前教育投资人",
-  "立正": "AI社区「超线性学院」Superlinear Academy",
-  "栗噔噔": "ex 腾讯产品经理，雪服品牌主理人",
-  "梁捷": "上海财经大学副教授，经济学者",
-  "林希言": "灵感爆棚",
-  "凛十七": "了路浪",
-  "刘飞": "三五环，半拿铁，商业沉浮录",
-  "刘泡泡": "抽象撒野",
-  "刘潇阳": "《燃烧吧！爸爸》导演",
-  "刘语熙": "制作人，陋室铭",
-  "六层楼": "当个事儿",
-  "六一": "时而散步",
-  "吕东": "喝大了俱乐部",
-  "绿子": "摇摆时间",
-  "罗秋葵": "无所事事事务所，小红书资深产品运营",
-  "罗叔": "头号玩家，歪打正着，医疗投资人，编剧",
-  "罗小茗": "上海大学文化研究系系主任",
-  "洛怀": "心都野了heartbeast",
-  "洛洛嘉": "能量少女",
-  "马兔": "哈哈的妈妈叫马兔",
-  "马扬": "时常帮助",
-  "麦迪森": "一劳永逸",
-  "麦杰克": "一劳永逸",
-  "萌仔": "火象三傻妙妙屋",
-  "咪仔": "黑猫侦探社",
-  "米莱先生": "我是销冠",
-  "米周": "why for jazz",
-  "沐涵": "二度造访",
-  "Maggie玫": "玫天重启1%",
-  "Michael Yu": "Cherry Studio 商业化 & FDE 负责人",
-  "Mikasa": "火象三傻妙妙屋",
-  "momo": "喜剧演员，编剧",
-  "宁家宇": "单立人Special",
-  "暖暖Serein": "此岸拾光",
-  "潘玮": "资深商业人",
-  "判官": "资深产品经理，科技作者，公众号：判官老司机",
-  "噗噗猫": "身边人",
-  "麒姐Fiona": "金字招牌，播清波",
-  "钱老板": "杯弓舌瘾",
-  "钱小昆": "《爱情神话》沪语指导",
-  "钱小岩": "国际新闻高级记者",
-  "强队": "历史讲坛，边走边谈",
-  "乔易": "漫才组合「荒岛人气王」成员",
-  "穷小疯": "漫才组合「荒岛人气王」成员",
-  "权小星": "东亚观察局",
-  "RURU": "姐姐好会，有你想听的故事",
-  "桑尼": "驴喝咖啡",
-  "姝琦": "津津乐道播客网络创始人",
-  "树杨": "中国好生意",
-  "宋方金": "编剧",
-  "苏先生": "有啥可聊·一家三口",
-  "苏云尚": "下下签-摸鱼良品，制作人",
-  "孙书恒": "单立人Special",
-  "孙哲": "社会学学者，社会学人",
-  "sky陈天": "AI 博主",
-  "Steve史秀雄": "史蒂夫说",
-  "Summer": "喜剧演员",
-  "台卿悦": "悠加瑜伽创始人",
-  "汤包": "还原剧团",
-  "唐亚航": "上海世博木棉花凯悦臻选酒店总经理",
-  "糖医生lesley": "去病三分糖",
-  "桃夏夏": "她们的第一桶金，下一站小城，神一锦鲤MCN联合创始人",
-  "天宇（大白）": "TIANYU2FM，非最终形态",
-  "天域（Jack）": "TIANYU2FM，服装电商平台创始人",
-  "铁头": "还原剧团",
-  "团子": "还原剧团",
-  "Tanya": "自然生长ElegantLiving",
-  "Teddy": "身边人",
-  "tuangtuang": "摇摆客厅",
-  "Vera": "女生宿舍",
-  "蛙哥": "保驾护航",
-  "万雨尘": "真空世界",
-  "王晨歌": "彼山咨询 & 彼屯创始人",
-  "王大花": "花无限文化创始人&CEO，王大花大女主",
-  "王海滨": "海滨传媒主理人",
-  "王浩岚": "美轮美换",
-  "王里姿": "心动行动",
-  "王力为": "时代指北Finding North，先声",
-  "王维基": "PLAN F，Fast Company China中文版总经理",
-  "乌素": "提钱退休",
-  "吴晨": "《经济学人·商论》原总编辑，晨读时间，著名财经作家",
-  "西西C2H4": "周日清晨",
-  "细菌佛": "钱粮胡同FM",
-  "夏同学": "真的很响",
-  "潇磊": "半拿铁，商业沉浮录",
-  "潇潇": "死磕拖延症",
-  "小畅": "电台主持人，小畅翻牌，开小灶",
-  "小动物": "蒙元史学者",
-  "小狐君": "大人的任意门",
-  "小橘": "双响炮",
-  "小飘": "不止牛马",
-  "小宋": "什么电苔",
-  "小熊": "「小宇宙App」创作者运营总监",
-  "小羊": "异地登录",
-  "小姚老师": "真的很响",
-  "小元": "蕉不绿未来",
-  "小泽Arc": "收工大吉",
-  "小P": "边角聊",
-  "筱宁": "405游局",
-  "筱珊": "《历史讲坛 · 边走边谈》播客制作人，不太重要",
-  "肖文杰": "商业就是这样，边角聊",
-  "谢鲤梅": "TODAY AI ART创办人，海影节AI电影季 总策划",
-  "蟹老板": "下下签-摸鱼良品",
-  "徐莹 Luna": "e来i去",
-  "Xi": "嘻嘻哈哈叮叮当当",
-  "羊行": "苦中找乐",
-  "杨爸": "整点亮话",
-  "杨天楠": "听懂涨声，长波工作室主理人",
-  "野人": "钱粮胡同FM",
-  "叶湑Jasmine": "小题大做Overreactology",
-  "一人": "还原剧团",
-  "伊曼": "独立服装设计师，SUABOO品牌主理人",
-  "永豪": "破局点，汇华企业教练总经理",
-  "永庆": "投资实战派",
-  "鱼余": "鱼余线上瑜伽创始人",
-  "雨霖铃": "迭代大满罐，自动驾驶行业营销负责人",
-  "圆哥": "胸外科医生，下班医生",
-  "袁雁悦": "教育工作者，《无龄星球》主理人，终身学习倡导者",
-  "月莞柔": "大食话",
-  "Yao": "城市罐头，建筑师",
-  "张浩": "独立共创引导师",
-  "张红亮": "万物生长FM",
-  "张生": "同济大学中文系教授",
-  "张唯雅": "fit4life，自习室 STUDY ROOM",
-  "张翕": "少囤书",
-  "张笑影": "《燃烧吧！爸爸》编剧",
-  "张涬溟": "「此话当真」制作人，真格基金品牌经理",
-  "张哲": "正文三台",
-  "赵丽娜": "女足运动员，公益项目发起人，短视频博主，上下半场，体育早班车",
-  "赵渌汀": "巴黎姆学研究院，巴黎啥都研究院",
-  "周蓓磊Twinkle": "上海TEDx淡水路持牌人，AISI全球创新创业导师",
-  "周然": "喜剧演员",
-  "周诗琪": "直觉",
-  "周鑫": "投资实战派",
-  "朱峰": "津津乐道播客网络创始人",
-  "庄明浩": "屠龙之术，古典互联网投资人",
-  "Zhouyu 周瑜": "瑜光同尘",
-  "Zion": "无用之用",
-  "吴靖": "电影《拼桌》导演",
-  "墙墙": "过敏allErgy 主播",
-  "Bessie": "贝望录",
-  "大猛": "天才捕手FM",
-  "农场主又在拉肚": "牛奶大脑袋",
-  "徐莹Luna": "e来i去",
-  "李天域 Jack": "TIANYU2FM，服装电商平台创始人",
-  "洛洛": "能量少女",
-  "Humphrey韩非": "非行笔记",
-  "Zhouyu": "瑜光同尘",
-  "zion": "无用之用",
-  "周蓓磊": "上海TEDx淡水路持牌人，AISI全球创新创业导师",
-  "大糖": "满唐结彩",
-  "杨远骋koji": "十字路口",
-  "泡泡": "抽象撒野",
-  "米莱": "我是销冠",
-  "菠萝": "菠萝健康派",
-  "李治中": "菠萝健康派",
-  "猛哥": "天才捕手FM"
-};
+window.FESTIVAL_TOPICS = [
+  {
+    "id": "01",
+    "code": "01",
+    "name": "狂喜主讲",
+    "fullName": "01 狂喜主讲",
+    "count": 8,
+    "color": "#D97706",
+    "bg": "#FEF3C7",
+    "border": "#F59E0B",
+    "icon": "🎤",
+    "desc": "全天单人重点主讲专场，深度思考与硬核分享",
+    "sessionCodes": [
+      "01",
+      "02",
+      "03",
+      "05",
+      "06",
+      "44",
+      "53",
+      "80"
+    ]
+  },
+  {
+    "id": "02",
+    "code": "02",
+    "name": "AI浪潮",
+    "fullName": "02 AI浪潮",
+    "count": 9,
+    "color": "#0284C7",
+    "bg": "#E0F2FE",
+    "border": "#38BDF8",
+    "icon": "🤖",
+    "desc": "AIGC、大模型、AI商业落地与自媒体创作探索",
+    "sessionCodes": [
+      "45",
+      "08",
+      "16",
+      "56",
+      "49",
+      "60",
+      "70",
+      "38",
+      "39"
+    ]
+  },
+  {
+    "id": "03",
+    "code": "03",
+    "name": "播客创作者",
+    "fullName": "03 播客创作者",
+    "count": 8,
+    "color": "#BE185D",
+    "bg": "#FCE7F3",
+    "border": "#F472B6",
+    "icon": "🎙️",
+    "desc": "播客入门、创作者生态交流与行业共创交流",
+    "sessionCodes": [
+      "07",
+      "81",
+      "13",
+      "48",
+      "20",
+      "31",
+      "50",
+      "88"
+    ]
+  },
+  {
+    "id": "04",
+    "code": "04",
+    "name": "商业·财经·职场",
+    "fullName": "04 商业·财经·职场",
+    "count": 11,
+    "color": "#C2410C",
+    "bg": "#FFEDD5",
+    "border": "#FB923C",
+    "icon": "💼",
+    "desc": "职业发展、商业投资、宏观视野与创业真相",
+    "sessionCodes": [
+      "62",
+      "18",
+      "74",
+      "66",
+      "75",
+      "25",
+      "29",
+      "51",
+      "87",
+      "61",
+      "41"
+    ]
+  },
+  {
+    "id": "05",
+    "code": "05",
+    "name": "身体与能量",
+    "fullName": "05 身体与能量",
+    "count": 7,
+    "color": "#4D7C0F",
+    "bg": "#ECFCCB",
+    "border": "#84CC16",
+    "icon": "⚡",
+    "desc": "健康减重、体检报告、低能量修复与身心关怀",
+    "sessionCodes": [
+      "12",
+      "15",
+      "19",
+      "24",
+      "30",
+      "68",
+      "79"
+    ]
+  },
+  {
+    "id": "06",
+    "code": "06",
+    "name": "社会·历史·世界",
+    "fullName": "06 社会·历史·世界",
+    "count": 11,
+    "color": "#6D28D9",
+    "bg": "#EDE9FE",
+    "border": "#8B5CF6",
+    "icon": "🌍",
+    "desc": "全球观察、国际局势、人文历史与社会思潮",
+    "sessionCodes": [
+      "54",
+      "72",
+      "09",
+      "14",
+      "47",
+      "84",
+      "22",
+      "33",
+      "34",
+      "40",
+      "42"
+    ]
+  },
+  {
+    "id": "07",
+    "code": "07",
+    "name": "家庭·关系·自我",
+    "fullName": "07 家庭·关系·自我",
+    "count": 13,
+    "color": "#B45309",
+    "bg": "#FFFBEB",
+    "border": "#FBBF24",
+    "icon": "🌱",
+    "desc": "亲密关系、代际沟通、情绪内耗与个人成长",
+    "sessionCodes": [
+      "71",
+      "10",
+      "73",
+      "82",
+      "83",
+      "57",
+      "58",
+      "67",
+      "76",
+      "59",
+      "36",
+      "37",
+      "43"
+    ]
+  },
+  {
+    "id": "08",
+    "code": "08",
+    "name": "城市生活方式",
+    "fullName": "08 城市生活方式",
+    "count": 13,
+    "color": "#047857",
+    "bg": "#D1FAE5",
+    "border": "#10B981",
+    "icon": "🏙️",
+    "desc": "城市漫步、美食餐饮、下班爱好与第二人生",
+    "sessionCodes": [
+      "63",
+      "46",
+      "64",
+      "65",
+      "21",
+      "23",
+      "85",
+      "28",
+      "77",
+      "86",
+      "32",
+      "69",
+      "78"
+    ]
+  },
+  {
+    "id": "09",
+    "code": "09",
+    "name": "文娱·喜剧·兴趣",
+    "fullName": "09 文娱·喜剧·兴趣",
+    "count": 8,
+    "color": "#9333EA",
+    "bg": "#F3E8FF",
+    "border": "#C084FC",
+    "icon": "🎭",
+    "desc": "年度影视片单、脱口秀喜剧、真实罪案与兴趣杂谈",
+    "sessionCodes": [
+      "04",
+      "11",
+      "55",
+      "17",
+      "26",
+      "27",
+      "35",
+      "52"
+    ]
+  }
+];
 
 window.SESSIONS_DATA = [
   {
@@ -360,9 +334,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 2,
@@ -390,9 +372,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 3,
@@ -420,9 +410,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 4,
@@ -456,9 +454,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 5,
@@ -486,9 +492,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 6,
@@ -516,9 +530,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 7,
@@ -546,9 +568,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 8,
@@ -576,9 +606,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 9,
@@ -606,9 +644,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 10,
@@ -642,9 +688,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 11,
@@ -672,9 +726,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技"
+      "狂喜主讲",
+      "01 狂喜主讲"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "01 狂喜主讲",
+    "topicId": "01",
+    "topicName": "狂喜主讲",
+    "topicColor": "#D97706",
+    "topicBg": "#FEF3C7",
+    "topicBorder": "#F59E0B",
+    "topicIcon": "🎤"
   },
   {
     "seq": 12,
@@ -710,9 +772,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 13,
@@ -748,9 +818,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 14,
@@ -786,9 +864,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 15,
@@ -822,9 +908,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 16,
@@ -858,9 +952,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 17,
@@ -894,9 +996,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 18,
@@ -930,10 +1040,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "女性与关系"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 19,
@@ -967,9 +1084,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 20,
@@ -1003,9 +1128,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 21,
@@ -1023,7 +1156,7 @@ window.SESSIONS_DATA = [
     "venueShort": "3F · 7号厅",
     "venueOrder": 10,
     "floor": "三楼",
-    "topic": "怎么就过上了低精力的人生？",
+    "topic": "影视私享会：我们的2026年度片单请收好！（第二场）",
     "speakers": [
       "孔老师",
       "钱小昆",
@@ -1037,9 +1170,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 22,
@@ -1071,9 +1212,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 23,
@@ -1105,9 +1254,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 24,
@@ -1143,9 +1300,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 25,
@@ -1179,9 +1344,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 26,
@@ -1215,9 +1388,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 27,
@@ -1251,9 +1432,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 28,
@@ -1287,9 +1476,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 29,
@@ -1323,9 +1520,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 30,
@@ -1359,9 +1564,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 31,
@@ -1395,10 +1608,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 32,
@@ -1432,9 +1652,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 33,
@@ -1468,10 +1696,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 34,
@@ -1507,9 +1742,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 35,
@@ -1539,9 +1782,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 36,
@@ -1577,10 +1828,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 37,
@@ -1614,9 +1872,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 38,
@@ -1650,9 +1916,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 39,
@@ -1686,9 +1960,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 40,
@@ -1712,9 +1994,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 41,
@@ -1750,9 +2040,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 42,
@@ -1786,9 +2084,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 43,
@@ -1822,9 +2128,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 44,
@@ -1858,9 +2172,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 45,
@@ -1906,10 +2228,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 46,
@@ -1947,9 +2276,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 47,
@@ -1983,9 +2320,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 48,
@@ -2021,9 +2366,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 49,
@@ -2059,9 +2412,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 50,
@@ -2095,10 +2456,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 51,
@@ -2132,10 +2500,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 52,
@@ -2169,9 +2544,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 53,
@@ -2205,9 +2588,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 54,
@@ -2241,9 +2632,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 55,
@@ -2277,9 +2676,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 56,
@@ -2317,9 +2724,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 57,
@@ -2355,9 +2770,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 58,
@@ -2391,9 +2814,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 59,
@@ -2411,7 +2842,7 @@ window.SESSIONS_DATA = [
     "venueShort": "3F · 7号厅",
     "venueOrder": 10,
     "floor": "三楼",
-    "topic": "卷不动了，去开瑜伽馆？三位瑜伽创业者揭秘身体经济的真相",
+    "topic": "卷不动了，去开客栈吧？三位播客创业者重现身体经济的真相",
     "speakers": [
       "韩欣",
       "董飞跃",
@@ -2427,10 +2858,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场",
-      "身心与成长"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 60,
@@ -2464,9 +2902,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 61,
@@ -2496,9 +2942,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 62,
@@ -2534,10 +2988,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场",
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 63,
@@ -2571,9 +3032,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 64,
@@ -2607,9 +3076,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 65,
@@ -2643,9 +3120,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 66,
@@ -2679,9 +3164,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 67,
@@ -2715,9 +3208,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 68,
@@ -2751,9 +3252,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 69,
@@ -2787,9 +3296,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 70,
@@ -2823,9 +3340,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 71,
@@ -2859,9 +3384,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 72,
@@ -2897,9 +3430,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   },
   {
     "seq": 73,
@@ -2933,9 +3474,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 74,
@@ -2953,7 +3502,7 @@ window.SESSIONS_DATA = [
     "venueShort": "1F · 5号厅",
     "venueOrder": 5,
     "floor": "一楼",
-    "topic": "从个人电脑、互联网到 AI：技术恐慌的历史和普通人的判断",
+    "topic": "从移动互联网到AI，普通人如何从中受益更多？",
     "speakers": [
       "Ailing小狼",
       "陈耀霖",
@@ -2969,10 +3518,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 75,
@@ -3006,9 +3562,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 76,
@@ -3042,9 +3606,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "08 城市生活方式"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "08 城市生活方式",
+    "topicId": "08",
+    "topicName": "城市生活方式",
+    "topicColor": "#047857",
+    "topicBg": "#D1FAE5",
+    "topicBorder": "#10B981",
+    "topicIcon": "🏙️"
   },
   {
     "seq": 77,
@@ -3078,9 +3650,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 78,
@@ -3114,9 +3694,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "09 文娱·喜剧·兴趣"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "09 文娱·喜剧·兴趣",
+    "topicId": "09",
+    "topicName": "文娱·喜剧·兴趣",
+    "topicColor": "#9333EA",
+    "topicBg": "#F3E8FF",
+    "topicBorder": "#C084FC",
+    "topicIcon": "🎭"
   },
   {
     "seq": 79,
@@ -3150,10 +3738,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 80,
@@ -3187,9 +3782,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 81,
@@ -3225,9 +3828,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "身心与成长"
+      "身体与能量",
+      "05 身体与能量"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "05 身体与能量",
+    "topicId": "05",
+    "topicName": "身体与能量",
+    "topicColor": "#4D7C0F",
+    "topicBg": "#ECFCCB",
+    "topicBorder": "#84CC16",
+    "topicIcon": "⚡"
   },
   {
     "seq": 82,
@@ -3263,9 +3874,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "播客创作者",
+      "03 播客创作者"
     ],
-    "isRoundtable": true
+    "isRoundtable": true,
+    "topicCategory": "03 播客创作者",
+    "topicId": "03",
+    "topicName": "播客创作者",
+    "topicColor": "#BE185D",
+    "topicBg": "#FCE7F3",
+    "topicBorder": "#F472B6",
+    "topicIcon": "🎙️"
   },
   {
     "seq": 83,
@@ -3297,10 +3916,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 84,
@@ -3334,10 +3960,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮",
+      "02 AI浪潮"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "02 AI浪潮",
+    "topicId": "02",
+    "topicName": "AI浪潮",
+    "topicColor": "#0284C7",
+    "topicBg": "#E0F2FE",
+    "topicBorder": "#38BDF8",
+    "topicIcon": "🤖"
   },
   {
     "seq": 85,
@@ -3373,9 +4006,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "播客与创作"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 86,
@@ -3409,9 +4050,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "商业与职场"
+      "商业·财经·职场",
+      "04 商业·财经·职场"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "04 商业·财经·职场",
+    "topicId": "04",
+    "topicName": "商业·财经·职场",
+    "topicColor": "#C2410C",
+    "topicBg": "#FFEDD5",
+    "topicBorder": "#FB923C",
+    "topicIcon": "💼"
   },
   {
     "seq": 87,
@@ -3445,9 +4094,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "文化与生活"
+      "社会·历史·世界",
+      "06 社会·历史·世界"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "06 社会·历史·世界",
+    "topicId": "06",
+    "topicName": "社会·历史·世界",
+    "topicColor": "#6D28D9",
+    "topicBg": "#EDE9FE",
+    "topicBorder": "#8B5CF6",
+    "topicIcon": "🌍"
   },
   {
     "seq": 88,
@@ -3481,9 +4138,17 @@ window.SESSIONS_DATA = [
     "openSlots": 0,
     "hasOpenSlots": false,
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我",
+      "07 家庭·关系·自我"
     ],
-    "isRoundtable": false
+    "isRoundtable": false,
+    "topicCategory": "07 家庭·关系·自我",
+    "topicId": "07",
+    "topicName": "家庭·关系·自我",
+    "topicColor": "#B45309",
+    "topicBg": "#FFFBEB",
+    "topicBorder": "#FBBF24",
+    "topicIcon": "🌱"
   }
 ];
 
@@ -3513,10 +4178,11 @@ window.SPEAKERS_DATA = [
       "【43】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系",
-      "文化与生活",
-      "身心与成长"
+      "狂喜主讲",
+      "AI浪潮",
+      "文娱·喜剧·兴趣",
+      "家庭·关系·自我",
+      "城市生活方式"
     ],
     "title": "头号玩家，歪打正着，医疗投资人，编剧"
   },
@@ -3543,9 +4209,10 @@ window.SPEAKERS_DATA = [
       "【38】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活"
+      "社会·历史·世界",
+      "城市生活方式",
+      "文娱·喜剧·兴趣",
+      "AI浪潮"
     ],
     "title": "井户端会议，「狂喜播客节」联合发起人"
   },
@@ -3570,10 +4237,10 @@ window.SPEAKERS_DATA = [
       "【39】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活",
-      "身心与成长"
+      "狂喜主讲",
+      "社会·历史·世界",
+      "身体与能量",
+      "AI浪潮"
     ],
     "title": "提钱退休"
   },
@@ -3598,9 +4265,10 @@ window.SPEAKERS_DATA = [
       "【37】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活",
-      "身心与成长"
+      "狂喜主讲",
+      "社会·历史·世界",
+      "城市生活方式",
+      "家庭·关系·自我"
     ],
     "title": "轻刀快马"
   },
@@ -3624,9 +4292,9 @@ window.SPEAKERS_DATA = [
       "【38】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系",
-      "播客与创作"
+      "家庭·关系·自我",
+      "播客创作者",
+      "AI浪潮"
     ],
     "title": "贝望录"
   },
@@ -3649,9 +4317,10 @@ window.SPEAKERS_DATA = [
       "【70】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "身心与成长"
+      "狂喜主讲",
+      "文娱·喜剧·兴趣",
+      "身体与能量",
+      "AI浪潮"
     ],
     "title": "什么电苔"
   },
@@ -3674,10 +4343,9 @@ window.SPEAKERS_DATA = [
       "【43】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系",
-      "播客与创作",
-      "身心与成长"
+      "播客创作者",
+      "商业·财经·职场",
+      "家庭·关系·自我"
     ],
     "title": "不太保险，播浪鼓播客大会"
   },
@@ -3700,9 +4368,9 @@ window.SPEAKERS_DATA = [
       "【35】"
     ],
     "tags": [
-      "商业与职场",
-      "播客与创作",
-      "文化与生活"
+      "社会·历史·世界",
+      "播客创作者",
+      "文娱·喜剧·兴趣"
     ],
     "title": "罪案作家，日谈物语"
   },
@@ -3725,9 +4393,9 @@ window.SPEAKERS_DATA = [
       "【79】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活",
-      "身心与成长"
+      "城市生活方式",
+      "商业·财经·职场",
+      "身体与能量"
     ],
     "title": "405游局"
   },
@@ -3750,8 +4418,9 @@ window.SPEAKERS_DATA = [
       "【52】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "商业·财经·职场",
+      "城市生活方式"
     ],
     "title": "足球无双，英超无双"
   },
@@ -3772,10 +4441,8 @@ window.SPEAKERS_DATA = [
       "【38】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系",
-      "播客与创作",
-      "文化与生活"
+      "AI浪潮",
+      "社会·历史·世界"
     ],
     "title": "「狂喜播客节」发起人，开放对话"
   },
@@ -3796,9 +4463,9 @@ window.SPEAKERS_DATA = [
       "【60】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场",
-      "文化与生活"
+      "家庭·关系·自我",
+      "商业·财经·职场",
+      "AI浪潮"
     ],
     "title": "资深产品经理，科技作者，公众号：判官老司机"
   },
@@ -3819,10 +4486,9 @@ window.SPEAKERS_DATA = [
       "【68】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场",
-      "播客与创作",
-      "身心与成长"
+      "商业·财经·职场",
+      "播客创作者",
+      "身体与能量"
     ],
     "title": "起朱楼宴宾客，犬生活，不熄灯Lights On"
   },
@@ -3844,10 +4510,9 @@ window.SPEAKERS_DATA = [
       "【26】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活",
-      "身心与成长"
+      "身体与能量",
+      "播客创作者",
+      "文娱·喜剧·兴趣"
     ],
     "title": "天才捕手FM"
   },
@@ -3868,7 +4533,7 @@ window.SPEAKERS_DATA = [
       "【33】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "社会学学者，社会学人"
   },
@@ -3889,8 +4554,8 @@ window.SPEAKERS_DATA = [
       "【52】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活"
+      "商业·财经·职场",
+      "文娱·喜剧·兴趣"
     ],
     "title": "什么电苔"
   },
@@ -3911,10 +4576,9 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活",
-      "身心与成长"
+      "狂喜主讲",
+      "文娱·喜剧·兴趣",
+      "播客创作者"
     ],
     "title": "万物生长FM"
   },
@@ -3935,9 +4599,9 @@ window.SPEAKERS_DATA = [
       "【39】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活"
+      "播客创作者",
+      "城市生活方式",
+      "AI浪潮"
     ],
     "title": "灵感爆棚"
   },
@@ -3958,8 +4622,8 @@ window.SPEAKERS_DATA = [
       "【43】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活"
+      "社会·历史·世界",
+      "家庭·关系·自我"
     ],
     "title": "《历史讲坛 · 边走边谈》播客制作人，不太重要"
   },
@@ -3980,10 +4644,9 @@ window.SPEAKERS_DATA = [
       "【59】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系",
-      "播客与创作",
-      "身心与成长"
+      "身体与能量",
+      "播客创作者",
+      "家庭·关系·自我"
     ],
     "title": "苦中找乐"
   },
@@ -4004,9 +4667,9 @@ window.SPEAKERS_DATA = [
       "【37】"
     ],
     "tags": [
-      "女性与关系",
-      "播客与创作",
-      "文化与生活"
+      "城市生活方式",
+      "社会·历史·世界",
+      "家庭·关系·自我"
     ],
     "title": "歌手，纪录片导演"
   },
@@ -4027,9 +4690,9 @@ window.SPEAKERS_DATA = [
       "【68】"
     ],
     "tags": [
-      "女性与关系",
-      "播客与创作",
-      "身心与成长"
+      "播客创作者",
+      "家庭·关系·自我",
+      "身体与能量"
     ],
     "title": "黑水公园，《屋》道具师"
   },
@@ -4050,7 +4713,9 @@ window.SPEAKERS_DATA = [
       "【33】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "城市生活方式",
+      "社会·历史·世界"
     ],
     "title": "巴黎姆学研究院，巴黎啥都研究院"
   },
@@ -4071,9 +4736,8 @@ window.SPEAKERS_DATA = [
       "【34】"
     ],
     "tags": [
-      "女性与关系",
-      "播客与创作",
-      "文化与生活"
+      "家庭·关系·自我",
+      "社会·历史·世界"
     ],
     "title": "波伏娃的家，作家，影评人"
   },
@@ -4094,8 +4758,9 @@ window.SPEAKERS_DATA = [
       "【26】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活"
+      "社会·历史·世界",
+      "家庭·关系·自我",
+      "文娱·喜剧·兴趣"
     ],
     "title": "黑水公园，《屋》导演"
   },
@@ -4114,9 +4779,8 @@ window.SPEAKERS_DATA = [
       "【52】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活"
+      "AI浪潮",
+      "文娱·喜剧·兴趣"
     ],
     "title": "菠萝油子丨成年人听的动漫播客，「播可梦Studio」联合创始人"
   },
@@ -4135,8 +4799,8 @@ window.SPEAKERS_DATA = [
       "【79】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "城市生活方式",
+      "身体与能量"
     ],
     "title": "跨域请求"
   },
@@ -4155,7 +4819,7 @@ window.SPEAKERS_DATA = [
       "【78】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "食神生财"
   },
@@ -4175,8 +4839,8 @@ window.SPEAKERS_DATA = [
       "【74】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "家庭·关系·自我",
+      "商业·财经·职场"
     ],
     "title": "玫天重启1%"
   },
@@ -4195,8 +4859,8 @@ window.SPEAKERS_DATA = [
       "【58】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活"
+      "城市生活方式",
+      "家庭·关系·自我"
     ],
     "title": "姐姐好会，有你想听的故事"
   },
@@ -4215,8 +4879,7 @@ window.SPEAKERS_DATA = [
       "【32】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "自然生长ElegantLiving"
   },
@@ -4235,8 +4898,7 @@ window.SPEAKERS_DATA = [
       "【56】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "真空世界"
   },
@@ -4255,7 +4917,8 @@ window.SPEAKERS_DATA = [
       "【12】"
     ],
     "tags": [
-      "女性与关系"
+      "狂喜主讲",
+      "身体与能量"
     ],
     "title": "当个事儿"
   },
@@ -4274,8 +4937,8 @@ window.SPEAKERS_DATA = [
       "【59】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场",
+      "家庭·关系·自我"
     ],
     "title": "有啥可聊·一家三口"
   },
@@ -4295,7 +4958,7 @@ window.SPEAKERS_DATA = [
       "【86】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "牛奶大脑袋"
   },
@@ -4314,9 +4977,8 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "身心与成长"
+      "身体与能量",
+      "播客创作者"
     ],
     "title": "日谈公园"
   },
@@ -4335,8 +4997,8 @@ window.SPEAKERS_DATA = [
       "【40】"
     ],
     "tags": [
-      "播客与创作",
-      "文化与生活"
+      "城市生活方式",
+      "社会·历史·世界"
     ],
     "title": "了路浪"
   },
@@ -4355,8 +5017,8 @@ window.SPEAKERS_DATA = [
       "【21】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "城市生活方式"
     ],
     "title": ""
   },
@@ -4375,9 +5037,8 @@ window.SPEAKERS_DATA = [
       "【30】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系",
-      "身心与成长"
+      "商业·财经·职场",
+      "身体与能量"
     ],
     "title": "制作人，陋室铭"
   },
@@ -4396,8 +5057,8 @@ window.SPEAKERS_DATA = [
       "【30】"
     ],
     "tags": [
-      "播客与创作",
-      "身心与成长"
+      "播客创作者",
+      "身体与能量"
     ],
     "title": "三五环，半拿铁，商业沉浮录"
   },
@@ -4416,8 +5077,8 @@ window.SPEAKERS_DATA = [
       "【70】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "文娱·喜剧·兴趣",
+      "AI浪潮"
     ],
     "title": "迷影圆桌派"
   },
@@ -4436,8 +5097,8 @@ window.SPEAKERS_DATA = [
       "【40】"
     ],
     "tags": [
-      "播客与创作",
-      "身心与成长"
+      "城市生活方式",
+      "社会·历史·世界"
     ],
     "title": "小题大做Overreactology"
   },
@@ -4456,8 +5117,8 @@ window.SPEAKERS_DATA = [
       "【41】"
     ],
     "tags": [
-      "商业与职场",
-      "播客与创作"
+      "播客创作者",
+      "商业·财经·职场"
     ],
     "title": "《经济学人·商论》原总编辑，晨读时间，著名财经作家"
   },
@@ -4476,8 +5137,8 @@ window.SPEAKERS_DATA = [
       "【66】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "家庭·关系·自我",
+      "商业·财经·职场"
     ],
     "title": "电影《拼桌》导演"
   },
@@ -4496,8 +5157,8 @@ window.SPEAKERS_DATA = [
       "【42】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活"
+      "狂喜主讲",
+      "社会·历史·世界"
     ],
     "title": "投资实战派"
   },
@@ -4516,8 +5177,7 @@ window.SPEAKERS_DATA = [
       "【83】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "好有共鸣"
   },
@@ -4536,8 +5196,8 @@ window.SPEAKERS_DATA = [
       "【58】"
     ],
     "tags": [
-      "女性与关系",
-      "身心与成长"
+      "城市生活方式",
+      "家庭·关系·自我"
     ],
     "title": "公交站台"
   },
@@ -4556,9 +5216,8 @@ window.SPEAKERS_DATA = [
       "【79】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "身心与成长"
+      "AI浪潮",
+      "身体与能量"
     ],
     "title": "津津乐道播客网络创始人"
   },
@@ -4577,7 +5236,7 @@ window.SPEAKERS_DATA = [
       "【59】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "有啥可聊·一家三口"
   },
@@ -4596,7 +5255,8 @@ window.SPEAKERS_DATA = [
       "【27】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式",
+      "文娱·喜剧·兴趣"
     ],
     "title": "双响炮"
   },
@@ -4615,8 +5275,8 @@ window.SPEAKERS_DATA = [
       "【37】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场",
+      "家庭·关系·自我"
     ],
     "title": "电台主持人，小畅翻牌，开小灶"
   },
@@ -4635,8 +5295,8 @@ window.SPEAKERS_DATA = [
       "【35】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "身体与能量",
+      "文娱·喜剧·兴趣"
     ],
     "title": "异地登录"
   },
@@ -4655,8 +5315,7 @@ window.SPEAKERS_DATA = [
       "【36】"
     ],
     "tags": [
-      "女性与关系",
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "不止牛马"
   },
@@ -4675,8 +5334,8 @@ window.SPEAKERS_DATA = [
       "【15】"
     ],
     "tags": [
-      "AI与科技",
-      "身心与成长"
+      "狂喜主讲",
+      "身体与能量"
     ],
     "title": "屠龙之术，古典互联网投资人"
   },
@@ -4696,8 +5355,8 @@ window.SPEAKERS_DATA = [
       "【69】"
     ],
     "tags": [
-      "女性与关系",
-      "文化与生活"
+      "家庭·关系·自我",
+      "城市生活方式"
     ],
     "title": "e来i去"
   },
@@ -4716,7 +5375,7 @@ window.SPEAKERS_DATA = [
       "【52】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣"
     ],
     "title": "青年度日指南，独立导演"
   },
@@ -4735,7 +5394,7 @@ window.SPEAKERS_DATA = [
       "【67】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "限时奇遇"
   },
@@ -4754,7 +5413,7 @@ window.SPEAKERS_DATA = [
       "【86】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "大食话"
   },
@@ -4773,8 +5432,8 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮",
+      "播客创作者"
     ],
     "title": "津津乐道播客网络创始人"
   },
@@ -4794,7 +5453,7 @@ window.SPEAKERS_DATA = [
       "【77】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "TIANYU2FM，服装电商平台创始人"
   },
@@ -4813,9 +5472,8 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "身心与成长"
+      "身体与能量",
+      "播客创作者"
     ],
     "title": "听懂涨声，长波工作室主理人"
   },
@@ -4834,8 +5492,7 @@ window.SPEAKERS_DATA = [
       "【42】"
     ],
     "tags": [
-      "播客与创作",
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "上海财经大学副教授，经济学者"
   },
@@ -4854,9 +5511,8 @@ window.SPEAKERS_DATA = [
       "【25】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场",
-      "文化与生活"
+      "社会·历史·世界",
+      "商业·财经·职场"
     ],
     "title": "投资实战派"
   },
@@ -4875,8 +5531,7 @@ window.SPEAKERS_DATA = [
       "【36】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "破局点，汇华企业教练总经理"
   },
@@ -4895,8 +5550,8 @@ window.SPEAKERS_DATA = [
       "【35】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活"
+      "商业·财经·职场",
+      "文娱·喜剧·兴趣"
     ],
     "title": "二度造访"
   },
@@ -4916,7 +5571,7 @@ window.SPEAKERS_DATA = [
       "【78】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "能量少女"
   },
@@ -4935,8 +5590,8 @@ window.SPEAKERS_DATA = [
       "【41】"
     ],
     "tags": [
-      "商业与职场",
-      "播客与创作"
+      "播客创作者",
+      "商业·财经·职场"
     ],
     "title": "时代指北Finding North，先声"
   },
@@ -4955,8 +5610,8 @@ window.SPEAKERS_DATA = [
       "【69】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "身体与能量",
+      "城市生活方式"
     ],
     "title": "去病三分糖"
   },
@@ -4975,8 +5630,8 @@ window.SPEAKERS_DATA = [
       "【34】"
     ],
     "tags": [
-      "播客与创作",
-      "文化与生活"
+      "城市生活方式",
+      "社会·历史·世界"
     ],
     "title": "掉书袋，电影开发、编剧"
   },
@@ -4995,9 +5650,8 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作",
-      "文化与生活"
+      "AI浪潮",
+      "播客创作者"
     ],
     "title": "无所事事事务所，小红书资深产品运营"
   },
@@ -5016,9 +5670,8 @@ window.SPEAKERS_DATA = [
       "【50】"
     ],
     "tags": [
-      "商业与职场",
-      "播客与创作",
-      "文化与生活"
+      "社会·历史·世界",
+      "播客创作者"
     ],
     "title": "大上海歌舞厅"
   },
@@ -5037,8 +5690,7 @@ window.SPEAKERS_DATA = [
       "【22】"
     ],
     "tags": [
-      "播客与创作",
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "纪录片制作人"
   },
@@ -5057,7 +5709,7 @@ window.SPEAKERS_DATA = [
       "【84】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "建筑城市学者，城市漫游爱好者"
   },
@@ -5076,8 +5728,7 @@ window.SPEAKERS_DATA = [
       "【67】"
     ],
     "tags": [
-      "女性与关系",
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "那台留声机"
   },
@@ -5096,7 +5747,7 @@ window.SPEAKERS_DATA = [
       "【43】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "教育工作者，《无龄星球》主理人，终身学习倡导者"
   },
@@ -5115,7 +5766,7 @@ window.SPEAKERS_DATA = [
       "【46】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "钱粮胡同FM"
   },
@@ -5134,8 +5785,7 @@ window.SPEAKERS_DATA = [
       "【58】"
     ],
     "tags": [
-      "女性与关系",
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "姐姐好会，有你想听的故事"
   },
@@ -5154,8 +5804,8 @@ window.SPEAKERS_DATA = [
       "【35】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "身体与能量",
+      "文娱·喜剧·兴趣"
     ],
     "title": "异地登录"
   },
@@ -5174,8 +5824,8 @@ window.SPEAKERS_DATA = [
       "【77】"
     ],
     "tags": [
-      "文化与生活",
-      "身心与成长"
+      "文娱·喜剧·兴趣",
+      "城市生活方式"
     ],
     "title": "《爱情神话》沪语指导"
   },
@@ -5194,9 +5844,8 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系",
-      "播客与创作"
+      "AI浪潮",
+      "播客创作者"
     ],
     "title": "媒体人"
   },
@@ -5215,8 +5864,8 @@ window.SPEAKERS_DATA = [
       "【61】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "身体与能量",
+      "商业·财经·职场"
     ],
     "title": "搞钱学姐"
   },
@@ -5235,8 +5884,8 @@ window.SPEAKERS_DATA = [
       "【37】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场",
+      "家庭·关系·自我"
     ],
     "title": "梵高MoneyTalk"
   },
@@ -5255,8 +5904,8 @@ window.SPEAKERS_DATA = [
       "【41】"
     ],
     "tags": [
-      "商业与职场",
-      "文化与生活"
+      "城市生活方式",
+      "商业·财经·职场"
     ],
     "title": "一劳永逸"
   },
@@ -5273,8 +5922,7 @@ window.SPEAKERS_DATA = [
       "【60】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "计算机历史博物馆"
   },
@@ -5291,7 +5939,7 @@ window.SPEAKERS_DATA = [
       "【88】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "还原剧团"
   },
@@ -5308,8 +5956,7 @@ window.SPEAKERS_DATA = [
       "【49】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "AI浪潮"
     ],
     "title": "杭州纯粹的玩创始人"
   },
@@ -5326,7 +5973,7 @@ window.SPEAKERS_DATA = [
       "【68】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "00后的深水区"
   },
@@ -5343,8 +5990,7 @@ window.SPEAKERS_DATA = [
       "【49】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "AI浪潮"
     ],
     "title": "查仕博咨询创始人兼首席顾问，前波士顿咨询BCG AI顾问主管"
   },
@@ -5361,7 +6007,7 @@ window.SPEAKERS_DATA = [
       "【85】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "鸟瘾综合征"
   },
@@ -5378,7 +6024,7 @@ window.SPEAKERS_DATA = [
       "【57】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "嘻嘻哈哈叮叮当当"
   },
@@ -5395,7 +6041,7 @@ window.SPEAKERS_DATA = [
       "【21】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "视频博主，十六号线"
   },
@@ -5413,7 +6059,7 @@ window.SPEAKERS_DATA = [
       "【69】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "非行笔记"
   },
@@ -5430,7 +6076,7 @@ window.SPEAKERS_DATA = [
       "【07】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "单立人Special"
   },
@@ -5447,7 +6093,7 @@ window.SPEAKERS_DATA = [
       "【41】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "截胡不截财"
   },
@@ -5464,8 +6110,7 @@ window.SPEAKERS_DATA = [
       "【61】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场"
     ],
     "title": "藏金阁"
   },
@@ -5483,8 +6128,7 @@ window.SPEAKERS_DATA = [
       "【08】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系"
+      "AI浪潮"
     ],
     "title": "十字路口"
   },
@@ -5501,8 +6145,7 @@ window.SPEAKERS_DATA = [
       "【49】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "AI浪潮"
     ],
     "title": "Cherry Studio 商业化 & FDE 负责人"
   },
@@ -5519,7 +6162,7 @@ window.SPEAKERS_DATA = [
       "【82】"
     ],
     "tags": [
-      "文化与生活"
+      "家庭·关系·自我"
     ],
     "title": "火象三傻妙妙屋"
   },
@@ -5536,7 +6179,7 @@ window.SPEAKERS_DATA = [
       "【40】"
     ],
     "tags": [
-      "播客与创作"
+      "社会·历史·世界"
     ],
     "title": "史蒂夫说"
   },
@@ -5553,7 +6196,7 @@ window.SPEAKERS_DATA = [
       "【21】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "喜剧演员"
   },
@@ -5570,7 +6213,7 @@ window.SPEAKERS_DATA = [
       "【24】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "身边人"
   },
@@ -5587,8 +6230,7 @@ window.SPEAKERS_DATA = [
       "【61】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场"
     ],
     "title": "女生宿舍"
   },
@@ -5605,7 +6247,7 @@ window.SPEAKERS_DATA = [
       "【57】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "嘻嘻哈哈叮叮当当"
   },
@@ -5622,7 +6264,7 @@ window.SPEAKERS_DATA = [
       "【51】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "城市罐头，建筑师"
   },
@@ -5640,7 +6282,7 @@ window.SPEAKERS_DATA = [
       "【77】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "瑜光同尘"
   },
@@ -5657,7 +6299,7 @@ window.SPEAKERS_DATA = [
       "【27】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣"
     ],
     "title": "喜剧演员，编剧"
   },
@@ -5674,8 +6316,7 @@ window.SPEAKERS_DATA = [
       "【39】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮"
     ],
     "title": "AI 博主"
   },
@@ -5692,7 +6333,7 @@ window.SPEAKERS_DATA = [
       "【85】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "摇摆客厅"
   },
@@ -5710,7 +6351,7 @@ window.SPEAKERS_DATA = [
       "【65】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "无用之用"
   },
@@ -5727,7 +6368,7 @@ window.SPEAKERS_DATA = [
       "【88】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "还原剧团"
   },
@@ -5744,7 +6385,7 @@ window.SPEAKERS_DATA = [
       "【22】"
     ],
     "tags": [
-      "播客与创作"
+      "社会·历史·世界"
     ],
     "title": "自媒体vlog博主，小红书「丁大根儿」"
   },
@@ -5761,7 +6402,7 @@ window.SPEAKERS_DATA = [
       "【27】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣"
     ],
     "title": "漫才组合「荒岛人气王」成员"
   },
@@ -5778,7 +6419,7 @@ window.SPEAKERS_DATA = [
       "【04】"
     ],
     "tags": [
-      "女性与关系"
+      "文娱·喜剧·兴趣"
     ],
     "title": "下下签-摸鱼良品"
   },
@@ -5795,7 +6436,7 @@ window.SPEAKERS_DATA = [
       "【32】"
     ],
     "tags": [
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "独立服装设计师，SUABOO品牌主理人"
   },
@@ -5812,8 +6453,7 @@ window.SPEAKERS_DATA = [
       "【56】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "《燃烧吧！爸爸》导演"
   },
@@ -5830,8 +6470,7 @@ window.SPEAKERS_DATA = [
       "【29】"
     ],
     "tags": [
-      "商业与职场",
-      "身心与成长"
+      "商业·财经·职场"
     ],
     "title": "悠加瑜伽创始人"
   },
@@ -5848,7 +6487,7 @@ window.SPEAKERS_DATA = [
       "【07】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "喝大了俱乐部"
   },
@@ -5865,7 +6504,7 @@ window.SPEAKERS_DATA = [
       "【21】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "喜剧演员"
   },
@@ -5883,7 +6522,7 @@ window.SPEAKERS_DATA = [
       "【83】"
     ],
     "tags": [
-      "文化与生活"
+      "家庭·关系·自我"
     ],
     "title": "上海TEDx淡水路持牌人，AISI全球创新创业导师"
   },
@@ -5900,7 +6539,7 @@ window.SPEAKERS_DATA = [
       "【75】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "直觉"
   },
@@ -5917,7 +6556,7 @@ window.SPEAKERS_DATA = [
       "【13】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "黑猫侦探社"
   },
@@ -5934,7 +6573,7 @@ window.SPEAKERS_DATA = [
       "【32】"
     ],
     "tags": [
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "上海世博木棉花凯悦臻选酒店总经理"
   },
@@ -5951,7 +6590,7 @@ window.SPEAKERS_DATA = [
       "【30】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "身边人"
   },
@@ -5968,7 +6607,7 @@ window.SPEAKERS_DATA = [
       "【88】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "还原剧团"
   },
@@ -5985,7 +6624,7 @@ window.SPEAKERS_DATA = [
       "【24】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "胸外科医生，下班医生"
   },
@@ -6002,7 +6641,7 @@ window.SPEAKERS_DATA = [
       "【17】"
     ],
     "tags": [
-      "播客与创作"
+      "文娱·喜剧·兴趣"
     ],
     "title": "过敏allErgy 主播"
   },
@@ -6019,7 +6658,7 @@ window.SPEAKERS_DATA = [
       "【64】"
     ],
     "tags": [
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "真的很响"
   },
@@ -6036,7 +6675,7 @@ window.SPEAKERS_DATA = [
       "【24】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "胃肠外科医生，下班医生"
   },
@@ -6054,7 +6693,7 @@ window.SPEAKERS_DATA = [
       "【67】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "满唐结彩"
   },
@@ -6071,7 +6710,7 @@ window.SPEAKERS_DATA = [
       "【07】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "单立人Special"
   },
@@ -6088,7 +6727,7 @@ window.SPEAKERS_DATA = [
       "【07】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "单立人Special"
   },
@@ -6105,8 +6744,7 @@ window.SPEAKERS_DATA = [
       "【61】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场"
     ],
     "title": "门道"
   },
@@ -6123,8 +6761,7 @@ window.SPEAKERS_DATA = [
       "【25】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "边角聊"
   },
@@ -6141,7 +6778,7 @@ window.SPEAKERS_DATA = [
       "【78】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "蕉不绿未来"
   },
@@ -6158,7 +6795,7 @@ window.SPEAKERS_DATA = [
       "【42】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "蒙元史学者"
   },
@@ -6175,7 +6812,7 @@ window.SPEAKERS_DATA = [
       "【73】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "真的很响"
   },
@@ -6192,7 +6829,7 @@ window.SPEAKERS_DATA = [
       "【63】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "收工大吉"
   },
@@ -6209,7 +6846,7 @@ window.SPEAKERS_DATA = [
       "【54】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "大人的任意门"
   },
@@ -6226,7 +6863,7 @@ window.SPEAKERS_DATA = [
       "【40】"
     ],
     "tags": [
-      "播客与创作"
+      "社会·历史·世界"
     ],
     "title": "正文三台"
   },
@@ -6243,7 +6880,7 @@ window.SPEAKERS_DATA = [
       "【13】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "fit4life，自习室 STUDY ROOM"
   },
@@ -6260,7 +6897,7 @@ window.SPEAKERS_DATA = [
       "【45】"
     ],
     "tags": [
-      "AI与科技"
+      "AI浪潮"
     ],
     "title": "独立共创引导师"
   },
@@ -6277,7 +6914,7 @@ window.SPEAKERS_DATA = [
       "【87】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "「此话当真」制作人，真格基金品牌经理"
   },
@@ -6294,7 +6931,7 @@ window.SPEAKERS_DATA = [
       "【84】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "同济大学中文系教授"
   },
@@ -6311,8 +6948,7 @@ window.SPEAKERS_DATA = [
       "【56】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "《燃烧吧！爸爸》编剧"
   },
@@ -6329,7 +6965,7 @@ window.SPEAKERS_DATA = [
       "【72】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "少囤书"
   },
@@ -6346,7 +6982,7 @@ window.SPEAKERS_DATA = [
       "【42】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "历史讲坛，边走边谈"
   },
@@ -6363,7 +6999,7 @@ window.SPEAKERS_DATA = [
       "【68】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "AmazingFM"
   },
@@ -6380,7 +7016,7 @@ window.SPEAKERS_DATA = [
       "【27】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣"
     ],
     "title": "局外客厅"
   },
@@ -6397,7 +7033,7 @@ window.SPEAKERS_DATA = [
       "【76】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "此岸拾光"
   },
@@ -6414,7 +7050,7 @@ window.SPEAKERS_DATA = [
       "【11】"
     ],
     "tags": [
-      "身心与成长"
+      "文娱·喜剧·兴趣"
     ],
     "title": "东亚观察局"
   },
@@ -6431,7 +7067,7 @@ window.SPEAKERS_DATA = [
       "【45】"
     ],
     "tags": [
-      "AI与科技"
+      "AI浪潮"
     ],
     "title": "全球创作者社区Magipop发起人"
   },
@@ -6448,7 +7084,7 @@ window.SPEAKERS_DATA = [
       "【07】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "单立人Special"
   },
@@ -6465,7 +7101,7 @@ window.SPEAKERS_DATA = [
       "【28】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "香水讲师"
   },
@@ -6482,7 +7118,7 @@ window.SPEAKERS_DATA = [
       "【45】"
     ],
     "tags": [
-      "AI与科技"
+      "AI浪潮"
     ],
     "title": "彼屯合伙人，前教育投资人"
   },
@@ -6499,7 +7135,7 @@ window.SPEAKERS_DATA = [
       "【33】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": ""
   },
@@ -6516,7 +7152,7 @@ window.SPEAKERS_DATA = [
       "【66】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "整点亮话"
   },
@@ -6533,7 +7169,7 @@ window.SPEAKERS_DATA = [
       "【17】"
     ],
     "tags": [
-      "播客与创作"
+      "文娱·喜剧·兴趣"
     ],
     "title": "中国好生意"
   },
@@ -6550,8 +7186,7 @@ window.SPEAKERS_DATA = [
       "【39】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮"
     ],
     "title": "ex 腾讯产品经理，雪服品牌主理人"
   },
@@ -6568,7 +7203,7 @@ window.SPEAKERS_DATA = [
       "【76】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "驴喝咖啡"
   },
@@ -6585,8 +7220,7 @@ window.SPEAKERS_DATA = [
       "【20】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "远行者与碎冰匠"
   },
@@ -6603,7 +7237,7 @@ window.SPEAKERS_DATA = [
       "【88】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "还原剧团"
   },
@@ -6620,7 +7254,7 @@ window.SPEAKERS_DATA = [
       "【34】"
     ],
     "tags": [
-      "播客与创作"
+      "社会·历史·世界"
     ],
     "title": "科普作家"
   },
@@ -6637,7 +7271,7 @@ window.SPEAKERS_DATA = [
       "【86】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "剁瓜切菜"
   },
@@ -6655,7 +7289,7 @@ window.SPEAKERS_DATA = [
       "【79】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "抽象撒野"
   },
@@ -6672,7 +7306,7 @@ window.SPEAKERS_DATA = [
       "【32】"
     ],
     "tags": [
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "心都野了heartbeast"
   },
@@ -6689,7 +7323,7 @@ window.SPEAKERS_DATA = [
       "【70】"
     ],
     "tags": [
-      "AI与科技"
+      "AI浪潮"
     ],
     "title": "死磕拖延症"
   },
@@ -6706,8 +7340,7 @@ window.SPEAKERS_DATA = [
       "【25】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "半拿铁，商业沉浮录"
   },
@@ -6724,7 +7357,7 @@ window.SPEAKERS_DATA = [
       "【51】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "资深商业人"
   },
@@ -6741,7 +7374,7 @@ window.SPEAKERS_DATA = [
       "【87】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "花无限文化创始人&CEO，王大花大女主"
   },
@@ -6758,7 +7391,7 @@ window.SPEAKERS_DATA = [
       "【51】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "彼山咨询 & 彼屯创始人"
   },
@@ -6775,7 +7408,7 @@ window.SPEAKERS_DATA = [
       "【40】"
     ],
     "tags": [
-      "播客与创作"
+      "社会·历史·世界"
     ],
     "title": "美轮美换"
   },
@@ -6792,8 +7425,7 @@ window.SPEAKERS_DATA = [
       "【16】"
     ],
     "tags": [
-      "AI与科技",
-      "播客与创作"
+      "AI浪潮"
     ],
     "title": "海滨传媒主理人"
   },
@@ -6810,8 +7442,7 @@ window.SPEAKERS_DATA = [
       "【50】"
     ],
     "tags": [
-      "商业与职场",
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "PLAN F，Fast Company China中文版总经理"
   },
@@ -6828,7 +7459,7 @@ window.SPEAKERS_DATA = [
       "【64】"
     ],
     "tags": [
-      "身心与成长"
+      "城市生活方式"
     ],
     "title": "心动行动"
   },
@@ -6845,7 +7476,7 @@ window.SPEAKERS_DATA = [
       "【09】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "大上海歌舞厅"
   },
@@ -6862,8 +7493,7 @@ window.SPEAKERS_DATA = [
       "【49】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "AI浪潮"
     ],
     "title": "纯粹星辰FDE，冶愿科技AI社群主理人"
   },
@@ -6880,7 +7510,7 @@ window.SPEAKERS_DATA = [
       "【17】"
     ],
     "tags": [
-      "播客与创作"
+      "文娱·喜剧·兴趣"
     ],
     "title": "电影、电视剧导演"
   },
@@ -6897,7 +7527,7 @@ window.SPEAKERS_DATA = [
       "【27】"
     ],
     "tags": [
-      "文化与生活"
+      "文娱·喜剧·兴趣"
     ],
     "title": "漫才组合「荒岛人气王」成员"
   },
@@ -6914,8 +7544,7 @@ window.SPEAKERS_DATA = [
       "【08】"
     ],
     "tags": [
-      "AI与科技",
-      "女性与关系"
+      "AI浪潮"
     ],
     "title": "AI社区「超线性学院」Superlinear Academy"
   },
@@ -6932,7 +7561,7 @@ window.SPEAKERS_DATA = [
       "【85】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "why for jazz"
   },
@@ -6950,7 +7579,7 @@ window.SPEAKERS_DATA = [
       "【62】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "我是销冠"
   },
@@ -6967,7 +7596,7 @@ window.SPEAKERS_DATA = [
       "【46】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "钱粮胡同FM"
   },
@@ -6984,7 +7613,7 @@ window.SPEAKERS_DATA = [
       "【17】"
     ],
     "tags": [
-      "播客与创作"
+      "文娱·喜剧·兴趣"
     ],
     "title": "摇摆时间"
   },
@@ -7001,7 +7630,7 @@ window.SPEAKERS_DATA = [
       "【84】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "上海大学文化研究系系主任"
   },
@@ -7018,7 +7647,7 @@ window.SPEAKERS_DATA = [
       "【81】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "「狂喜播客节」0号主播志愿者，「播客公社」发起人，《播客志》主编"
   },
@@ -7035,8 +7664,7 @@ window.SPEAKERS_DATA = [
       "【25】"
     ],
     "tags": [
-      "AI与科技",
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "商业就是这样，边角聊"
   },
@@ -7053,7 +7681,7 @@ window.SPEAKERS_DATA = [
       "【79】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "暧暧含光"
   },
@@ -7070,7 +7698,7 @@ window.SPEAKERS_DATA = [
       "【87】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "CPA超频对话，DTC Lab"
   },
@@ -7087,7 +7715,7 @@ window.SPEAKERS_DATA = [
       "【04】"
     ],
     "tags": [
-      "女性与关系"
+      "文娱·喜剧·兴趣"
     ],
     "title": "下下签-摸鱼良品，制作人"
   },
@@ -7104,7 +7732,7 @@ window.SPEAKERS_DATA = [
       "【59】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "有啥可聊·一家三口"
   },
@@ -7121,7 +7749,7 @@ window.SPEAKERS_DATA = [
       "【12】"
     ],
     "tags": [
-      "女性与关系"
+      "身体与能量"
     ],
     "title": "菠萝健康派"
   },
@@ -7138,7 +7766,7 @@ window.SPEAKERS_DATA = [
       "【82】"
     ],
     "tags": [
-      "文化与生活"
+      "家庭·关系·自我"
     ],
     "title": "火象三傻妙妙屋"
   },
@@ -7155,8 +7783,7 @@ window.SPEAKERS_DATA = [
       "【18】"
     ],
     "tags": [
-      "商业与职场",
-      "女性与关系"
+      "商业·财经·职场"
     ],
     "title": "慧客堂主播，至明科技创始人，慧度资产总经理"
   },
@@ -7173,8 +7800,7 @@ window.SPEAKERS_DATA = [
       "【29】"
     ],
     "tags": [
-      "商业与职场",
-      "身心与成长"
+      "商业·财经·职场"
     ],
     "title": "国内轻运动、瑜伽专业品牌YOTTOY创始人"
   },
@@ -7191,7 +7817,7 @@ window.SPEAKERS_DATA = [
       "【31】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "商业茶泡饭，Nexthing Japan 创始人"
   },
@@ -7208,7 +7834,7 @@ window.SPEAKERS_DATA = [
       "【66】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "保驾护航"
   },
@@ -7225,7 +7851,7 @@ window.SPEAKERS_DATA = [
       "【04】"
     ],
     "tags": [
-      "女性与关系"
+      "文娱·喜剧·兴趣"
     ],
     "title": "下下签-摸鱼良品"
   },
@@ -7242,7 +7868,7 @@ window.SPEAKERS_DATA = [
       "【70】"
     ],
     "tags": [
-      "AI与科技"
+      "AI浪潮"
     ],
     "title": "周日清晨"
   },
@@ -7259,8 +7885,7 @@ window.SPEAKERS_DATA = [
       "【56】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "TODAY AI ART创办人，海影节AI电影季 总策划"
   },
@@ -7277,7 +7902,7 @@ window.SPEAKERS_DATA = [
       "【30】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": "女足运动员，公益项目发起人，短视频博主，上下半场，体育早班车"
   },
@@ -7294,7 +7919,7 @@ window.SPEAKERS_DATA = [
       "【47】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "国际新闻高级记者"
   },
@@ -7311,7 +7936,7 @@ window.SPEAKERS_DATA = [
       "【86】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "杯弓舌瘾"
   },
@@ -7328,7 +7953,7 @@ window.SPEAKERS_DATA = [
       "【88】"
     ],
     "tags": [
-      "播客与创作"
+      "播客创作者"
     ],
     "title": "还原剧团"
   },
@@ -7345,8 +7970,7 @@ window.SPEAKERS_DATA = [
       "【60】"
     ],
     "tags": [
-      "AI与科技",
-      "文化与生活"
+      "AI浪潮"
     ],
     "title": "Monolith第一推动"
   },
@@ -7363,7 +7987,7 @@ window.SPEAKERS_DATA = [
       "【36】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "迭代大满罐，自动驾驶行业营销负责人"
   },
@@ -7380,8 +8004,7 @@ window.SPEAKERS_DATA = [
       "【29】"
     ],
     "tags": [
-      "商业与职场",
-      "身心与成长"
+      "商业·财经·职场"
     ],
     "title": "《无限进化》播客主理人，第一财经主持人"
   },
@@ -7398,7 +8021,7 @@ window.SPEAKERS_DATA = [
       "【57】"
     ],
     "tags": [
-      "女性与关系"
+      "家庭·关系·自我"
     ],
     "title": "哈哈的妈妈叫马兔"
   },
@@ -7415,7 +8038,7 @@ window.SPEAKERS_DATA = [
       "【24】"
     ],
     "tags": [
-      "身心与成长"
+      "身体与能量"
     ],
     "title": ""
   },
@@ -7432,7 +8055,7 @@ window.SPEAKERS_DATA = [
       "【87】"
     ],
     "tags": [
-      "商业与职场"
+      "商业·财经·职场"
     ],
     "title": "罗德传播集团高级副总裁，另请高明吧"
   },
@@ -7449,8 +8072,7 @@ window.SPEAKERS_DATA = [
       "【29】"
     ],
     "tags": [
-      "商业与职场",
-      "身心与成长"
+      "商业·财经·职场"
     ],
     "title": "鱼余线上瑜伽创始人"
   },
@@ -7467,7 +8089,7 @@ window.SPEAKERS_DATA = [
       "【72】"
     ],
     "tags": [
-      "文化与生活"
+      "社会·历史·世界"
     ],
     "title": "金字招牌，播清波"
   },
@@ -7484,7 +8106,7 @@ window.SPEAKERS_DATA = [
       "【46】"
     ],
     "tags": [
-      "文化与生活"
+      "城市生活方式"
     ],
     "title": "一劳永逸"
   },
@@ -7501,7 +8123,7 @@ window.SPEAKERS_DATA = [
       "【76】"
     ],
     "tags": [
-      "身心与成长"
+      "家庭·关系·自我"
     ],
     "title": "上桌！"
   }

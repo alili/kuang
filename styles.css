@@ -976,6 +976,133 @@ body.fullwidth-mode .container {
   border-radius: 3px;
 }
 
+.topic-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.topic-badge-btn:hover {
+  filter: brightness(0.92);
+  transform: scale(1.02);
+}
+
+.topic-filter-bar-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.topic-filter-scroll {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  padding: 2px 0;
+}
+
+.topic-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.topic-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  transition: all 0.16s ease;
+  user-select: none;
+}
+
+.topic-filter-chip:hover {
+  border-color: var(--brand-primary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.topic-filter-chip.active {
+  background: var(--text-primary);
+  color: #fff;
+  border-color: var(--text-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.topic-filter-chip .chip-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.timeline-view-mode-toggle {
+  flex-shrink: 0;
+}
+
+/* Topic Group Section in Timeline View */
+.topic-group-section {
+  margin-bottom: 24px;
+}
+
+.topic-group-header {
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topic-group-title {
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topic-group-desc {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.topic-group-badge-count {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid currentColor;
+}
+
 .open-slot-tag {
   font-size: 10.5px;
   color: #B45309;
