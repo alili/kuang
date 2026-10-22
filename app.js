@@ -2188,7 +2188,7 @@ function openExportStudio() {
   }
   document.getElementById('exportStudioBackdrop').classList.add('open');
   syncBodyScrollLock();
-  const theme = document.getElementById('posterThemeSelect')?.value || 'receipt';
+  const theme = document.getElementById('posterThemeSelect')?.value || 'punk';
   syncStyleChips(theme);
   renderSchedulePosterCanvas();
 }
@@ -2379,8 +2379,8 @@ function drawRubberStamp(ctx, cx, cy, textTop, textCenter, textBottom, color = '
   ctx.restore();
 }
 
-// 1. 不太保险 · 狂喜超市小票风格
-function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
+// 1. 狂喜超市小票风格
+function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
   const scale = 2;
   const width = 720;
   const padX = 40;
@@ -2396,7 +2396,7 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 20);
-    const spText = '主讲配料: ' + (s.speakers.join('、') || '特邀神秘嘉宾');
+    const spText = '配料表: ' + (s.speakers.join('、') || '特邀神秘嘉宾');
     ctx.font = '14px -apple-system, "PingFang SC", sans-serif';
     const spLines = wrapCanvasText(ctx, spText, contentW - 20);
 
@@ -2467,46 +2467,41 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
 
   let curY = 40;
 
-  // Logo
-  if (posterAssets.noninsuranceLogo && posterAssets.noninsuranceLogo.complete && posterAssets.noninsuranceLogo.naturalWidth > 0) {
-    ctx.drawImage(posterAssets.noninsuranceLogo, width / 2 - 28, curY, 56, 56);
-    curY += 66;
-  } else {
-    drawRoundedRect(ctx, width / 2 - 24, curY, 48, 48, 8);
-    ctx.fillStyle = '#FFD500';
-    ctx.fill();
-    ctx.fillStyle = '#141414';
-    ctx.font = '900 20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚠️', width / 2, curY + 32);
-    ctx.textAlign = 'left';
-    curY += 58;
-  }
+  // Receipt Icon
+  drawRoundedRect(ctx, width / 2 - 24, curY, 48, 48, 10);
+  ctx.fillStyle = '#18181B';
+  ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '24px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🧾', width / 2, curY + 33);
+  ctx.textAlign = 'left';
+  curY += 58;
 
   // Store Title
   ctx.fillStyle = '#18181B';
   ctx.textAlign = 'center';
   ctx.font = '900 23px "PingFang SC", -apple-system, sans-serif';
-  ctx.fillText('★ 不太保险 · 声音超级市场 ★', width / 2, curY + 4);
+  ctx.fillText('★ 第六届狂喜播客节 · 声音超级市场 ★', width / 2, curY + 4);
 
   ctx.font = 'bold 12.5px "JetBrains Mono", Menlo, monospace';
   ctx.fillStyle = '#52525B';
-  ctx.fillText('NONINSURANCE SOUND SUPERMARKET · RECEIPT', width / 2, curY + 26);
+  ctx.fillText('KUANIVAL SOUND SUPERMARKET · RECEIPT', width / 2, curY + 26);
   ctx.textAlign = 'left';
 
   curY += 40;
 
-  // Caution Banner strip
+  // Notice strip
   drawRoundedRect(ctx, padX, curY, contentW, 30, 4);
-  ctx.fillStyle = '#FEF08A';
+  ctx.fillStyle = '#F4F4F5';
   ctx.fill();
-  ctx.strokeStyle = '#EAB308';
+  ctx.strokeStyle = '#D4D4D8';
   ctx.lineWidth = 1;
   ctx.stroke();
-  ctx.fillStyle = '#854D0E';
+  ctx.fillStyle = '#18181B';
   ctx.font = 'bold 12px "PingFang SC", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('⚠️ NONINSURANCE 声明：本收银单概不太保险 · 但包全天过瘾', width / 2, curY + 20);
+  ctx.fillText('🧾 KUANIVAL 收银凭条：凭票全天畅听 · 尽情享受声音奇遇', width / 2, curY + 20);
   ctx.textAlign = 'left';
 
   curY += 42;
@@ -2537,8 +2532,8 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
   ctx.font = 'bold 12.5px "JetBrains Mono", Courier, monospace';
   ctx.fillStyle = '#18181B';
   ctx.fillText('【时段 / 展厅】', padX, curY);
-  ctx.fillText('【单品对话与主讲阵容】', padX + 160, curY);
-  ctx.fillText('【小计】', padX + contentW - 65, curY);
+  ctx.fillText('【单品对话与配料阵容】', padX + 160, curY);
+  ctx.fillText('【小计时间】', padX + contentW - 80, curY);
 
   curY += 10;
   ctx.strokeStyle = '#27272A';
@@ -2589,11 +2584,12 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
       itemY += 20;
     });
 
-    ctx.font = '12.5px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#71717A';
-    ctx.fillText(`数量: 1 场  |  狂喜度: 100%满格  |  单价: ¥0.00`, padX, itemY + 14);
-    ctx.fillStyle = '#15803D';
-    ctx.fillText(`小计: ¥0.00`, padX + contentW - 84, itemY + 14);
+    // 数量，狂喜度，单价都去掉，小计 后面放时间
+    ctx.font = 'bold 13px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#18181B';
+    const subtotalText = `小计: ${s.time} (${s.durationMin}分钟)`;
+    const subW = ctx.measureText(subtotalText).width;
+    ctx.fillText(subtotalText, padX + contentW - subW, itemY + 14);
     itemY += 24;
 
     if (transferText) {
@@ -2692,7 +2688,7 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
   ctx.setLineDash([]);
 
   curY += 26;
-  drawBarcode(ctx, padX + 40, curY, contentW - 80, 50, `KX2026-NONINSURANCE-${items.length}TALKS-088`);
+  drawBarcode(ctx, padX + 40, curY, contentW - 80, 50, `KX2026-KUANIVAL-${items.length}TALKS-088`);
   curY += 86;
 
   ctx.font = '12px "PingFang SC", sans-serif';
@@ -2700,7 +2696,7 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
   ctx.textAlign = 'center';
   ctx.fillText('※ 凭此收银凭条提前 5 分钟就座 · 观点辛辣属正常生理反应 ※', width / 2, curY);
   curY += 18;
-  ctx.fillText('※ 本小票内容概不太保险 · 但包终生难忘 · 尽情享受狂喜播客节 ※', width / 2, curY);
+  ctx.fillText('※ 本小票为狂喜播客节专属收据凭据 · 尽情享受狂喜时刻 ※', width / 2, curY);
   curY += 18;
   ctx.fillText('※ 感谢光临第六届狂喜播客节 · 2026.10.25 上海·CMG融媒影城 ※', width / 2, curY);
   ctx.textAlign = 'left';
@@ -2715,6 +2711,8 @@ function renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub
 
   syncPosterImagePreview(canvas);
 }
+
+const renderNoninsuranceReceiptPoster = renderKuanivalReceiptPoster;
 
 // 2. 不太保险 · 声音食堂特调菜单风格
 function renderNoninsuranceMenuPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
@@ -3159,8 +3157,8 @@ function renderNoninsuranceLetterPoster(canvas, ctx, items, userName, customSub,
   syncPosterImagePreview(canvas);
 }
 
-// 4. 不太保险 · 经典警示黄黑海报风格
-function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
+// 4. 片场计划 · 警示黄黑场记通告单风格
+function renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
   const scale = 2;
   const width = 800;
   const padX = 40;
@@ -3176,7 +3174,7 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 40);
-    const spText = '🎙️ 主讲阵容：' + (s.speakers.join('、') || '特邀嘉宾');
+    const spText = '🎙️ 出镜嘉宾：' + (s.speakers.join('、') || '特邀嘉宾');
     ctx.font = '14.5px "PingFang SC", sans-serif';
     const spLines = wrapCanvasText(ctx, spText, contentW - 40);
 
@@ -3185,16 +3183,16 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
       const prev = items[idx - 1].session;
       const overlap = getOverlapMinutes(prev, s);
       if (overlap > 0) {
-        transferText = `⚡ 冲突预警：与上一场 ${prev.code} 重叠 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
+        transferText = `⚡ 通告冲突：与上一场 ${prev.code} 重叠 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
       } else {
         const gap = s.startMin - prev.endMin;
         if (gap <= 15) {
-          transferText = `🏃 紧凑换场：间隔 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
+          transferText = `🏃 转场候场：间隔 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
         }
       }
     }
 
-    const noteLine = item.note ? `📝 备忘：${item.note}` : '';
+    const noteLine = item.note ? `📝 导演手记：${item.note}` : '';
     const itemH = 50 + topicLines.length * 28 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 28 : 0) + 16;
     return { item, s, topicLines, spLines, noteLine, transferText, itemH };
   });
@@ -3215,39 +3213,28 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
 
   let curY = 30;
 
-  if (posterAssets.noninsuranceLogo && posterAssets.noninsuranceLogo.complete && posterAssets.noninsuranceLogo.naturalWidth > 0) {
-    ctx.drawImage(posterAssets.noninsuranceLogo, padX, curY, 110, 110);
-    ctx.fillStyle = '#141414';
-    ctx.font = '900 32px "PingFang SC", sans-serif';
-    ctx.fillText(`${userName} 的收听计划表`, padX + 128, curY + 44);
+  ctx.fillStyle = '#141414';
+  ctx.font = '900 34px "PingFang SC", sans-serif';
+  ctx.fillText(`🎬 ${userName} 的片场计划`, padX, curY + 48);
 
-    ctx.font = 'bold 15px "PingFang SC", sans-serif';
-    ctx.fillStyle = '#141414';
-    ctx.fillText('第六届狂喜播客节 · 叁狂+ 联名限定款', padX + 128, curY + 74);
+  ctx.font = 'bold 16px "PingFang SC", sans-serif';
+  ctx.fillText('第六届狂喜播客节 · 现场录制通告单 (CALL SHEET)', padX, curY + 80);
 
-    ctx.font = 'bold 13px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#3F3F46';
-    ctx.fillText('2026.10.25 (SUN) · 上海 CMG 融媒影城', padX + 128, curY + 98);
-  } else {
-    ctx.fillStyle = '#141414';
-    ctx.font = '900 34px "PingFang SC", sans-serif';
-    ctx.fillText(`${userName} 的收听计划表`, padX, curY + 48);
-
-    ctx.font = 'bold 16px "PingFang SC", sans-serif';
-    ctx.fillText('第六届狂喜播客节 · 叁狂+ 不太保险限定款', padX, curY + 80);
-  }
+  ctx.font = 'bold 13px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#3F3F46';
+  ctx.fillText('2026.10.25 (SUN) · 上海 CMG 融媒影城 · 现场调度', padX, curY + 104);
 
   curY += 126;
 
   ctx.save();
   ctx.translate(padX, curY);
-  ctx.rotate(-0.04);
+  ctx.rotate(-0.03);
   drawRoundedRect(ctx, -20, 0, contentW + 40, 36, 4);
-  ctx.fillStyle = '#F59E0B';
+  ctx.fillStyle = '#141414';
   ctx.fill();
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = '#FED700';
   ctx.font = '900 15px sans-serif';
-  ctx.fillText('⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️ NONINSURANCE ⚠️ NONINSURANCE', 0, 24);
+  ctx.fillText('🎬 PRODUCTION CALL SHEET 🎬 片场计划 🎬 ON AIR 🎬 狂喜片场 🎬', 10, 24);
   ctx.restore();
 
   curY += 46;
@@ -3259,7 +3246,7 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
   ctx.fillStyle = '#FED700';
   ctx.font = 'bold 14px "PingFang SC", monospace';
   ctx.fillText(
-    `⚠️ 必听主选：${primaryCount} 场  |  📌 备选赶场：${backupCount} 场  |  ⏱️ 累计时长：${(totalMins / 60).toFixed(1)} 小时  |  🎙️ 覆盖主播：${uniqueSpeakers.size} 位`,
+    `🎬 必听主选：${primaryCount} 场  |  📌 备选赶场：${backupCount} 场  |  ⏱️ 累计通告：${(totalMins / 60).toFixed(1)} 小时  |  🎙️ 登场嘉宾：${uniqueSpeakers.size} 位`,
     padX + 20,
     curY + 32
   );
@@ -3298,7 +3285,7 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
     ctx.font = 'bold 16px "JetBrains Mono", monospace';
     ctx.fillText(`${s.code}`, padX + 140, innerY);
 
-    const roleText = item.role === 'primary' ? '⚠️ 必听主选' : '📌 备选赶场';
+    const roleText = item.role === 'primary' ? '🎬 必听主选' : '📌 备选赶场';
     drawRoundedRect(ctx, padX + 205, innerY - 16, 92, 22, 6);
     ctx.fillStyle = item.role === 'primary' ? '#FED700' : 'rgba(255,255,255,0.15)';
     ctx.fill();
@@ -3345,13 +3332,481 @@ function renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub
   ctx.fillStyle = '#141414';
   ctx.font = 'bold 13px "PingFang SC", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('※ 本日程表受不太保险非安全协议保护 · 尽情狂喜 ※', width / 2, totalH - 42);
+  ctx.fillText('※ 本片场计划通告单受狂喜播客节制作组保护 · 现场开机尽情狂喜 ※', width / 2, totalH - 42);
   ctx.textAlign = 'left';
 
   if (showPartners) {
     const footerImgH = Math.round(135 * (width / 576));
     if (posterAssets.footer && posterAssets.footer.complete && posterAssets.footer.naturalWidth > 0) {
       ctx.drawImage(posterAssets.footer, padX, totalH - footerImgH - 60, contentW, footerImgH);
+    }
+  }
+
+  syncPosterImagePreview(canvas);
+}
+
+const renderNoninsuranceCautionPoster = renderFilmsetPoster;
+
+// ==================== YIDIDENGLU (异地登录 · 侦探线索板) POSTER RENDERER ====================
+
+function drawMagnifyingGlass(ctx, cx, cy, radius = 34, angle = Math.PI / 4) {
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetX = 6;
+  ctx.shadowOffsetY = 8;
+
+  const handleLen = 52;
+  const handleW = 10;
+  ctx.save();
+  ctx.rotate(angle);
+
+  ctx.fillStyle = '#D97706';
+  ctx.fillRect(-handleW / 2 + 1, radius - 2, handleW - 2, 10);
+
+  drawRoundedRect(ctx, -handleW / 2, radius + 8, handleW, handleLen, 4);
+  const handleGrad = ctx.createLinearGradient(-handleW / 2, 0, handleW / 2, 0);
+  handleGrad.addColorStop(0, '#1C120C');
+  handleGrad.addColorStop(0.4, '#452311');
+  handleGrad.addColorStop(1, '#1C120C');
+  ctx.fillStyle = handleGrad;
+  ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  const rimGrad = ctx.createLinearGradient(-radius, -radius, radius, radius);
+  rimGrad.addColorStop(0, '#FCD34D');
+  rimGrad.addColorStop(0.3, '#F59E0B');
+  rimGrad.addColorStop(0.6, '#B45309');
+  rimGrad.addColorStop(1, '#D97706');
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = rimGrad;
+  ctx.stroke();
+
+  ctx.shadowColor = 'transparent';
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(224, 242, 254, 0.22)';
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(239, 68, 68, 0.65)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.45, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -radius * 0.65);
+  ctx.lineTo(0, radius * 0.65);
+  ctx.moveTo(-radius * 0.65, 0);
+  ctx.lineTo(radius * 0.65, 0);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+  ctx.font = '900 11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('404', 0, 4);
+  ctx.textAlign = 'left';
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius - 7, -Math.PI * 0.75, -Math.PI * 0.15);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawPushpin(ctx, x, y, color = '#EF4444') {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+  ctx.beginPath();
+  ctx.ellipse(x + 3, y + 6, 7, 3.5, Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#991B1B';
+  ctx.beginPath();
+  ctx.arc(x, y + 2, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y - 1, 6.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.beginPath();
+  ctx.arc(x - 2, y - 3, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawPineWoodBackground(ctx, width, height) {
+  ctx.fillStyle = '#C49054';
+  ctx.fillRect(0, 0, width, height);
+
+  const plankH = 110;
+  for (let y = 0; y < height; y += plankH) {
+    ctx.strokeStyle = 'rgba(65, 32, 10, 0.28)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255, 235, 205, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 2);
+    ctx.lineTo(width, y + 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(80, 40, 12, 0.04)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, y + 35);
+    ctx.bezierCurveTo(width * 0.3, y + 25, width * 0.7, y + 45, width, y + 30);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, y + 75);
+    ctx.bezierCurveTo(width * 0.25, y + 85, width * 0.75, y + 65, width, y + 80);
+    ctx.stroke();
+  }
+
+  // Wood frame
+  ctx.strokeStyle = '#4A2411';
+  ctx.lineWidth = 16;
+  ctx.strokeRect(8, 8, width - 16, height - 16);
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(16, 16, width - 32, height - 32);
+}
+
+function renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners) {
+  const scale = 2;
+  const width = 800;
+  const padX = 46;
+  const contentW = width - padX * 2;
+
+  const primaryCount = items.filter(i => i.role === 'primary').length;
+  const backupCount = items.filter(i => i.role === 'backup').length;
+  const totalMins = items.filter(i => i.role === 'primary').reduce((acc, i) => acc + i.session.durationMin, 0);
+  const uniqueSpeakers = new Set();
+  items.forEach(i => i.session.speakers.forEach(sp => uniqueSpeakers.add(sp)));
+
+  // Pre-calculate heights
+  ctx.font = '900 19px "PingFang SC", -apple-system, sans-serif';
+  const cardLayouts = items.map((item, idx) => {
+    const s = item.session;
+    const topicLines = wrapCanvasText(ctx, s.topic, contentW - 44);
+    const spText = '🎙️ 关键线人/嘉宾：' + (s.speakers.join('、') || '神秘涉案人');
+    ctx.font = '14px "PingFang SC", sans-serif';
+    const spLines = wrapCanvasText(ctx, spText, contentW - 44);
+
+    let transferText = '';
+    if (showTransfer && idx > 0) {
+      const prev = items[idx - 1].session;
+      const overlap = getOverlapMinutes(prev, s);
+      if (overlap > 0) {
+        transferText = `⚡ 追踪重叠预警：与上一案卷 ${prev.code} 冲突 ${overlap} 分钟 · ${prev.venueShort} ↔ ${s.venueShort}`;
+      } else {
+        const gap = s.startMin - prev.endMin;
+        if (gap <= 15) {
+          transferText = `🏃 疾速转移现场：相距仅 ${gap} 分钟 (${prev.venueShort} → ${s.venueShort})`;
+        }
+      }
+    }
+
+    const noteLine = item.note ? `🕵️ 侦查便签：${item.note}` : '';
+    const itemH = 46 + topicLines.length * 27 + spLines.length * 22 + (noteLine ? 24 : 0) + (transferText ? 26 : 0) + 18;
+    // subtle alternate rotation angle
+    const angles = [-0.015, 0.012, -0.01, 0.016, -0.012, 0.014];
+    const angle = angles[idx % angles.length];
+    const pinColors = ['#EF4444', '#F59E0B', '#0284C7', '#10B981', '#DC2626'];
+    const pinColor = pinColors[idx % pinColors.length];
+
+    return { item, s, topicLines, spLines, noteLine, transferText, itemH, angle, pinColor };
+  });
+
+  const headerH = 390;
+  const itemsH = cardLayouts.length > 0 ? cardLayouts.reduce((sum, l) => sum + l.itemH + 24, 0) : 130;
+  const footerH = showPartners ? 280 : 160;
+  const totalH = Math.max(920, headerH + itemsH + footerH);
+
+  canvas.width = width * scale;
+  canvas.height = totalH * scale;
+  ctx.scale(scale, scale);
+
+  // 1. Draw Pinewood Background
+  drawPineWoodBackground(ctx, width, totalH);
+
+  // 2. Case Dossier Header (Pinned Manila Folder)
+  const headerCardY = 32;
+  const headerCardH = 220;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 6;
+  drawRoundedRect(ctx, padX, headerCardY, contentW, headerCardH, 10);
+  ctx.fillStyle = '#FFFEEA';
+  ctx.fill();
+  ctx.strokeStyle = '#D1C2A5';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Top two pushpins holding header
+  drawPushpin(ctx, padX + 24, headerCardY + 12, '#EF4444');
+  drawPushpin(ctx, padX + contentW - 24, headerCardY + 12, '#EF4444');
+
+  // Header Content
+  let curY = headerCardY + 24;
+
+  // Draw 异地登录 Logo in Polaroid Frame
+  const logoBoxSize = 92;
+  ctx.save();
+  ctx.translate(padX + 20, curY);
+  ctx.rotate(-0.03);
+  drawRoundedRect(ctx, 0, 0, logoBoxSize + 16, logoBoxSize + 28, 6);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+  ctx.strokeStyle = '#D4D4D8';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  if (posterAssets.yididengluLogo && posterAssets.yididengluLogo.complete && posterAssets.yididengluLogo.naturalWidth > 0) {
+    ctx.drawImage(posterAssets.yididengluLogo, 8, 8, logoBoxSize, logoBoxSize);
+  } else {
+    drawRoundedRect(ctx, 8, 8, logoBoxSize, logoBoxSize, 4);
+    ctx.fillStyle = '#9A3412';
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 16px monospace';
+    ctx.fillText('404', 36, 56);
+  }
+
+  ctx.font = 'bold 9.5px -apple-system, sans-serif';
+  ctx.fillStyle = '#71717A';
+  ctx.textAlign = 'center';
+  ctx.fillText('EVIDENCE #404', (logoBoxSize + 16) / 2, logoBoxSize + 20);
+  ctx.restore();
+
+  // Header Title & Text
+  const textX = padX + logoBoxSize + 50;
+  ctx.fillStyle = '#18181B';
+  ctx.font = '900 27px "PingFang SC", sans-serif';
+  ctx.fillText('🔍 异地登录 · 狂喜线索侦查卷宗', textX, curY + 28);
+
+  ctx.font = 'bold 12.5px "JetBrains Mono", Courier, monospace';
+  ctx.fillStyle = '#B45309';
+  ctx.fillText('REMOTE LOGIN // KUANGXI 2026 EVIDENCE CORKBOARD', textX, curY + 50);
+
+  // Case Alert Banner
+  drawRoundedRect(ctx, textX, curY + 62, contentW - (logoBoxSize + 66), 26, 4);
+  ctx.fillStyle = '#FEF2F2';
+  ctx.fill();
+  ctx.strokeStyle = '#FCA5A5';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = '#DC2626';
+  ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
+  ctx.fillText('⚠️ 警报：检测到异地登录！目标嫌疑对话已锁定CMG融媒影城', textX + 10, curY + 79);
+
+  // Metadata Lines
+  curY = headerCardY + 130;
+  ctx.font = '13px "JetBrains Mono", "PingFang SC", monospace';
+  ctx.fillStyle = '#27272A';
+  ctx.fillText(`🕵️ 执案探长：${userName}`, padX + 24, curY);
+  ctx.fillText(`📅 案发日期：2026年10月25日 全天`, padX + 280, curY);
+
+  curY += 22;
+  ctx.fillText(`📍 锁定空间：上海·CMG融媒影城 11空间`, padX + 24, curY);
+  ctx.fillText(`📁 案卷号：KX-404-SH-${String(items.length).padStart(2, '0')}`, padX + 280, curY);
+
+  curY += 22;
+  ctx.font = 'bold 12.5px "PingFang SC", sans-serif';
+  ctx.fillStyle = '#BE123C';
+  ctx.fillText(`🎯 侦破指标：锁定 ${primaryCount} 条核心主线 · 备选 ${backupCount} 条 · 窃听 ${(totalMins/60).toFixed(1)}h · 追查 ${uniqueSpeakers.size} 位关键人物`, padX + 24, curY);
+
+  // Draw Magnifying Glass inspecting the top right of the corkboard!
+  drawMagnifyingGlass(ctx, width - padX - 44, headerCardY + 54, 34, Math.PI / 4 + 0.1);
+
+  // Red Rubber Stamp on header
+  drawRubberStamp(ctx, width - padX - 110, headerCardY + 160, 'REMOTE LOGIN', '异地登录·已锁定', 'EVIDENCE 404', '#DC2626', -0.16);
+
+  curY = headerCardY + headerCardH + 34;
+
+  // 3. Clue Cards with Red String Connections
+  // Calculate pin positions
+  const pinPositions = [];
+  let tempY = curY;
+  cardLayouts.forEach(layout => {
+    const pinX = width / 2;
+    const pinY = tempY + 12;
+    pinPositions.push({ x: pinX, y: pinY });
+    tempY += layout.itemH + 24;
+  });
+
+  // Draw Red Connecting Threads between consecutive clues
+  ctx.save();
+  ctx.strokeStyle = '#DC2626';
+  ctx.lineWidth = 2.2;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 3;
+
+  for (let i = 0; i < pinPositions.length - 1; i++) {
+    const p1 = pinPositions[i];
+    const p2 = pinPositions[i + 1];
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    // slight curve / sag
+    const midX = (p1.x + p2.x) / 2 + (i % 2 === 0 ? 30 : -30);
+    const midY = (p1.y + p2.y) / 2 + 10;
+    ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Draw each Clue Note
+  cardLayouts.forEach((layout, idx) => {
+    const { item, s, topicLines, spLines, noteLine, transferText, itemH, angle, pinColor } = layout;
+
+    ctx.save();
+    ctx.translate(width / 2, curY + itemH / 2);
+    ctx.rotate(angle);
+
+    const cardW = contentW;
+    const cardH = itemH;
+    const cardX = -cardW / 2;
+    const cardY = -cardH / 2;
+
+    // Card drop shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.24)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 5;
+
+    // Card background (aged kraft / evidence card)
+    drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 8);
+    ctx.fillStyle = item.role === 'primary' ? '#FFFFFF' : '#FFFDF2';
+    ctx.fill();
+
+    // Border
+    ctx.lineWidth = item.role === 'primary' ? 2 : 1.2;
+    ctx.strokeStyle = item.role === 'primary' ? '#E11D48' : '#D4D4D8';
+    ctx.stroke();
+
+    ctx.shadowColor = 'transparent';
+
+    // Left Evidence Stripe
+    drawRoundedRect(ctx, cardX, cardY, 8, cardH, 4);
+    ctx.fillStyle = item.role === 'primary' ? '#EF4444' : '#F59E0B';
+    ctx.fill();
+
+    // Content inside card
+    let innerY = cardY + 28;
+
+    // Line 1: Clue Code + Time + Venue + Role Badge
+    ctx.font = 'bold 15px "JetBrains Mono", Courier, monospace';
+    ctx.fillStyle = '#18181B';
+    ctx.fillText(`[线索 #${String(idx + 1).padStart(2, '0')}] ${s.code} ｜ ⏰ ${s.time}`, cardX + 22, innerY);
+
+    // Venue
+    ctx.font = 'bold 13.5px "PingFang SC", sans-serif';
+    ctx.fillStyle = '#4B5563';
+    ctx.fillText(`📍 ${s.venue}`, cardX + 260, innerY);
+
+    // Role Tag
+    const roleStr = item.role === 'primary' ? '★ 核心主线' : '📌 分支线索';
+    drawRoundedRect(ctx, cardX + cardW - 100, innerY - 16, 86, 22, 5);
+    ctx.fillStyle = item.role === 'primary' ? '#FEE2E2' : '#FEF3C7';
+    ctx.fill();
+    ctx.fillStyle = item.role === 'primary' ? '#DC2626' : '#D97706';
+    ctx.font = 'bold 12px "PingFang SC", sans-serif';
+    ctx.fillText(roleStr, cardX + cardW - 92, innerY - 1);
+
+    innerY += 30;
+
+    // Topic
+    ctx.font = '900 19px "PingFang SC", -apple-system, sans-serif';
+    ctx.fillStyle = '#09090B';
+    topicLines.forEach(line => {
+      ctx.fillText(line, cardX + 22, innerY);
+      innerY += 27;
+    });
+
+    // Suspects / Speakers
+    ctx.font = '14px "PingFang SC", sans-serif';
+    ctx.fillStyle = '#4B5563';
+    spLines.forEach(line => {
+      ctx.fillText(line, cardX + 22, innerY);
+      innerY += 22;
+    });
+
+    // Detective Note
+    if (noteLine) {
+      ctx.font = 'italic 13px "PingFang SC", sans-serif';
+      ctx.fillStyle = '#B45309';
+      ctx.fillText(noteLine, cardX + 22, innerY);
+      innerY += 22;
+    }
+
+    // Transfer Alert
+    if (transferText) {
+      drawRoundedRect(ctx, cardX + 20, innerY - 2, cardW - 40, 22, 4);
+      ctx.fillStyle = '#FEF2F2';
+      ctx.fill();
+      ctx.fillStyle = '#DC2626';
+      ctx.font = 'bold 11.5px "PingFang SC", sans-serif';
+      ctx.fillText(transferText, cardX + 28, innerY + 13);
+      innerY += 24;
+    }
+
+    ctx.restore();
+
+    // Top Pushpin
+    drawPushpin(ctx, width / 2, curY + 6, pinColor);
+
+    curY += itemH + 24;
+  });
+
+  // 4. Footer Section (Pinned Bottom Strip)
+  curY += 10;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 4;
+  drawRoundedRect(ctx, padX, curY, contentW, 60, 8);
+  ctx.fillStyle = '#FFFEEA';
+  ctx.fill();
+  ctx.strokeStyle = '#D1C2A5';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+
+  drawPushpin(ctx, padX + 18, curY + 8, '#EF4444');
+  drawPushpin(ctx, padX + contentW - 18, curY + 8, '#EF4444');
+
+  ctx.font = 'bold 13px "PingFang SC", sans-serif';
+  ctx.fillStyle = '#27272A';
+  ctx.fillText('🏛️ 现场搜查动线：1F (1-5号厅、狂喜圆桌A) ｜ 2F (圆桌B/C) ｜ 3F (6-8号厅)', padX + 36, curY + 26);
+
+  ctx.font = '12px "PingFang SC", sans-serif';
+  ctx.fillStyle = '#71717A';
+  ctx.fillText('本案卷线索由「异地登录」特别侦查组联合整理 · 异地潜伏，包有收获 · 祝您听会愉快！', padX + 36, curY + 47);
+
+  if (showPartners) {
+    curY += 76;
+    const footerImgH = Math.round(135 * (width / 576));
+    if (posterAssets.footer && posterAssets.footer.complete && posterAssets.footer.naturalWidth > 0) {
+      ctx.drawImage(posterAssets.footer, padX, curY, contentW, footerImgH);
     }
   }
 
@@ -3365,6 +3820,7 @@ const posterAssets = {
   footer: null,
   qr: null,
   noninsuranceLogo: null,
+  yididengluLogo: null,
   isInitialized: false
 };
 
@@ -3388,6 +3844,10 @@ function initPosterAssets() {
   posterAssets.noninsuranceLogo.crossOrigin = 'anonymous';
   posterAssets.noninsuranceLogo.src = 'assets/noninsurance-logo.png';
 
+  posterAssets.yididengluLogo = new Image();
+  posterAssets.yididengluLogo.crossOrigin = 'anonymous';
+  posterAssets.yididengluLogo.src = 'assets/yididenglu-logo.png';
+
   const triggerRerender = () => {
     if (document.getElementById('exportStudioBackdrop')?.classList.contains('open')) {
       renderSchedulePosterCanvas();
@@ -3398,6 +3858,7 @@ function initPosterAssets() {
   posterAssets.footer.onload = triggerRerender;
   posterAssets.qr.onload = triggerRerender;
   posterAssets.noninsuranceLogo.onload = triggerRerender;
+  posterAssets.yididengluLogo.onload = triggerRerender;
 }
 
 function renderSchedulePosterCanvas() {
@@ -3409,14 +3870,22 @@ function renderSchedulePosterCanvas() {
 
   const userName = (document.getElementById('posterUserName')?.value || '狂喜听友').trim();
   const customSub = (document.getElementById('posterTitleInput')?.value || '在CMG融媒影城，打捞一整天的声音奇遇').trim();
-  const themeKey = document.getElementById('posterThemeSelect')?.value || 'receipt';
+  const themeKey = document.getElementById('posterThemeSelect')?.value || 'punk';
   const showTransfer = document.getElementById('chkPosterShowTransfer')?.checked ?? true;
   const showPartners = document.getElementById('chkPosterShowPartners')?.checked ?? true;
 
   const items = getPlannedItemsForExport();
 
+  if (themeKey === 'yididenglu') {
+    renderYidiDengluPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
+    return;
+  }
   if (themeKey === 'receipt') {
-    renderNoninsuranceReceiptPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
+    renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
+    return;
+  }
+  if (themeKey === 'filmset' || themeKey === 'caution' || themeKey === 'noninsurance') {
+    renderFilmsetPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
     return;
   }
   if (themeKey === 'menu') {
@@ -3425,10 +3894,6 @@ function renderSchedulePosterCanvas() {
   }
   if (themeKey === 'letter') {
     renderNoninsuranceLetterPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
-    return;
-  }
-  if (themeKey === 'noninsurance') {
-    renderNoninsuranceCautionPoster(canvas, ctx, items, userName, customSub, showTransfer, showPartners);
     return;
   }
 

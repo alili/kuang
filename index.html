@@ -263,30 +263,26 @@
             <div class="form-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label for="posterThemeSelect" style="margin-bottom: 0;">计划表设计风格</label>
-                <span class="badge-style-highlight">⚡ 不太保险定制系列</span>
+                <span class="badge-style-highlight">⚡ 推荐狂喜朋克</span>
               </div>
               <!-- Quick Style Select Chips -->
               <div class="poster-style-chips" id="posterStyleChips">
-                <button type="button" class="btn-style-chip active" data-style="receipt" onclick="setPosterTheme('receipt')">🧾 超市小票</button>
-                <button type="button" class="btn-style-chip" data-style="menu" onclick="setPosterTheme('menu')">🍽️ 声音菜单</button>
-                <button type="button" class="btn-style-chip" data-style="letter" onclick="setPosterTheme('letter')">✉️ 机密信纸</button>
-                <button type="button" class="btn-style-chip" data-style="noninsurance" onclick="setPosterTheme('noninsurance')">⚠️ 警示黄黑</button>
-                <button type="button" class="btn-style-chip" data-style="punk" onclick="setPosterTheme('punk')">⚡ 狂喜朋克</button>
+                <button type="button" class="btn-style-chip active" data-style="punk" onclick="setPosterTheme('punk')">⚡ 狂喜朋克</button>
+                <button type="button" class="btn-style-chip" data-style="filmset" onclick="setPosterTheme('filmset')">🎬 片场计划</button>
+                <button type="button" class="btn-style-chip" data-style="receipt" onclick="setPosterTheme('receipt')">🧾 超市小票</button>
+                <button type="button" class="btn-style-chip" data-style="yididenglu" onclick="setPosterTheme('yididenglu')">🔍 异地登录</button>
                 <button type="button" class="btn-style-chip" data-style="festival" onclick="setPosterTheme('festival')">🔥 经典黑金</button>
+                <button type="button" class="btn-style-chip" data-style="paper" onclick="setPosterTheme('paper')">📜 暖米手账</button>
+                <button type="button" class="btn-style-chip" data-style="clean" onclick="setPosterTheme('clean')">☀️ 清爽白昼</button>
               </div>
               <select id="posterThemeSelect" class="form-input" onchange="onPosterThemeSelectChange(this.value)">
-                <optgroup label="🌟 「不太保险」创意定制系列（推荐）">
-                  <option value="receipt" selected>🧾 不太保险 · 狂喜超市小票（热敏纸 / 锯齿撕边 / 条形码）</option>
-                  <option value="menu">🍽️ 不太保险 · 声音食堂特调菜单（招牌硬菜 / 餐单品鉴）</option>
-                  <option value="letter">✉️ 不太保险 · 调查局行动信纸（绝密手记 / 复古信笺）</option>
-                  <option value="noninsurance">⚠️ 不太保险 · 经典警示黄黑（官方联名 / 警戒胶带）</option>
-                </optgroup>
-                <optgroup label="🎨 狂喜播客节经典视觉系列">
-                  <option value="punk">⚡ 狂喜粉蓝朋克 · 官方主视觉</option>
-                  <option value="festival">🔥 狂喜黑金 · 经典电台风</option>
-                  <option value="paper">📜 暖米手账 · 复古纸感</option>
-                  <option value="clean">☀️ 清爽白昼 · 极简课表</option>
-                </optgroup>
+                <option value="punk" selected>⚡ 狂喜粉蓝朋克 · 官方主视觉（推荐）</option>
+                <option value="filmset">🎬 片场计划 · 警示黄黑场记通告单</option>
+                <option value="receipt">🧾 超市小票 · 狂喜声音收据凭条</option>
+                <option value="yididenglu">🔍 异地登录 · 侦探线索板（松木板 / 大头针 / 放大镜）</option>
+                <option value="festival">🔥 狂喜黑金 · 经典电台风</option>
+                <option value="paper">📜 暖米手账 · 复古纸感</option>
+                <option value="clean">☀️ 清爽白昼 · 极简课表</option>
               </select>
             </div>
 
