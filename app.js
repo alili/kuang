@@ -2740,18 +2740,19 @@ function renderPlanDrawerContent() {
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
             <button
-              class="btn btn-secondary btn-sm"
-              style="padding:3px 8px; font-size:11px;"
+              class="btn btn-secondary btn-sm plan-role-switch-btn"
+              style="padding:3px 8px; font-size:11px; white-space:nowrap;"
               onclick="setSessionRole(${s.seq}, '${curr.role === 'primary' ? 'backup' : 'primary'}')"
             >
-              ${curr.role === 'primary' ? '★ 必听主选 (切为备选)' : '📌 备选赶场 (切为主选)'}
+              ${curr.role === 'primary' ? '★ 主选 (切备选)' : '📌 备选 (切主选)'}
             </button>
             <button
-              class="btn btn-secondary btn-sm"
-              style="padding:3px 8px; font-size:11px; color:#DC2626;"
+              class="btn btn-secondary btn-sm btn-remove-session"
+              style="padding:3px 8px; font-size:11px; color:#DC2626; white-space:nowrap;"
               onclick="removeSessionFromPlan(${s.seq})"
+              title="从收听计划中移除该场次"
             >
-              移除
+              ✕ 移除
             </button>
           </div>
         </div>
@@ -2782,10 +2783,12 @@ function renderPlanDrawerContent() {
 function openExportStudio() {
   if (Object.keys(state.plan).length === 0) {
     showToast('💡 你的个人计划表还是空的，请先在节目表中选择想要收听的场次！');
+    openPlanDrawer();
     return;
   }
   document.getElementById('exportStudioBackdrop').classList.add('open');
   syncBodyScrollLock();
+  switchMobileExportTab('preview');
   const theme = document.getElementById('posterThemeSelect')?.value || 'punk';
   syncStyleChips(theme);
   renderSchedulePosterCanvas();
@@ -5337,7 +5340,7 @@ function downloadPosterJpg(quality = 0.95) {
   link.download = `第六届狂喜播客节_叁狂+_${userName}_个人收听计划表.jpg`;
   link.href = canvas.toDataURL('image/jpeg', quality);
   link.click();
-  showToast('🖼️ 高清收听计划表长图 (.JPG) 已开始下载！');
+  showToast('🖼️ 高清收听计划表长图 (.JPG) 已开始下载！手机端亦可长按图片保存到相册。');
 }
 
 // 2. Download High-DPI PNG Poster

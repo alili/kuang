@@ -3885,10 +3885,30 @@ label,
   box-shadow: var(--shadow-md);
 }
 
+/* Mobile-only elements default hidden on desktop */
+.mobile-bottom-plan-bar {
+  display: none;
+}
+.mobile-export-tabs {
+  display: none;
+}
+.mobile-settings-done-wrap {
+  display: none;
+}
+.mobile-preview-actions {
+  display: none;
+}
+.mobile-preview-top-tip {
+  display: none;
+}
+.drawer-drag-handle {
+  display: none;
+}
+
 /* ==================== MOBILE & TABLET RESPONSIVE OPTIMIZATIONS ==================== */
 @media (max-width: 768px) {
   body {
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .container {
@@ -4013,9 +4033,145 @@ label,
     padding: 1px 5px;
   }
 
-  /* Hide redundant top plan buttons on mobile (bottom bar handles it) */
+  /* 移动端顶部计划操作紧凑双按钮 */
   .header-plan-actions {
-    display: none;
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .header-plan-actions .btn {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+  }
+
+  .btn-header-clear-plan {
+    display: none !important;
+  }
+
+  /* 移动端常驻底部悬浮操作栏 */
+  .mobile-bottom-plan-bar {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 95;
+    background: rgba(24, 23, 21, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.32);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    animation: fadeInUp 0.22s ease;
+  }
+
+  .mobile-bottom-inner {
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-bottom-plan-btn {
+    flex: 1.15;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    padding: 7px 12px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+  }
+
+  .mobile-bottom-plan-btn:active {
+    background: rgba(255, 255, 255, 0.16);
+    transform: scale(0.98);
+  }
+
+  .mobile-plan-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .mobile-plan-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .mobile-plan-text-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .mobile-plan-main-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.2;
+  }
+
+  .mobile-plan-sub-desc {
+    font-size: 11px;
+    color: #A8A29E;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-plan-badge-count {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: 800;
+    background: #16A34A;
+    color: #FFFFFF;
+    padding: 2px 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .mobile-bottom-export-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #EA580C 0%, #F97316 100%);
+    border: 1px solid #FB923C;
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.38);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .mobile-bottom-export-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+  }
+
+  .mobile-export-sparkle {
+    font-size: 15px;
+    line-height: 1;
   }
 
   /* 移动端顶部隐藏全局搜索框，将其置于主播Tab页内 */
@@ -4597,6 +4753,12 @@ label,
   /* Show <img> instead of <canvas> on mobile for native long-press save to photos */
   #schedulePosterImg {
     display: block !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    height: auto !important;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
   }
 
   #schedulePosterCanvas {
@@ -4606,6 +4768,157 @@ label,
   .export-preview-wrap {
     max-height: none;
     padding: 12px;
+    background: transparent;
+  }
+
+  /* 移动端海报生成中心分段 Tabs */
+  .mobile-export-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--bg-muted, #F4EFE6);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-export-tab {
+    flex: 1;
+    padding: 8px 8px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary, #6B7280);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .mobile-export-tab.active {
+    background: #FFFFFF;
+    color: var(--text-primary, #1C1917);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  /* 移动端海报生成中心视图切换 */
+  .export-studio-grid.mobile-show-preview .export-controls-panel {
+    display: none !important;
+  }
+
+  .export-studio-grid.mobile-show-preview .export-preview-wrap {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .export-studio-grid.mobile-show-settings .export-controls-panel {
+    display: flex !important;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .export-studio-grid.mobile-show-settings .export-preview-wrap {
+    display: none !important;
+  }
+
+  .mobile-settings-done-wrap {
+    display: block;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-subtle);
+  }
+
+  .mobile-preview-top-tip {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #C2410C;
+    background: #FFF7ED;
+    border: 1px solid #FFEDD5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.35;
+  }
+
+  .mobile-preview-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 480px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-subtle);
+    box-sizing: border-box;
+  }
+
+  .mobile-preview-sub-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  /* 移动端抽屉 (Plan Drawer) 优化 */
+  .plan-drawer {
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .drawer-drag-handle {
+    display: block;
+    width: 42px;
+    height: 4.5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
+    margin: 8px auto 0;
+  }
+
+  .drawer-header {
+    padding: 12px 16px 14px;
+  }
+
+  .drawer-body {
+    padding: 12px 14px;
+  }
+
+  .drawer-footer {
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .drawer-footer > div {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .drawer-footer .btn-primary {
+    width: 100%;
+    padding: 11px;
+    font-size: 13.5px;
+    justify-content: center;
+  }
+
+  .plan-item-card {
+    padding: 12px;
+    gap: 6px;
+  }
+
+  .plan-role-switch-btn {
+    padding: 3px 7px !important;
+    font-size: 10.5px !important;
   }
 
   .toast-container {
