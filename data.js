@@ -2202,8 +2202,9 @@ window.SESSIONS_DATA = [
     "venueShort": "1F · 1号厅",
     "venueOrder": 1,
     "floor": "一楼",
-    "topic": "华为播客激励榜单发布暨鸿蒙生态下播客内容共创",
+    "topic": "华为播客元服务视频播客激励榜单发布暨鸿蒙生态下播客内容共创交流",
     "speakers": [
+      "关雅荻",
       "杨天楠",
       "张红亮",
       "大卫翁",
@@ -2216,6 +2217,7 @@ window.SESSIONS_DATA = [
       "罗秋葵"
     ],
     "rawSpeakers": [
+      "关雅荻",
       "杨天楠",
       "张红亮",
       "大卫翁",
@@ -4497,20 +4499,23 @@ window.SPEAKERS_DATA = [
     "aliases": [
       "关雅荻"
     ],
-    "count": 3,
+    "count": 4,
     "sessionSeqs": [
       18,
       29,
+      45,
       83
     ],
     "sessionCodes": [
       "【08】",
       "【14】",
+      "【20】",
       "【38】"
     ],
     "tags": [
       "AI浪潮",
-      "社会·历史·世界"
+      "社会·历史·世界",
+      "播客创作者"
     ],
     "title": "「狂喜播客节」发起人，开放对话"
   },

@@ -339,7 +339,7 @@ function getConflictsWithPlan(seq, checkRole = 'primary') {
   const conflicts = [];
   Object.values(state.plan).forEach(item => {
     if (item.seq === seq) return;
-    if (checkRole && item.role !== checkRole) return;
+    if (checkRole && checkRole !== 'all' && item.role !== checkRole) return;
     const other = SESSION_BY_SEQ[item.seq];
     if (!other) return;
     const overlap = getOverlapMinutes(target, other);
@@ -1182,26 +1182,34 @@ function renderTimelineView() {
   container.innerHTML = html;
 }
 
+function handleSessionCardClick(event, seq) {
+  if (event.target.closest('button, a, input, select, textarea, .speaker-chip, .topic-badge-btn')) {
+    return;
+  }
+  handleSessionAction(seq, event);
+}
+
 function renderSessionCardHtml(s) {
   const planItem = state.plan[s.seq];
   const isPrimary = planItem && planItem.role === 'primary';
   const isBackup = planItem && planItem.role === 'backup';
-  const conflicts = getConflictsWithPlan(s.seq, 'primary');
+  const primaryConflicts = getConflictsWithPlan(s.seq, 'primary');
+  const allConflicts = getConflictsWithPlan(s.seq, 'all');
   const tightTransfers = getTightTransfersWithPlan(s.seq);
 
   let cardClass = 'session-card';
   if (isPrimary) cardClass += ' in-plan-primary';
   else if (isBackup) cardClass += ' in-plan-backup';
-  else if (conflicts.length > 0) cardClass += ' has-conflict';
+  else if (allConflicts.length > 0) cardClass += ' has-conflict';
 
   // Conflict / Status alert box inside card
   let statusAlertHtml = '';
   if (isPrimary) {
-    if (conflicts.length > 0) {
-      const cNames = conflicts.map(c => `${c.session.code}(${c.session.time})`).join('、');
+    if (primaryConflicts.length > 0) {
+      const cNames = primaryConflicts.map(c => `${c.session.code}(${c.session.time})`).join('、');
       statusAlertHtml = `
         <div class="card-conflict-alert conflict">
-          <span>⚡ 已设为主选，但与同为主选的 ${cNames} 重叠 ${conflicts[0].overlapMin} 分钟</span>
+          <span>⚡ 已设为主选，但与同为主选的 ${cNames} 重叠 ${primaryConflicts[0].overlapMin} 分钟</span>
           <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="setSessionRole(${s.seq}, 'backup')">转为备选</button>
         </div>
       `;
@@ -1220,11 +1228,12 @@ function renderSessionCardHtml(s) {
         <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;" onclick="promoteBackupToPrimary(${s.seq})">升为主选</button>
       </div>
     `;
-  } else if (conflicts.length > 0) {
-    const firstC = conflicts[0];
+  } else if (allConflicts.length > 0) {
+    const firstC = allConflicts[0];
+    const roleTxt = firstC.planItem?.role === 'primary' ? '主选' : '备选';
     statusAlertHtml = `
       <div class="card-conflict-alert conflict">
-        <span>⚡ 与已选 ${firstC.session.code} ${firstC.session.time} 时间冲突（重叠 ${firstC.overlapMin} 分钟）</span>
+        <span>⚡ 与已选${roleTxt} ${firstC.session.code} ${firstC.session.time} 时间冲突（重叠 ${firstC.overlapMin} 分钟）</span>
       </div>
     `;
   } else if (tightTransfers.length > 0) {
@@ -1270,10 +1279,10 @@ function renderSessionCardHtml(s) {
         </button>
       `;
     }
-  } else if (conflicts.length > 0) {
+  } else if (allConflicts.length > 0) {
     actionBtnHtml = `
       <button class="btn-plan-toggle btn-plan-conflict" onclick="handleSessionAction(${s.seq}, event)">
-        ⚡ 存在时间冲突 · 点击选择替换或备选
+        ⚡ 存在时间冲突 · 点击查看时间轴与决策
       </button>
     `;
   } else {
@@ -1285,7 +1294,7 @@ function renderSessionCardHtml(s) {
   }
 
   return `
-    <article class="${cardClass}" id="session-card-${s.seq}">
+    <article class="${cardClass}" id="session-card-${s.seq}" onclick="handleSessionCardClick(event, ${s.seq})" style="cursor:pointer;">
       <div class="session-card-body">
         <div class="session-card-top">
           <div class="session-meta-left">
@@ -1506,7 +1515,7 @@ function handleMatrixBlockClick(event, seq) {
     return;
   }
 
-  const conflicts = getConflictsWithPlan(seq, 'primary');
+  const conflicts = getConflictsWithPlan(seq, 'all');
   if (conflicts.length === 0) {
     addSessionToPlan(seq, 'primary');
   } else {
@@ -1522,13 +1531,21 @@ function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
   if (!target || !container || !popup || !backdrop) return;
 
   const existing = state.plan[seq];
-  if (!conflicts || conflicts.length === 0) {
-    conflicts = getConflictsWithPlan(seq, 'primary');
+  if (mode === 'conflict') {
+    if (!conflicts || conflicts.length === 0) {
+      conflicts = getConflictsWithPlan(seq, 'all');
+    }
+  } else {
+    if (!conflicts || conflicts.length === 0) {
+      conflicts = getConflictsWithPlan(seq, 'primary');
+    }
   }
 
   let badgeHtml = '';
   let hintHtml = '';
   let actionsHtml = '';
+  let timelineHtml = '';
+  let conflictsListHtml = '';
 
   if (mode === 'manage_backup') {
     badgeHtml = '<span class="m-popup-badge badge-backup">📌 当前状态：备选 / 赶场场次</span>';
@@ -1611,30 +1628,144 @@ function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
   } else {
     // Conflict mode (not in plan yet)
     badgeHtml = '<span class="m-popup-badge badge-conflict">⚡ 发现时间重叠冲突</span>';
-    hintHtml = `
-      <div class="m-popup-hint-box conflict">
-        本场次与已选主选 <strong>${conflicts.map(c => c.session.code).join('、')}</strong> 重叠 ${conflicts[0].overlapMin} 分钟。
+
+    // 1. Calculate mini timeline data
+    const allSessions = [target, ...conflicts.map(c => c.session)];
+    const minStart = Math.min(...allSessions.map(s => s.startMin));
+    const maxEnd = Math.max(...allSessions.map(s => s.endMin));
+
+    // Snap ruler to 15-min or 30-min boundaries
+    const rulerStart = Math.floor((minStart - 5) / 15) * 15;
+    const rulerEnd = Math.ceil((maxEnd + 5) / 15) * 15;
+    const totalSpan = Math.max(30, rulerEnd - rulerStart);
+    const step = totalSpan <= 120 ? 15 : 30;
+
+    let rulerTicksHtml = '';
+    for (let m = rulerStart; m <= rulerEnd; m += step) {
+      const pct = ((m - rulerStart) / totalSpan) * 100;
+      rulerTicksHtml += `
+        <div class="mini-ruler-tick" style="left:${pct.toFixed(2)}%;">
+          <div class="mini-tick-line"></div>
+          <div class="mini-tick-text">${minToTimeStr(m)}</div>
+        </div>
+      `;
+    }
+
+    // Overlap zones (red shaded vertical stripes)
+    const overlapZonesHtml = conflicts.map(c => {
+      const ovStart = Math.max(target.startMin, c.session.startMin);
+      const ovEnd = Math.min(target.endMin, c.session.endMin);
+      const ovSpan = Math.max(0, ovEnd - ovStart);
+      if (ovSpan <= 0) return '';
+      const leftPct = ((ovStart - rulerStart) / totalSpan) * 100;
+      const widthPct = (ovSpan / totalSpan) * 100;
+      return `
+        <div class="mini-overlap-zone" style="left:${leftPct.toFixed(2)}%; width:${widthPct.toFixed(2)}%;">
+          <span class="mini-overlap-tag">重叠 ${ovSpan}m</span>
+        </div>
+      `;
+    }).join('');
+
+    // Target track lane
+    const targetLeft = ((target.startMin - rulerStart) / totalSpan) * 100;
+    const targetWidth = ((target.endMin - target.startMin) / totalSpan) * 100;
+    const targetRowHtml = `
+      <div class="mini-timeline-row">
+        <div class="mini-track-label">待选场次</div>
+        <div class="mini-track-lane">
+          <div class="mini-track-bar bar-target" style="left:${targetLeft.toFixed(2)}%; width:${targetWidth.toFixed(2)}%;">
+            <span class="mini-bar-code">${target.code}</span>
+            <span class="mini-bar-time">${target.time}</span>
+          </div>
+        </div>
       </div>
     `;
+
+    // Conflicting tracks
+    const conflictingTracksHtml = conflicts.map(c => {
+      const isPrim = c.planItem?.role === 'primary';
+      const label = isPrim ? '已选主选' : '已选备选';
+      const labelClass = isPrim ? 'label-primary' : 'label-backup';
+      const barClass = isPrim ? 'bar-primary' : 'bar-backup';
+      const cLeft = ((c.session.startMin - rulerStart) / totalSpan) * 100;
+      const cWidth = ((c.session.endMin - c.session.startMin) / totalSpan) * 100;
+      return `
+        <div class="mini-timeline-row">
+          <div class="mini-track-label ${labelClass}">${label}</div>
+          <div class="mini-track-lane">
+            <div class="mini-track-bar ${barClass}" style="left:${cLeft.toFixed(2)}%; width:${cWidth.toFixed(2)}%;">
+              <span class="mini-bar-code">${c.session.code}</span>
+              <span class="mini-bar-time">${c.session.time}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const maxOverlapMin = Math.max(...conflicts.map(c => c.overlapMin));
+
+    timelineHtml = `
+      <div class="mini-timeline-widget">
+        <div class="mini-timeline-header">
+          <span class="mini-timeline-title">
+            <span>⏱️</span>
+            <span>重叠时间轴对照</span>
+          </span>
+          <span class="mini-overlap-pill">⚡ 重叠 ${maxOverlapMin} 分钟</span>
+        </div>
+        <div class="mini-timeline-trackbox">
+          <div class="mini-lanes-container">
+            <div class="mini-timeline-ruler">
+              ${rulerTicksHtml}
+            </div>
+            ${overlapZonesHtml}
+            ${targetRowHtml}
+            ${conflictingTracksHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 2. Full conflicting sessions detail list
+    const conflictCardsHtml = conflicts.map(c => {
+      const isPrim = c.planItem?.role === 'primary';
+      const roleTagClass = isPrim ? 'primary' : 'backup';
+      const roleText = isPrim ? '★ 必听主选' : '📌 备选日程';
+      const cardClass = isPrim ? 'is-primary' : 'is-backup';
+      return `
+        <div class="m-conflict-card ${cardClass}">
+          <div class="m-conflict-card-top">
+            <span class="m-conflict-role-tag ${roleTagClass}">${roleText}</span>
+            <span class="m-conflict-code">${c.session.code}</span>
+            <span class="m-conflict-time">${c.session.time}</span>
+            <span class="m-conflict-venue">📍 ${escapeHtml(c.session.venue)}</span>
+            <span class="m-conflict-overlap-pill">⚡ 重叠 ${c.overlapMin} 分钟</span>
+          </div>
+          <div class="m-conflict-topic">${escapeHtml(c.session.topic)}</div>
+        </div>
+      `;
+    }).join('');
+
+    conflictsListHtml = `
+      <div class="m-conflicts-section-label">冲突日程清单（共 ${conflicts.length} 场）：</div>
+      <div class="m-conflicts-list">
+        ${conflictCardsHtml}
+      </div>
+    `;
+
+    // 3. Clean decision actions (no subtitles or redundant remarks)
     actionsHtml = `
-      <button type="button" class="m-popup-btn btn-replace" onclick="resolveMatrixAction(${seq}, 'replace_primary')">
-        <span class="btn-icon">⭐</span>
-        <span class="btn-text-wrap">
-          <span class="btn-main-text">设为主选（原主选自动转备选）</span>
-          <span class="btn-sub-text">将本场升级为主选，原主选保留为备选</span>
-        </span>
-      </button>
-      <button type="button" class="m-popup-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'add_backup')">
-        <span class="btn-icon">📌</span>
-        <span class="btn-text-wrap">
-          <span class="btn-main-text">设为备选（和平共存）</span>
-          <span class="btn-sub-text">保留原主选不变，将本场作为备选关注</span>
-        </span>
-      </button>
-      <button type="button" class="m-popup-btn btn-cancel" onclick="closeMatrixConflictPopup()">
-        <span class="btn-icon">✕</span>
-        <span class="btn-main-text">取消（暂不加入）</span>
-      </button>
+      <div class="m-decision-actions">
+        <button type="button" class="m-decision-btn btn-primary" onclick="resolveMatrixAction(${seq}, 'join_primary')">
+          ⭐ 加入主选
+        </button>
+        <button type="button" class="m-decision-btn btn-backup" onclick="resolveMatrixAction(${seq}, 'join_backup')">
+          📌 加入备选
+        </button>
+        <button type="button" class="m-decision-btn btn-cancel" onclick="closeMatrixConflictPopup()">
+          ✕ 放弃
+        </button>
+      </div>
     `;
   }
 
@@ -1652,6 +1783,8 @@ function showMatrixSessionPopup(event, seq, mode, conflicts = []) {
         </div>
         ${hintHtml}
       </div>
+      ${timelineHtml}
+      ${conflictsListHtml}
       <div class="m-popup-actions">
         ${actionsHtml}
       </div>
@@ -1722,7 +1855,7 @@ function resolveMatrixAction(targetSeq, action) {
     state.plan[targetSeq].role = 'primary';
     savePlanToStorage();
     showToast(`⭐ 已将 ${s.code} 升级为必听主选！`);
-  } else if (action === 'backup_to_primary_resolve' || action === 'replace_primary') {
+  } else if (action === 'backup_to_primary_resolve' || action === 'replace_primary' || action === 'join_primary') {
     conflicts.forEach(c => {
       if (state.plan[c.session.seq] && state.plan[c.session.seq].role === 'primary') {
         state.plan[c.session.seq].role = 'backup';
@@ -1736,12 +1869,12 @@ function resolveMatrixAction(targetSeq, action) {
     };
     savePlanToStorage();
     const confCodes = conflicts.map(c => c.session.code).join('、');
-    showToast(`⭐ 已将 ${s.code} 设为主选${confCodes ? `，冲突的 ${confCodes} 已转为备选` : ''}！`);
+    showToast(`⭐ 已将 ${s.code} 设为主选${confCodes ? `，冲突主选 ${confCodes} 已转为备选` : ''}！`);
   } else if (action === 'primary_to_backup') {
     state.plan[targetSeq].role = 'backup';
     savePlanToStorage();
     showToast(`📌 已将 ${s.code} 转为备选赶场`);
-  } else if (action === 'add_backup') {
+  } else if (action === 'add_backup' || action === 'join_backup') {
     state.plan[targetSeq] = {
       seq: targetSeq,
       role: 'backup',
@@ -1749,7 +1882,7 @@ function resolveMatrixAction(targetSeq, action) {
       addedAt: Date.now()
     };
     savePlanToStorage();
-    showToast(`📌 已将 ${s.code} 设置为备选计划`);
+    showToast(`📌 已将 ${s.code} 加入备选日程`);
   } else if (action === 'remove') {
     removeSessionFromPlan(targetSeq);
   }
@@ -1966,7 +2099,7 @@ function handleSessionAction(seq, event) {
     return;
   }
 
-  const conflicts = getConflictsWithPlan(seq, 'primary');
+  const conflicts = getConflictsWithPlan(seq, 'all');
   if (conflicts.length === 0) {
     addSessionToPlan(seq, 'primary');
   } else {
