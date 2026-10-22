@@ -12,6 +12,14 @@
 
 ---
 
+## 📸 实机界面预览
+
+| 🏛️ 11厅全景时刻表与9大话题排期 | 🎨 Canvas 高清个性化海报长图工作室 |
+| :---: | :---: |
+| ![全景时刻表与9大话题排期](assets/screenshot-schedule-view.png) | ![全能海报导出工作室](assets/screenshot-export-studio.png) |
+
+---
+
 ## 🌟 系统核心特色
 
 ### 1. 🏛️ 11 厅全景全天排期与矩阵漫游
