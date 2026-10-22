@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>第六届狂喜播客节·叁狂+｜节目查询与个人收听计划表生成系统</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+  <!-- Instant Matrix Hover Tooltip -->
+  <div id="matrixHoverTooltip" class="matrix-hover-tooltip"></div>
+
+  <!-- ==================== HERO HEADER ==================== -->
+  <header class="hero-header">
+    <div class="container">
+      <div class="hero-top-row">
+        <div>
+          <div class="hero-badge-row">
+            <span class="badge-festival">PODCAST FESTIVAL 2026</span>
+          </div>
+          <h1 class="hero-title">第六届狂喜播客节 · <span class="accent">叁狂+</span></h1>
+          <p class="hero-subtitle">
+            全天 88 场深度对话 · 支持按主播/嘉宾精准查课、一键追更主播全天行程、跨厅时间冲突智能检测，并生成专属高清收听计划表下载。
+          </p>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-num" id="statTotalSessions">88</div>
+            <div class="stat-label">对话场次</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statTotalSpeakers">213</div>
+            <div class="stat-label">主播与嘉宾</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">11</div>
+            <div class="stat-label">平行空间/圆桌</div>
+          </div>
+          <div class="stat-card" style="border-color: rgba(232,67,36,0.45); background: rgba(232,67,36,0.14); cursor: pointer;" onclick="openPlanDrawer()">
+            <div class="stat-num" id="heroPlannedCount">0</div>
+            <div class="stat-label">我的已选场次 ↗</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== STICKY CONTROL BAR ==================== -->
+  <section class="control-bar-wrap">
+    <div class="container control-grid">
+      <div class="control-top-row">
+        <!-- View Switcher -->
+        <div class="view-tabs" role="tablist">
+          <button class="view-tab active" id="tabMatrix" onclick="switchView('matrix')">
+            <span class="tab-label-full">🗺️ 11厅全景时刻表</span>
+            <span class="tab-label-short">🗺️ 11厅全景</span>
+          </button>
+          <button class="view-tab" id="tabTimeline" onclick="switchView('timeline')">
+            <span class="tab-label-full">🕒 时间轴排期</span>
+            <span class="tab-label-short">🕒 时间轴</span>
+            <span class="tab-badge" id="badgeFilteredCount">88</span>
+          </button>
+          <button class="view-tab" id="tabSpeakers" onclick="switchView('speakers')">
+            <span class="tab-label-full">🎙️ 主播/嘉宾查询</span>
+            <span class="tab-label-short">🎙️ 主播</span>
+            <span class="tab-badge" id="badgeSpeakersCount">213</span>
+          </button>
+        </div>
+
+        <!-- Instant Search Input -->
+        <div class="search-and-filter-wrap">
+          <div class="search-box-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="搜主播姓名（如：罗叔、付宇）、播客/Title（如：半拿铁、日谈公园）、话题或场号【01】..."
+              autocomplete="off"
+            />
+            <button id="searchClearBtn" class="search-clear-btn" onclick="clearSearch()" title="清空搜索内容">✕ 清空</button>
+          </div>
+        </div>
+
+        <!-- Plan Actions -->
+        <div class="header-plan-actions">
+          <button class="btn btn-danger-soft btn-header-clear-plan" id="btnMainClearPlan" onclick="clearAllPlan()" title="一键清空个人收听计划" style="display: none;">
+            🗑️ 清空计划
+          </button>
+          <button class="btn btn-secondary" onclick="openPlanDrawer()">
+            📋 我的计划表 <span class="plan-count-badge" id="topPlanCount" style="background: #16A34A; color: #fff;">0</span>
+          </button>
+          <button class="btn btn-primary" onclick="openExportStudio()">
+            ✨ 生成并下载计划表
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="container main-content">
+    <!-- Speaker Spotlight Banner (Rendered dynamically when a speaker is selected or matched via search) -->
+    <div id="speakerSpotlightContainer"></div>
+
+    <!-- VIEW 1: 11-HALL MATRIX TIMETABLE -->
+    <section id="viewMatrix">
+      <div class="results-summary-bar">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div>
+            <strong>🗺️ 上海·CMG融媒影城 11厅全景甘特时刻表 (08:30 – 21:00)</strong>
+            <span class="matrix-summary-sub">左右滑动横向对比同一时间段 11 个空间的平行场次，点击色块即可加入或管理收听计划</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnToggleFullwidth" onclick="toggleFullwidthMode()" title="切换全宽/满屏模式，尽量在一屏内完整展开全部时间轴">
+            <span id="txtFullwidth">🖥️ 满屏自适应</span>
+          </button>
+        </div>
+        <div id="matrixActiveSearchBox"></div>
+      </div>
+      <div class="matrix-view-container">
+        <div class="matrix-legend">
+          <span class="legend-item"><span class="legend-dot" style="background: #16A34A;"></span> 已选：必听主选</span>
+          <span class="legend-item"><span class="legend-dot" style="background: #FEF3C7; border: 1.5px dashed #D97706;"></span> 已选：备选/赶场</span>
+          <span class="legend-item"><span class="legend-dot" style="background: #FFF5F5; border: 1.5px solid #FCA5A5;"></span> 与已选主选时间冲突</span>
+          <span class="legend-item"><span class="legend-dot" style="background: #fff; border: 1.5px solid var(--border-strong);"></span> 未选可排场次</span>
+        </div>
+        <div class="matrix-scroll-inner" id="matrixScrollInner"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: TIMELINE SCHEDULE -->
+    <section id="viewTimeline" style="display: none;">
+      <div class="results-summary-bar">
+        <div id="timelineSummaryText">正在显示全部 88 场对话（按开始时间排序）</div>
+        <div id="timelineActiveSearchBox"></div>
+        <div class="summary-tip-text">
+          <span>💡 提示：点击任意<strong>主播姓名标签</strong>可查看 TA 的全天行程并一键规划；时间重叠场次会自动预警。</span>
+        </div>
+      </div>
+      <!-- Quick Time-Slot Jump Strip -->
+      <div id="timeSlotJumpBar" class="time-jump-bar"></div>
+      <div id="timelineGroupsContainer"></div>
+    </section>
+
+    <!-- VIEW 3: SPEAKER DIRECTORY & SEARCH -->
+    <section id="viewSpeakers" style="display: none;">
+      <div class="speakers-directory-header">
+        <div>
+          <h2 style="font-size: 20px; font-weight: 800;">🎙️ 主播与嘉宾检索中心（共 213 位）</h2>
+          <p style="font-size: 13px; color: var(--text-secondary);">
+            支持按主播姓名查询节目单，或点击「一键规划 TA 的全部场次」将该主播全天节目加入你的个人收听计划表。
+          </p>
+        </div>
+        <div class="filter-group filter-group-scroll">
+          <span class="filter-label">出场频次：</span>
+          <button class="filter-chip active" data-spfilter="all" onclick="setSpeakerFreqFilter('all')">全部主播 (213)</button>
+          <button class="filter-chip" data-spfilter="3plus" onclick="setSpeakerFreqFilter('3plus')">劳模主播 ≥3场 (25)</button>
+          <button class="filter-chip" data-spfilter="2" onclick="setSpeakerFreqFilter('2')">2场嘉宾 (58)</button>
+          <button class="filter-chip" data-spfilter="1" onclick="setSpeakerFreqFilter('1')">1场嘉宾 (130)</button>
+          <button class="filter-chip" id="btnToggleAllSpeakers" onclick="toggleAllSpeakersExpand()" style="margin-left: auto;">展开全部场次 ▾</button>
+        </div>
+      </div>
+      <div class="speakers-grid" id="speakersDirectoryGrid"></div>
+    </section>
+  </main>
+
+  <!-- Floating Back-to-Top Button -->
+  <button id="btnBackToTop" class="back-to-top-btn" onclick="scrollToTopSmooth()" title="回到顶部">↑</button>
+
+  <!-- ==================== RIGHT DRAWER: MY LISTENING PLAN ==================== -->
+  <div class="drawer-backdrop" id="planDrawerBackdrop" onclick="if(event.target===this) closePlanDrawer()">
+    <aside class="plan-drawer">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800;">📋 我的个人收听计划表</h3>
+          <p style="font-size: 12px; color: #B8B2A8; margin-top: 2px;" id="drawerSubtitle">
+            2026年10月25日（周日）· 上海·CMG融媒影城
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn btn-secondary btn-sm btn-drawer-clear-top" onclick="clearAllPlan()" title="清空收听计划">🗑️ 清空计划</button>
+          <button class="btn btn-secondary btn-sm" onclick="closePlanDrawer()">关闭 ✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Summary & Conflict Auto-Fix Bar -->
+        <div id="drawerAlertBox" style="margin-bottom: 14px;"></div>
+
+        <!-- Planned Timeline List -->
+        <div id="drawerTimelineContainer" class="plan-timeline-list"></div>
+      </div>
+
+      <div class="drawer-footer">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-sm" onclick="clearAllPlan()">🗑️ 清空计划</button>
+          <button class="btn btn-secondary btn-sm" onclick="autoResolvePlanConflicts()" id="btnAutoResolve" style="display: none;">
+            🛠️ 一键将冲突场次转为备选
+          </button>
+        </div>
+        <button class="btn btn-primary" onclick="closePlanDrawer(); openExportStudio();">
+          ✨ 生成计划表海报 / 导出下载 →
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ==================== MODAL 1: CONFLICT RESOLUTION DIALOG ==================== -->
+  <div class="modal-backdrop" id="conflictModalBackdrop" onclick="if(event.target===this) closeConflictModal()">
+    <div class="modal-card modal-conflict">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">⚡</span>
+          <h3 style="font-size: 17px; font-weight: 800;">发现时间冲突，请选择规划方式</h3>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeConflictModal()">✕</button>
+      </div>
+      <div class="modal-body" id="conflictModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: PERSONAL SCHEDULE GENERATOR & DOWNLOAD STUDIO ==================== -->
+  <div class="modal-backdrop" id="exportStudioBackdrop" onclick="if(event.target===this) closeExportStudio()">
+    <div class="modal-card modal-xl">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800;">📥 个人收听计划表生成器与下载中心</h3>
+          <p style="font-size: 12px; color: #B8B2A8;">支持导出高清长图海报 (.png)、手机日历提醒 (.ics)、Excel 表格 (.csv) 及打印 PDF</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeExportStudio()">关闭 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="export-studio-grid">
+          <!-- Left Controls -->
+          <div class="export-controls-panel">
+            <div class="form-group">
+              <label for="posterUserName">听友昵称 / 计划表署名</label>
+              <input
+                type="text"
+                id="posterUserName"
+                class="form-input"
+                value="狂喜听友"
+                placeholder="输入你的名字或昵称..."
+                oninput="renderSchedulePosterCanvas()"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="posterTitleInput">自定义副标题 / 听会宣言</label>
+              <input
+                type="text"
+                id="posterTitleInput"
+                class="form-input"
+                value="在CMG融媒影城，打捞一整天的声音奇遇"
+                placeholder="输入一句标语..."
+                oninput="renderSchedulePosterCanvas()"
+              />
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label for="posterThemeSelect" style="margin-bottom: 0;">计划表设计风格</label>
+                <span class="badge-style-highlight">⚡ 不太保险定制系列</span>
+              </div>
+              <!-- Quick Style Select Chips -->
+              <div class="poster-style-chips" id="posterStyleChips">
+                <button type="button" class="btn-style-chip active" data-style="receipt" onclick="setPosterTheme('receipt')">🧾 超市小票</button>
+                <button type="button" class="btn-style-chip" data-style="menu" onclick="setPosterTheme('menu')">🍽️ 声音菜单</button>
+                <button type="button" class="btn-style-chip" data-style="letter" onclick="setPosterTheme('letter')">✉️ 机密信纸</button>
+                <button type="button" class="btn-style-chip" data-style="noninsurance" onclick="setPosterTheme('noninsurance')">⚠️ 警示黄黑</button>
+                <button type="button" class="btn-style-chip" data-style="punk" onclick="setPosterTheme('punk')">⚡ 狂喜朋克</button>
+                <button type="button" class="btn-style-chip" data-style="festival" onclick="setPosterTheme('festival')">🔥 经典黑金</button>
+              </div>
+              <select id="posterThemeSelect" class="form-input" onchange="onPosterThemeSelectChange(this.value)">
+                <optgroup label="🌟 「不太保险」创意定制系列（推荐）">
+                  <option value="receipt" selected>🧾 不太保险 · 狂喜超市小票（热敏纸 / 锯齿撕边 / 条形码）</option>
+                  <option value="menu">🍽️ 不太保险 · 声音食堂特调菜单（招牌硬菜 / 餐单品鉴）</option>
+                  <option value="letter">✉️ 不太保险 · 调查局行动信纸（绝密手记 / 复古信笺）</option>
+                  <option value="noninsurance">⚠️ 不太保险 · 经典警示黄黑（官方联名 / 警戒胶带）</option>
+                </optgroup>
+                <optgroup label="🎨 狂喜播客节经典视觉系列">
+                  <option value="punk">⚡ 狂喜粉蓝朋克 · 官方主视觉</option>
+                  <option value="festival">🔥 狂喜黑金 · 经典电台风</option>
+                  <option value="paper">📜 暖米手账 · 复古纸感</option>
+                  <option value="clean">☀️ 清爽白昼 · 极简课表</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group" style="gap: 8px;">
+              <label>显示内容选项</label>
+              <label class="toggle-check" style="border-radius: 8px; justify-content: flex-start;">
+                <input type="checkbox" id="chkPosterShowBackup" checked onchange="renderSchedulePosterCanvas()" />
+                <span>包含「备选/赶场」场次</span>
+              </label>
+              <label class="toggle-check" style="border-radius: 8px; justify-content: flex-start;">
+                <input type="checkbox" id="chkPosterShowTransfer" checked onchange="renderSchedulePosterCanvas()" />
+                <span>显示跨楼层换场与冲突提醒</span>
+              </label>
+              <label class="toggle-check" style="border-radius: 8px; justify-content: flex-start;">
+                <input type="checkbox" id="chkPosterShowPartners" checked onchange="renderSchedulePosterCanvas()" />
+                <span>附带官方合作伙伴与购票二维码</span>
+              </label>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-subtle);" />
+
+            <div class="export-buttons-stack">
+              <button class="btn btn-primary" onclick="downloadPosterPng()" style="width: 100%; justify-content: center; padding: 11px;">
+                🖼️ 下载高清计划表长图 (.PNG)
+              </button>
+              <button class="btn btn-dark" onclick="downloadIcsCalendar()" style="width: 100%; justify-content: center;">
+                📅 导出到手机/电脑日历 (.ICS)
+              </button>
+              <button class="btn btn-secondary" onclick="downloadPersonalCsv()" style="width: 100%; justify-content: center;">
+                📊 下载 Excel 个人课表 (.CSV)
+              </button>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" onclick="copyShareText()">
+                  📋 复制文字版
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="printPersonalSchedule()">
+                  🖨️ 打印 / PDF
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Poster Live Preview -->
+          <div class="export-preview-wrap">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600; text-align: center;">
+              👇 实时高清课表预览（手机端可<strong>长按下方图片</strong>保存到相册，电脑端可右键另存为）
+            </div>
+            <img id="schedulePosterImg" alt="个人收听计划表海报预览" style="display: none;" />
+            <canvas id="schedulePosterCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MATRIX CONFLICT QUICK ACTION POPUP ==================== -->
+  <div id="matrixConflictPopupBackdrop" class="matrix-popup-backdrop" onclick="if(event.target===this) closeMatrixConflictPopup()">
+    <div id="matrixConflictPopup" class="matrix-conflict-popup">
+      <div id="matrixConflictPopupContent"></div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: CUSTOM ALERT & CONFIRM DIALOG ==================== -->
+  <div class="modal-backdrop" id="customDialogBackdrop" onclick="if(event.target===this) handleCustomDialogResponse(false)">
+    <div class="modal-card custom-dialog-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="customDialogIcon" style="font-size: 20px;">💬</span>
+          <h3 id="customDialogTitle" style="font-size: 16px; font-weight: 800;">提示</h3>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="handleCustomDialogResponse(false)">✕</button>
+      </div>
+      <div class="modal-body custom-dialog-body">
+        <p id="customDialogMessage" class="custom-dialog-text"></p>
+      </div>
+      <div class="custom-dialog-footer">
+        <button id="customDialogCancelBtn" class="btn btn-secondary btn-sm" onclick="handleCustomDialogResponse(false)">取消</button>
+        <button id="customDialogConfirmBtn" class="btn btn-primary btn-sm" onclick="handleCustomDialogResponse(true)">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
