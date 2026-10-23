@@ -6,7 +6,7 @@ window.FESTIVAL_META = {
   "isoDate": "2026-10-25",
   "location": "上海·CMG融媒影城",
   "totalSessions": 88,
-  "totalSpeakers": 211,
+  "totalSpeakers": 210,
   "totalVenues": 11,
   "note": "说明：浅黄色整行 = 可增补主播/嘉宾的场次（共0场）；橙黄色空格 = 按每场4人计、待填写的位置（共0个）",
   "venues": [
@@ -984,13 +984,11 @@ window.SESSIONS_DATA = [
     "speakers": [
       "老袁",
       "蛋挞",
-      "林希言",
       "德福"
     ],
     "rawSpeakers": [
       "老袁",
       "蛋挞",
-      "林希言",
       "德福"
     ],
     "openSlots": 0,
@@ -2356,14 +2354,12 @@ window.SESSIONS_DATA = [
     "speakers": [
       "月莞柔",
       "农场主又在拉肚",
-      "林希言",
       "李天域 Jack",
       "Tanya"
     ],
     "rawSpeakers": [
       "月莞柔",
       "农场主又在拉肚",
-      "林希言",
       "李天域 Jack",
       "Tanya"
     ],
@@ -3948,14 +3944,12 @@ window.SESSIONS_DATA = [
     "speakers": [
       "乌素",
       "栗噔噔",
-      "sky陈天",
-      "林希言"
+      "sky陈天"
     ],
     "rawSpeakers": [
       "乌素",
       "栗噔噔",
-      "sky陈天",
-      "林希言"
+      "sky陈天"
     ],
     "openSlots": 0,
     "hasOpenSlots": false,
@@ -5667,29 +5661,6 @@ window.SPEAKERS_DATA = [
       "社会·历史·世界"
     ],
     "title": "上海财经大学副教授，经济学者"
-  },
-  {
-    "name": "林希言",
-    "aliases": [
-      "林希言"
-    ],
-    "count": 3,
-    "sessionSeqs": [
-      17,
-      48,
-      84
-    ],
-    "sessionCodes": [
-      "【81】",
-      "【23】",
-      "【39】"
-    ],
-    "tags": [
-      "播客创作者",
-      "城市生活方式",
-      "AI浪潮"
-    ],
-    "title": "灵感爆棚"
   },
   {
     "name": "凛十七",
