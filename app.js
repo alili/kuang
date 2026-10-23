@@ -102,6 +102,8 @@ const state = {
 
 // ==================== INITIALIZATION ====================
 function initApp() {
+  const elTotalSp = document.getElementById('statTotalSpeakers');
+  if (elTotalSp) elTotalSp.textContent = SPEAKERS.length;
   initPosterAssets();
   loadPlanFromStorage();
   try {

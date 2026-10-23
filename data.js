@@ -6,7 +6,7 @@ window.FESTIVAL_META = {
   "isoDate": "2026-10-25",
   "location": "上海·CMG融媒影城",
   "totalSessions": 88,
-  "totalSpeakers": 213,
+  "totalSpeakers": 211,
   "totalVenues": 11,
   "note": "说明：浅黄色整行 = 可增补主播/嘉宾的场次（共0场）；橙黄色空格 = 按每场4人计、待填写的位置（共0个）",
   "venues": [
@@ -676,13 +676,13 @@ window.SESSIONS_DATA = [
     "speakers": [
       "草头方",
       "Maggie玫",
-      "徐莹Luna",
+      "徐莹 Luna",
       "郭三圻"
     ],
     "rawSpeakers": [
       "草头方",
-      "maggie玫",
-      "徐莹Luna",
+      "Maggie玫",
+      "徐莹 Luna",
       "郭三圻"
     ],
     "openSlots": 0,
@@ -1508,13 +1508,13 @@ window.SESSIONS_DATA = [
     "floor": "一楼",
     "topic": "换一种活法去看见：走出信息茧房，看看别人的生活",
     "speakers": [
-      "花总",
+      "吴靖",
       "范文兵",
       "关雅荻",
       "红总"
     ],
     "rawSpeakers": [
-      "花总",
+      "吴靖",
       "范文兵",
       "关雅荻",
       "红总"
@@ -2202,9 +2202,8 @@ window.SESSIONS_DATA = [
     "venueShort": "1F · 1号厅",
     "venueOrder": 1,
     "floor": "一楼",
-    "topic": "华为播客元服务视频播客激励榜单发布暨鸿蒙生态下播客内容共创交流",
+    "topic": "华为播客激励榜单发布暨鸿蒙生态下播客内容共创",
     "speakers": [
-      "关雅荻",
       "杨天楠",
       "张红亮",
       "大卫翁",
@@ -2214,10 +2213,10 @@ window.SESSIONS_DATA = [
       "江东猫草",
       "阑夕",
       "羊行",
-      "罗秋葵"
+      "罗秋葵",
+      "关雅荻"
     ],
     "rawSpeakers": [
-      "关雅荻",
       "杨天楠",
       "张红亮",
       "大卫翁",
@@ -2227,7 +2226,8 @@ window.SESSIONS_DATA = [
       "江东猫草",
       "阑夕",
       "羊行",
-      "罗秋葵"
+      "罗秋葵",
+      "关雅荻"
     ],
     "openSlots": 0,
     "hasOpenSlots": false,
@@ -2310,13 +2310,13 @@ window.SESSIONS_DATA = [
     "floor": "一楼",
     "topic": "镜头的分寸：纪录片和 vlog 里的「真实」是怎么拍出来的？",
     "speakers": [
-      "花总",
+      "刘潇阳",
       "老庄",
       "丁大根儿",
       "李淼"
     ],
     "rawSpeakers": [
-      "花总",
+      "刘潇阳",
       "老庄",
       "丁大根儿",
       "李淼"
@@ -2844,7 +2844,7 @@ window.SESSIONS_DATA = [
     "venueShort": "3F · 7号厅",
     "venueOrder": 10,
     "floor": "三楼",
-    "topic": "卷不动了，去开客栈吧？三位播客创业者重现身体经济的真相",
+    "topic": "卷不动了，去开瑜伽馆？三位瑜伽创业者揭秘身体经济的真相",
     "speakers": [
       "韩欣",
       "董飞跃",
@@ -3505,13 +3505,13 @@ window.SESSIONS_DATA = [
     "topic": "从移动互联网到 AI，普通人如何从中受益更多？",
     "speakers": [
       "Ailing小狼",
-      "陈耀霖",
+      "栗噔噔",
       "判官",
       "乌素"
     ],
     "rawSpeakers": [
       "Ailing小狼",
-      "陈耀霖",
+      "栗噔噔",
       "判官",
       "乌素"
     ],
@@ -3548,7 +3548,7 @@ window.SESSIONS_DATA = [
     "floor": "一楼",
     "topic": "老派上海小囡的上海老字号citywalk路线大PK",
     "speakers": [
-      "徐莹Luna",
+      "徐莹 Luna",
       "Humphrey韩非",
       "老A",
       "糖医生lesley"
@@ -4464,23 +4464,6 @@ window.SPEAKERS_DATA = [
     "title": "搞钱学姐"
   },
   {
-    "name": "陈耀霖",
-    "aliases": [
-      "陈耀霖"
-    ],
-    "count": 1,
-    "sessionSeqs": [
-      74
-    ],
-    "sessionCodes": [
-      "【60】"
-    ],
-    "tags": [
-      "AI浪潮"
-    ],
-    "title": "Monolith第一推动"
-  },
-  {
     "name": "乘龙",
     "aliases": [
       "乘龙"
@@ -5148,25 +5131,6 @@ window.SPEAKERS_DATA = [
     "title": ""
   },
   {
-    "name": "花总",
-    "aliases": [
-      "花总"
-    ],
-    "count": 2,
-    "sessionSeqs": [
-      29,
-      47
-    ],
-    "sessionCodes": [
-      "【14】",
-      "【22】"
-    ],
-    "tags": [
-      "社会·历史·世界"
-    ],
-    "title": "纪录片制作人"
-  },
-  {
     "name": "黄涵涵",
     "aliases": [
       "黄涵涵"
@@ -5671,11 +5635,13 @@ window.SPEAKERS_DATA = [
     "aliases": [
       "栗噔噔"
     ],
-    "count": 1,
+    "count": 2,
     "sessionSeqs": [
+      74,
       84
     ],
     "sessionCodes": [
+      "【60】",
       "【39】"
     ],
     "tags": [
@@ -5790,15 +5756,18 @@ window.SPEAKERS_DATA = [
     "aliases": [
       "刘潇阳"
     ],
-    "count": 1,
+    "count": 2,
     "sessionSeqs": [
-      36
+      36,
+      47
     ],
     "sessionCodes": [
-      "【56】"
+      "【56】",
+      "【22】"
     ],
     "tags": [
-      "AI浪潮"
+      "AI浪潮",
+      "社会·历史·世界"
     ],
     "title": "《燃烧吧！爸爸》导演"
   },
@@ -7081,17 +7050,20 @@ window.SPEAKERS_DATA = [
     "aliases": [
       "吴靖"
     ],
-    "count": 2,
+    "count": 3,
     "sessionSeqs": [
       20,
+      29,
       42
     ],
     "sessionCodes": [
       "【10】",
+      "【14】",
       "【66】"
     ],
     "tags": [
       "家庭·关系·自我",
+      "社会·历史·世界",
       "商业·财经·职场"
     ],
     "title": "电影《拼桌》导演"
@@ -7483,7 +7455,7 @@ window.SPEAKERS_DATA = [
     "title": "下下签-摸鱼良品"
   },
   {
-    "name": "徐莹Luna",
+    "name": "徐莹 Luna",
     "aliases": [
       "徐莹 Luna",
       "徐莹Luna"
