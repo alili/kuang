@@ -2759,8 +2759,11 @@ function renderPlanDrawerContent() {
 
         <div style="font-weight:700; font-size:14.5px; color:var(--text-primary);">${escapeHtml(s.topic)}</div>
 
-        <div style="font-size:12px; color:var(--text-secondary);">
-          🎙️ 主播/嘉宾：<strong>${escapeHtml(s.speakers.join('、') || '虚位以待')}</strong>
+        <div style="font-size:12px; color:var(--text-secondary); display:flex; flex-wrap:wrap; align-items:center; gap:2px;">
+          <span style="white-space:nowrap; flex-shrink:0;">🎙️ 主播/嘉宾：</span>
+          ${s.speakers.length > 0
+            ? s.speakers.map(sp => `<strong class="speaker-name-unbreakable">${escapeHtml(sp)}</strong>`).join('<span class="speaker-separator">、</span>')
+            : '<span style="color:var(--text-muted);">虚位以待</span>'}
         </div>
 
         <div>
@@ -2808,20 +2811,65 @@ function getPlannedItemsForExport() {
     .sort((a, b) => a.session.startMin - b.session.startMin || (a.role === 'primary' ? -1 : 1));
 }
 
+// 通用 Canvas 文字换行：支持中英文词法边界保护，尽量不打碎英文单词与标点
 function wrapCanvasText(ctx, text, maxWidth) {
-  const chars = Array.from(text);
+  if (!text) return [];
+  const tokens = String(text).match(/[\w]+|[^\w]/g) || Array.from(String(text));
   const lines = [];
   let currentLine = '';
-  for (let i = 0; i < chars.length; i++) {
-    const testLine = currentLine + chars[i];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    const testLine = currentLine + token;
     if (ctx.measureText(testLine).width > maxWidth && currentLine.length > 0) {
       lines.push(currentLine);
-      currentLine = chars[i];
+      if (ctx.measureText(token).width > maxWidth) {
+        const subChars = Array.from(token);
+        currentLine = '';
+        for (let j = 0; j < subChars.length; j++) {
+          if (ctx.measureText(currentLine + subChars[j]).width > maxWidth && currentLine.length > 0) {
+            lines.push(currentLine);
+            currentLine = subChars[j];
+          } else {
+            currentLine += subChars[j];
+          }
+        }
+      } else {
+        currentLine = token;
+      }
     } else {
       currentLine = testLine;
     }
   }
   if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
+// 海报生成专用：确保每个主播/嘉宾的名字作为不可分割的独立整体换行，绝不从人名中间拆断
+function wrapCanvasSpeakersText(ctx, prefix, speakers, maxWidth) {
+  const spList = (speakers || []).map(s => String(s).trim()).filter(Boolean);
+  if (spList.length === 0) {
+    return [prefix + '虚位以待'];
+  }
+  const lines = [];
+  let currentLine = prefix;
+
+  for (let i = 0; i < spList.length; i++) {
+    const sp = spList[i];
+    const isFirstInLine = (currentLine === prefix || currentLine === '');
+    const candidatePart = (isFirstInLine ? '' : '、') + sp;
+    const testLine = currentLine + candidatePart;
+
+    if (ctx.measureText(testLine).width <= maxWidth || isFirstInLine) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = sp;
+    }
+  }
+  if (currentLine) {
+    lines.push(currentLine);
+  }
   return lines;
 }
 
@@ -3003,9 +3051,8 @@ function renderKuanivalReceiptPoster(canvas, ctx, items, userName, customSub, sh
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 20);
-    const spText = '主讲: ' + (s.speakers.join('、') || '特邀主讲');
     ctx.font = '13.5px "JetBrains Mono", Courier, monospace';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 20);
+    const spLines = wrapCanvasSpeakersText(ctx, '主讲: ', s.speakers.length > 0 ? s.speakers : ['特邀主讲'], contentW - 20);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -3294,9 +3341,8 @@ function renderNoninsuranceMenuPoster(canvas, ctx, items, userName, customSub, s
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 140);
-    const spText = '主料配菜：' + (s.speakers.join('、') || '特邀主厨');
     ctx.font = '14px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 40);
+    const spLines = wrapCanvasSpeakersText(ctx, '主料配菜：', s.speakers.length > 0 ? s.speakers : ['特邀主厨'], contentW - 40);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -3514,9 +3560,8 @@ function renderNoninsuranceLetterPoster(canvas, ctx, items, userName, customSub,
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 50);
-    const spText = '涉案线人：' + (s.speakers.join('、') || '身份保密');
     ctx.font = '14px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 50);
+    const spLines = wrapCanvasSpeakersText(ctx, '涉案线人：', s.speakers.length > 0 ? s.speakers : ['身份保密'], contentW - 50);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -3860,9 +3905,8 @@ function renderNoninsurancePoster(canvas, ctx, items, userName, customSub, showT
   const cardLayouts = items.map((item, idx) => {
     const s = item.session;
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 46);
-    const spText = '🎙️ 出镜嘉宾：' + (s.speakers.join('、') || '特邀嘉宾');
     ctx.font = '14.5px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 46);
+    const spLines = wrapCanvasSpeakersText(ctx, '🎙️ 出镜嘉宾：', s.speakers.length > 0 ? s.speakers : ['特邀嘉宾'], contentW - 46);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -4323,9 +4367,8 @@ function renderCrimeScenePoster(canvas, ctx, items, userName, customSub, showTra
     const s = item.session;
     ctx.font = 'bold 18px "PingFang SC", "Microsoft YaHei", sans-serif';
     const topicLines = wrapCanvasText(ctx, s.topic, contentW - 56);
-    const spText = '🎙️ 关键涉案人：' + (s.speakers.join('、') || '特邀涉案嘉宾');
     ctx.font = '14px "PingFang SC", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, contentW - 56);
+    const spLines = wrapCanvasSpeakersText(ctx, '🎙️ 关键涉案人：', s.speakers.length > 0 ? s.speakers : ['特邀涉案嘉宾'], contentW - 56);
 
     let transferText = '';
     if (showTransfer && idx > 0) {
@@ -4857,9 +4900,8 @@ function renderSchedulePosterCanvas() {
     const textAvailableW = isPunk ? ticketTextW : (contentW - 44);
     ctx.font = '900 19px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
     const topicLines = wrapCanvasText(ctx, s.topic, textAvailableW);
-    const spText = '🎙️ 主播/嘉宾：' + (s.speakers.join('、') || '虚位以待');
     ctx.font = '14px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-    const spLines = wrapCanvasText(ctx, spText, textAvailableW);
+    const spLines = wrapCanvasSpeakersText(ctx, '🎙️ 主播/嘉宾：', s.speakers, textAvailableW);
 
     let transferText = '';
     let isConflict = false;

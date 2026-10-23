@@ -814,6 +814,8 @@ body.fullwidth-mode .container {
   font-size: 11.5px;
   color: var(--text-secondary);
   font-weight: 600;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 .co-speaker-chip {
@@ -829,6 +831,9 @@ body.fullwidth-mode .container {
   align-items: center;
   gap: 3px;
   transition: all 0.15s ease;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .co-speaker-chip:hover {
@@ -843,6 +848,9 @@ body.fullwidth-mode .container {
   border-color: var(--border-strong);
   background: var(--bg-surface);
   color: var(--text-primary);
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .co-speaker-empty {
@@ -972,6 +980,9 @@ body.fullwidth-mode .container {
   background: var(--brand-primary-soft);
   padding: 1px 5px;
   border-radius: 3px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .session-time-pill {
@@ -982,6 +993,9 @@ body.fullwidth-mode .container {
   background: var(--bg-muted);
   padding: 1px 6px;
   border-radius: 3px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .venue-badge {
@@ -989,6 +1003,9 @@ body.fullwidth-mode .container {
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 3px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .venue-badge.floor-1 {
@@ -1277,10 +1294,14 @@ body.fullwidth-mode .container {
   align-items: center;
   gap: 3px;
   max-width: 100%;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
 }
 
 .speaker-chip-name {
-  white-space: nowrap;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -1917,6 +1938,8 @@ body.fullwidth-mode .container {
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.3;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
 }
 
 .speaker-title-text {
@@ -2005,6 +2028,8 @@ body.fullwidth-mode .container {
   border-radius: 4px;
   border: 1px solid var(--border-subtle);
   line-height: 1.2;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 .sp-plan-status-pill {
@@ -2015,6 +2040,22 @@ body.fullwidth-mode .container {
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  flex-shrink: 0;
+}
+
+/* 主播/嘉宾姓名全局专属防折断拆字 */
+.speaker-name-unbreakable {
+  display: inline-block;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.speaker-separator {
+  display: inline-block;
+  white-space: nowrap;
+}
   line-height: 1.3;
 }
 
@@ -4970,4 +5011,58 @@ label,
     padding: 12px 14px;
     border-radius: 12px;
   }
+}
+
+/* ==================== GLOBAL NO-WRAP / TEXT PRESERVATION SYSTEM ==================== */
+/* 核心原则：各种地方的文字尽量不要折行，尤其是主播与嘉宾姓名、时间、场号、徽章等 */
+.speaker-name-text,
+.speaker-name-unbreakable,
+.speaker-chip,
+.speaker-chip-name,
+.co-speaker-chip,
+.co-speaker-chip-sm,
+.co-speaker-label,
+.co-chip-title,
+.speaker-pinyin-badge,
+.sp-plan-status-pill,
+.session-code,
+.session-time,
+.session-time-pill,
+.spotlight-session-code-time,
+.venue-badge,
+.time-slot-badge,
+.time-jump-pill,
+.matrix-venue-name,
+.matrix-venue-floor,
+.matrix-ruler-mark,
+.btn-plan-toggle,
+.plan-role-switch-btn,
+.btn-remove-session,
+.view-tab,
+.tab-label-short,
+.tab-label-full,
+.tab-badge,
+.mobile-bottom-plan-bar button,
+.mobile-plan-main-title,
+.mobile-plan-sub-desc,
+.mobile-plan-badge-count,
+.stat-card .stat-label,
+.stat-card .stat-num,
+.filter-label,
+.card-conflict-alert button,
+.spotlight-session-status {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+/* 主播/嘉宾姓名专属防拆断样式 */
+.speaker-name-unbreakable {
+  display: inline-block;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+.speaker-separator {
+  display: inline-block;
+  white-space: nowrap;
 }
